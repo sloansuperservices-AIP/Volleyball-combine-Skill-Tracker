@@ -1,0 +1,67 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: worker-video
+  namespace: volleyball-tracker
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: worker-video
+  template:
+    metadata:
+      labels:
+        app: worker-video
+    spec:
+      containers:
+        - name: worker-video
+          image: volleyball-tracker/api:latest   # shares API image (has FFmpeg)
+          command:
+            - celery
+            - -A
+            - workers.celery_app
+            - worker
+            - -Q
+            - video
+            - -c
+            - "4"
+            - --loglevel=info
+          envFrom:
+            - secretRef:
+                name: app-secrets
+          resources:
+            requests:
+              cpu: "2"
+              memory: "2Gi"
+            limits:
+              cpu: "8"
+              memory: "6Gi"
+          volumeMounts:
+            - name: tmp-uploads
+              mountPath: /tmp/uploads
+            - name: hls-segments
+              mountPath: /var/www/hls
+      volumes:
+        - name: tmp-uploads
+          emptyDir:
+            sizeLimit: 20Gi
+        - name: hls-segments
+          persistentVolumeClaim:
+            claimName: hls-pvc
+---
+apiVersion: keda.sh/v1alpha1
+kind: ScaledObject
+metadata:
+  name: video-worker-scaler
+  namespace: volleyball-tracker
+spec:
+  scaleTargetRef:
+    name: worker-video
+  minReplicaCount: 1
+  maxReplicaCount: 8
+  triggers:
+    - type: redis
+      metadata:
+        address: redis:6379
+        listName: celery
+        listLength: "3"

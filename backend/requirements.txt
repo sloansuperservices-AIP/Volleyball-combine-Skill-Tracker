@@ -1,0 +1,35 @@
+# Web framework
+fastapi==0.115.0
+uvicorn[standard]==0.30.6
+python-multipart==0.0.9
+
+# Database
+asyncpg==0.29.0
+sqlalchemy[asyncio]==2.0.35
+alembic==1.13.3
+psycopg2-binary==2.9.9
+
+# Task queue
+celery[redis]==5.4.0
+redis==5.1.1
+flower==2.0.1  # Celery monitoring
+
+# Object storage
+boto3==1.35.30
+minio==7.2.9
+
+# Video processing
+ffmpeg-python==0.2.0
+
+# Auth & security
+python-jose[cryptography]==3.3.0
+passlib[bcrypt]==1.7.4
+
+# Validation & serialization
+pydantic==2.9.2
+pydantic-settings==2.5.2
+
+# Utils
+httpx==0.27.2
+python-dotenv==1.0.1
+structlog==24.4.0

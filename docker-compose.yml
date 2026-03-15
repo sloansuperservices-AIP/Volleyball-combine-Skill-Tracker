@@ -1,0 +1,169 @@
+services:
+
+  # ─── Nginx: Reverse Proxy + HLS Video Delivery ──────────────────────────────
+  nginx:
+    image: nginx:1.25-alpine
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - hls_segments:/var/www/hls:ro
+    depends_on:
+      - api
+    restart: unless-stopped
+
+  # ─── FastAPI: REST API ────────────────────────────────────────────────────────
+  api:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    env_file: .env
+    ports:
+      - "8000:8000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      minio:
+        condition: service_healthy
+    volumes:
+      - ./backend:/app
+    command: uvicorn main:app --host 0.0.0.0 --port 8000 --reload
+    restart: unless-stopped
+
+  # ─── Celery: Vision Analysis Workers ─────────────────────────────────────────
+  worker-vision:
+    build:
+      context: ./vision-worker
+      dockerfile: Dockerfile
+    env_file: .env
+    depends_on:
+      - redis
+      - postgres
+      - minio
+    # Uncomment for GPU support (requires nvidia-docker2):
+    # deploy:
+    #   resources:
+    #     reservations:
+    #       devices:
+    #         - driver: nvidia
+    #           count: 1
+    #           capabilities: [gpu]
+    command: celery -A workers.celery_app worker -Q vision -c ${CELERY_CONCURRENCY_VISION:-2} --loglevel=info
+    volumes:
+      - ./vision-worker:/app
+      - tmp_frames:/tmp/frames
+    restart: unless-stopped
+    deploy:
+      replicas: 2
+
+  # ─── Celery: Video Transcoding Workers ───────────────────────────────────────
+  worker-video:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    env_file: .env
+    depends_on:
+      - redis
+      - minio
+    command: celery -A workers.celery_app worker -Q video -c ${CELERY_CONCURRENCY_VIDEO:-4} --loglevel=info
+    volumes:
+      - ./backend:/app
+      - tmp_uploads:/tmp/uploads
+      - hls_segments:/var/www/hls
+    restart: unless-stopped
+
+  # ─── Celery Beat: Scheduled Tasks (lifecycle management) ─────────────────────
+  celery-beat:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    env_file: .env
+    depends_on:
+      - redis
+    command: celery -A workers.celery_app beat --loglevel=info
+    volumes:
+      - ./backend:/app
+    restart: unless-stopped
+
+  # ─── Redis: Broker + Cache ────────────────────────────────────────────────────
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    command: redis-server --appendonly yes --maxmemory 512mb --maxmemory-policy allkeys-lru
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+    restart: unless-stopped
+
+  # ─── PostgreSQL + TimescaleDB ─────────────────────────────────────────────────
+  postgres:
+    image: timescale/timescaledb:latest-pg16
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-volleyball_tracker}
+      POSTGRES_USER: ${POSTGRES_USER:-vb_user}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-change-me}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./scripts/init_db.sql:/docker-entrypoint-initdb.d/01_init.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-vb_user}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  # ─── MinIO: S3-Compatible Object Storage ─────────────────────────────────────
+  minio:
+    image: minio/minio:latest
+    ports:
+      - "9000:9000"   # S3 API
+      - "9001:9001"   # Web console
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ACCESS_KEY:-minioadmin}
+      MINIO_ROOT_PASSWORD: ${MINIO_SECRET_KEY:-change-me}
+    volumes:
+      - minio_hot:/data/hot    # SSD-backed hot storage
+      - minio_cold:/data/cold  # HDD-backed cold storage
+    command: server /data/hot --console-address ":9001"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  # ─── MinIO bucket provisioning ────────────────────────────────────────────────
+  minio-init:
+    image: minio/mc:latest
+    depends_on:
+      minio:
+        condition: service_healthy
+    env_file: .env
+    entrypoint: >
+      /bin/sh -c "
+      mc alias set local http://minio:9000 $$MINIO_ACCESS_KEY $$MINIO_SECRET_KEY;
+      mc mb -p local/$$MINIO_BUCKET_RAW;
+      mc mb -p local/$$MINIO_BUCKET_PROCESSED;
+      mc mb -p local/$$MINIO_BUCKET_ARCHIVE;
+      mc ilm add --expiry-days 1 local/$$MINIO_BUCKET_RAW;
+      echo 'Buckets initialized';
+      "
+    restart: on-failure
+
+volumes:
+  postgres_data:
+  redis_data:
+  minio_hot:
+  minio_cold:
+  hls_segments:
+  tmp_frames:
+  tmp_uploads:

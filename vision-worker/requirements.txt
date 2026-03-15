@@ -1,0 +1,16 @@
+# Vision / ML stack (kept separate from API to avoid bloating API image)
+mediapipe==0.10.14
+opencv-python-headless==4.10.0.84
+numpy==1.26.4
+
+# Celery (same version as backend)
+celery[redis]==5.4.0
+redis==5.1.1
+
+# Storage + DB
+minio==7.2.9
+psycopg2-binary==2.9.9
+
+# Config
+pydantic-settings==2.5.2
+python-dotenv==1.0.1

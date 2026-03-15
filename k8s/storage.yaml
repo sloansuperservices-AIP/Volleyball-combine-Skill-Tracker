@@ -1,0 +1,79 @@
+# ── HLS Segments PVC (shared between video worker + nginx) ────────────────────
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: hls-pvc
+  namespace: volleyball-tracker
+spec:
+  accessModes:
+    - ReadWriteMany   # NFS or CephFS — multiple pods read/write
+  resources:
+    requests:
+      storage: 500Gi
+  storageClassName: fast-ssd   # override with your cluster's storage class
+---
+# ── MinIO StatefulSet (single-node dev; use MinIO Operator for HA prod) ───────
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: minio
+  namespace: volleyball-tracker
+spec:
+  serviceName: minio
+  replicas: 1
+  selector:
+    matchLabels:
+      app: minio
+  template:
+    metadata:
+      labels:
+        app: minio
+    spec:
+      containers:
+        - name: minio
+          image: minio/minio:latest
+          args:
+            - server
+            - /data
+            - --console-address
+            - ":9001"
+          envFrom:
+            - secretRef:
+                name: app-secrets
+          ports:
+            - containerPort: 9000
+            - containerPort: 9001
+          volumeMounts:
+            - name: minio-data
+              mountPath: /data
+          resources:
+            requests:
+              cpu: "500m"
+              memory: "1Gi"
+            limits:
+              cpu: "4"
+              memory: "8Gi"
+  volumeClaimTemplates:
+    - metadata:
+        name: minio-data
+      spec:
+        accessModes: ["ReadWriteOnce"]
+        resources:
+          requests:
+            storage: 2Ti   # 2TB object storage per node
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: minio
+  namespace: volleyball-tracker
+spec:
+  selector:
+    app: minio
+  ports:
+    - name: api
+      port: 9000
+      targetPort: 9000
+    - name: console
+      port: 9001
+      targetPort: 9001
