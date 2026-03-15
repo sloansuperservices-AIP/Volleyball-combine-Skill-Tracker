@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Volleyball Skill Tracker</title>
+  <link rel="stylesheet" href="styles/main.css" />
+</head>
+<body>
+  <!-- ──────────────── TOP NAV ──────────────── -->
+  <header class="topnav">
+    <div class="topnav__brand">
+      <span class="topnav__logo">🏐</span>
+      <span class="topnav__title">Volleyball Skill Tracker</span>
+    </div>
+    <div class="topnav__controls">
+      <select id="stationSelect" class="select">
+        <option value="setting">Setting Station</option>
+        <option value="serving">Serving Station</option>
+        <option value="passing">Passing Station</option>
+        <option value="hitting">Hitting Station</option>
+        <option value="custom">Custom Station</option>
+      </select>
+      <button id="btnToggleLeaderboard" class="btn btn--ghost">Leaderboard</button>
+    </div>
+  </header>
+
+  <!-- ──────────────── MAIN LAYOUT ──────────────── -->
+  <main class="layout">
+
+    <!-- LEFT PANEL -->
+    <aside class="panel panel--left">
+      <section class="panel__section">
+        <h3 class="panel__heading">Session</h3>
+        <label class="field">
+          <span class="field__label">Player Name</span>
+          <input id="playerName" class="field__input" type="text" placeholder="Enter player name" />
+        </label>
+        <label class="field">
+          <span class="field__label">Session Duration</span>
+          <input id="sessionDuration" class="field__input" type="number" placeholder="60" min="1" max="600" />
+          <span class="field__hint">seconds (0 = unlimited)</span>
+        </label>
+        <button id="btnStartSession" class="btn btn--primary btn--full">Start Session</button>
+        <button id="btnEndSession" class="btn btn--danger btn--full" disabled>End Session</button>
+      </section>
+
+      <section class="panel__section">
+        <h3 class="panel__heading">Video Source</h3>
+        <div class="source-tabs">
+          <button class="source-tab source-tab--active" data-source="upload">Upload</button>
+          <button class="source-tab" data-source="webcam">Webcam</button>
+        </div>
+
+        <!-- Upload source -->
+        <div id="sourceUpload" class="source-panel">
+          <div id="dropZone" class="drop-zone">
+            <svg class="drop-zone__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+              <polyline points="16 16 12 12 8 16"></polyline>
+              <line x1="12" y1="12" x2="12" y2="21"></line>
+              <path d="M20.39 18.39A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.3"></path>
+            </svg>
+            <p class="drop-zone__text">Drop video here or click to browse</p>
+            <p class="drop-zone__hint">MP4, WebM, MOV supported</p>
+            <input id="videoFileInput" type="file" accept="video/*" hidden />
+          </div>
+          <div id="uploadedFileInfo" class="file-info hidden">
+            <span id="uploadedFileName" class="file-info__name"></span>
+            <button id="btnClearVideo" class="btn btn--ghost btn--sm">Clear</button>
+          </div>
+        </div>
+
+        <!-- Webcam source -->
+        <div id="sourceWebcam" class="source-panel hidden">
+          <button id="btnToggleWebcam" class="btn btn--secondary btn--full">Start Camera</button>
+          <label class="field">
+            <span class="field__label">Camera</span>
+            <select id="cameraSelect" class="select select--full"></select>
+          </label>
+        </div>
+      </section>
+
+      <section class="panel__section">
+        <h3 class="panel__heading">Station Rules</h3>
+        <div id="stationRules" class="rules-display"></div>
+      </section>
+
+      <section class="panel__section" id="sessionStatsPanel">
+        <h3 class="panel__heading">Session Stats</h3>
+        <div class="stats-grid" id="statsGrid"></div>
+      </section>
+    </aside>
+
+    <!-- CENTER: VIDEO + CANVAS -->
+    <div class="center">
+      <div class="video-workspace" id="videoWorkspace">
+        <div class="video-container" id="videoContainer">
+          <video id="mainVideo" class="video-el" playsinline muted></video>
+          <canvas id="overlayCanvas" class="overlay-canvas"></canvas>
+          <canvas id="trackingCanvas" class="tracking-canvas hidden"></canvas>
+
+          <!-- Zone count badges rendered here dynamically -->
+          <div id="zoneBadges" class="zone-badges"></div>
+
+          <!-- Video controls overlay -->
+          <div class="video-controls" id="videoControls">
+            <button id="btnPlayPause" class="vctrl vctrl--play" title="Play/Pause">
+              <svg id="iconPlay" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+              <svg id="iconPause" viewBox="0 0 24 24" fill="currentColor" class="hidden"><rect x="6" y="4" width="4" height="16"></rect><rect x="14" y="4" width="4" height="16"></rect></svg>
+            </button>
+            <div class="vctrl__progress">
+              <div id="progressBar" class="progress-bar">
+                <div id="progressFill" class="progress-bar__fill"></div>
+                <div id="progressHandle" class="progress-bar__handle"></div>
+              </div>
+              <span id="timeDisplay" class="vctrl__time">0:00 / 0:00</span>
+            </div>
+            <button id="btnRestart" class="vctrl" title="Restart">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="1 4 1 10 7 10"></polyline><path d="M3.51 15a9 9 0 1 0 .49-3.51"></path></svg>
+            </button>
+            <input id="speedControl" type="range" min="0.25" max="2" step="0.25" value="1" class="vctrl__speed" title="Playback speed" />
+            <span id="speedLabel" class="vctrl__speed-label">1×</span>
+          </div>
+        </div>
+
+        <!-- Empty state -->
+        <div class="empty-state" id="emptyState">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <circle cx="12" cy="12" r="10"></circle>
+            <circle cx="12" cy="12" r="4"></circle>
+            <line x1="12" y1="2" x2="12" y2="8"></line>
+            <line x1="12" y1="16" x2="12" y2="22"></line>
+            <line x1="2" y1="12" x2="8" y2="12"></line>
+            <line x1="16" y1="12" x2="22" y2="12"></line>
+          </svg>
+          <p>Upload a video or start your webcam to begin tracking</p>
+        </div>
+      </div>
+
+      <!-- TRACKING STATUS BAR -->
+      <div class="status-bar" id="statusBar">
+        <div class="status-bar__left">
+          <span class="status-dot" id="trackingDot"></span>
+          <span id="trackingStatus">Ready</span>
+        </div>
+        <div class="status-bar__center">
+          <span id="sessionTimer" class="session-timer">00:00</span>
+        </div>
+        <div class="status-bar__right">
+          <span id="fpsDisplay">-- fps</span>
+          <span id="detectionInfo">No detection</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- RIGHT PANEL -->
+    <aside class="panel panel--right">
+      <section class="panel__section">
+        <h3 class="panel__heading">Drawing Tools</h3>
+        <div class="tool-grid" id="toolGrid">
+          <button class="tool-btn" data-tool="select" title="Select / Move zones">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 3l14 9-7 1-3 7z"></path></svg>
+            <span>Select</span>
+          </button>
+          <button class="tool-btn tool-btn--active" data-tool="circle" title="Draw circle zone">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="8"></circle></svg>
+            <span>Circle</span>
+          </button>
+          <button class="tool-btn" data-tool="rect" title="Draw rectangle zone">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="18" height="14" rx="2"></rect></svg>
+            <span>Rect</span>
+          </button>
+          <button class="tool-btn" data-tool="polygon" title="Draw polygon zone">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 22 9 18 21 6 21 2 9"></polygon></svg>
+            <span>Polygon</span>
+          </button>
+          <button class="tool-btn" data-tool="line" title="Draw line (net/boundary)">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="4" y1="20" x2="20" y2="4"></line></svg>
+            <span>Line</span>
+          </button>
+          <button class="tool-btn" data-tool="erase" title="Delete zone">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6l-1 14H6L5 6"></path></svg>
+            <span>Delete</span>
+          </button>
+        </div>
+      </section>
+
+      <section class="panel__section">
+        <h3 class="panel__heading">Zone Settings</h3>
+        <label class="field">
+          <span class="field__label">Zone Name</span>
+          <input id="zoneLabel" class="field__input" type="text" placeholder="e.g. Target Circle" />
+        </label>
+        <label class="field">
+          <span class="field__label">Count Rule</span>
+          <select id="zoneRule" class="select select--full">
+            <option value="enter">Ball enters zone</option>
+            <option value="exit">Ball exits zone</option>
+            <option value="cross">Ball crosses boundary</option>
+            <option value="dwell">Ball dwells in zone</option>
+          </select>
+        </label>
+        <label class="field">
+          <span class="field__label">Zone Color</span>
+          <div class="color-swatches" id="colorSwatches">
+            <button class="swatch swatch--active" data-color="#3b82f6" style="background:#3b82f6"></button>
+            <button class="swatch" data-color="#22c55e" style="background:#22c55e"></button>
+            <button class="swatch" data-color="#f59e0b" style="background:#f59e0b"></button>
+            <button class="swatch" data-color="#ef4444" style="background:#ef4444"></button>
+            <button class="swatch" data-color="#a855f7" style="background:#a855f7"></button>
+            <button class="swatch" data-color="#ec4899" style="background:#ec4899"></button>
+          </div>
+        </label>
+        <button id="btnClearZones" class="btn btn--ghost btn--full btn--sm">Clear All Zones</button>
+      </section>
+
+      <section class="panel__section">
+        <h3 class="panel__heading">Vision Tracking</h3>
+        <label class="field">
+          <span class="field__label">Detection Mode</span>
+          <select id="detectionMode" class="select select--full">
+            <option value="color">Color Detection (Ball)</option>
+            <option value="motion">Motion Detection</option>
+            <option value="combined">Combined (Best)</option>
+          </select>
+        </label>
+        <label class="field">
+          <span class="field__label">Ball Color</span>
+          <select id="ballColor" class="select select--full">
+            <option value="yellow">Yellow / Gold</option>
+            <option value="white">White</option>
+            <option value="blue-white">Blue & White</option>
+            <option value="orange">Orange</option>
+            <option value="custom">Custom HSV</option>
+          </select>
+        </label>
+        <div id="customHSVPanel" class="hidden">
+          <label class="field">
+            <span class="field__label">Hue Range</span>
+            <div class="range-pair">
+              <input id="hueMin" type="number" min="0" max="360" value="40" class="field__input field__input--sm" placeholder="Min" />
+              <span>–</span>
+              <input id="hueMax" type="number" min="0" max="360" value="70" class="field__input field__input--sm" placeholder="Max" />
+            </div>
+          </label>
+          <label class="field">
+            <span class="field__label">Saturation Min</span>
+            <input id="satMin" type="range" min="0" max="255" value="100" class="field__range" />
+          </label>
+          <label class="field">
+            <span class="field__label">Value Min</span>
+            <input id="valMin" type="range" min="0" max="255" value="80" class="field__range" />
+          </label>
+        </div>
+        <label class="field">
+          <span class="field__label">Min Ball Radius (px)</span>
+          <input id="minRadius" type="range" min="4" max="60" value="10" class="field__range" />
+          <span id="minRadiusVal" class="field__hint">10 px</span>
+        </label>
+        <label class="field">
+          <span class="field__label">Max Ball Radius (px)</span>
+          <input id="maxRadius" type="range" min="10" max="150" value="60" class="field__range" />
+          <span id="maxRadiusVal" class="field__hint">60 px</span>
+        </label>
+        <label class="field field--row">
+          <input id="showDetection" type="checkbox" checked />
+          <span class="field__label">Show detection overlay</span>
+        </label>
+        <label class="field field--row">
+          <input id="showTrail" type="checkbox" checked />
+          <span class="field__label">Show ball trail</span>
+        </label>
+        <button id="btnToggleTracking" class="btn btn--secondary btn--full" disabled>Start Tracking</button>
+      </section>
+
+      <!-- Active Zones list -->
+      <section class="panel__section">
+        <h3 class="panel__heading">Active Zones <span id="zoneCount" class="badge">0</span></h3>
+        <div id="zoneList" class="zone-list"></div>
+      </section>
+    </aside>
+  </main>
+
+  <!-- ──────────────── LEADERBOARD MODAL ──────────────── -->
+  <div class="modal-backdrop hidden" id="leaderboardModal">
+    <div class="modal">
+      <div class="modal__header">
+        <h2 class="modal__title">Leaderboard</h2>
+        <div class="modal__header-right">
+          <select id="lbStationFilter" class="select select--sm">
+            <option value="all">All Stations</option>
+          </select>
+          <button id="btnClearLeaderboard" class="btn btn--danger btn--sm">Clear All</button>
+          <button id="btnCloseLeaderboard" class="modal__close">✕</button>
+        </div>
+      </div>
+      <div class="modal__body">
+        <table class="lb-table" id="lbTable">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Player</th>
+              <th>Station</th>
+              <th>Score</th>
+              <th>Duration</th>
+              <th>Date</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody id="lbTableBody"></tbody>
+        </table>
+        <p class="empty-lb hidden" id="emptyLb">No sessions recorded yet.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ──────────────── COUNTDOWN OVERLAY ──────────────── -->
+  <div class="countdown-overlay hidden" id="countdownOverlay">
+    <div class="countdown-number" id="countdownNumber"></div>
+  </div>
+
+  <script type="module" src="js/app.js"></script>
+</body>
+</html>
