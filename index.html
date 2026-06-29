@@ -1,0 +1,1036 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Mid TN VBC — Tryout Manager</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{background:#0d1017;color:#e8eaed;font-family:'Inter',-apple-system,sans-serif;min-height:100vh}
+::-webkit-scrollbar{width:5px;height:5px}
+::-webkit-scrollbar-track{background:#12151c}
+::-webkit-scrollbar-thumb{background:#2a2e38;border-radius:3px}
+input,select,textarea,button{font-family:inherit}
+.badge{display:inline-block;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:700;letter-spacing:.4px;text-transform:uppercase;white-space:nowrap}
+.badge-sm{padding:1px 6px;font-size:10px}
+.btn{padding:8px 16px;border:none;border-radius:6px;cursor:pointer;font-size:13px;font-weight:600;transition:all .15s;white-space:nowrap}
+.btn-sm{padding:4px 10px;font-size:11px}
+.btn-outline{background:transparent!important}
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:999;display:flex;align-items:center;justify-content:center;padding:16px}
+.modal-box{background:#1a1d24;border:1px solid #2a2e38;border-radius:16px;padding:28px;max-height:92vh;overflow-y:auto}
+.card{background:#1a1d24;border:1px solid #2a2e38;border-radius:12px}
+.input{width:100%;padding:8px 12px;background:#12151c;border:1px solid #2a2e38;border-radius:8px;color:#e8eaed;font-size:13px}
+.input:focus{outline:none;border-color:#4fc3f7}
+.select{width:100%;padding:6px 10px;background:#12151c;border:1px solid #2a2e38;border-radius:6px;color:#e8eaed;font-size:13px}
+.label{font-size:11px;color:#78909c;display:block;margin-bottom:4px;text-transform:uppercase;letter-spacing:.5px}
+.nav-tab{padding:5px 14px;border-radius:6px;border:none;cursor:pointer;font-size:12px;font-weight:600;transition:all .15s;background:#12151c;color:#78909c}
+.nav-tab.active{background:#f0a500;color:#000}
+.age-tab{padding:3px 10px;border-radius:4px;border:none;cursor:pointer;font-size:12px;font-weight:700;background:transparent;color:#546e7a;transition:all .15s}
+.age-tab.active{background:#f0a500;color:#000}
+.player-card{padding:7px 10px;margin:3px 0;background:#1a1d24;border:1px solid #2a2e38;border-radius:7px;cursor:grab;display:flex;align-items:center;gap:7px;transition:all .15s;position:relative}
+.player-card:hover{border-color:#3a3e48;background:#1e2230}
+.player-card.declined{background:#2a1215;border-color:#ef535033;opacity:.6}
+.player-card.locked{cursor:default;border-color:#f0a50044}
+table{width:100%;border-collapse:collapse;font-size:12px}
+th{padding:7px 6px;text-align:left;color:#78909c;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;white-space:nowrap;border-bottom:2px solid #2a2e38;background:#0d1017;position:sticky;top:0}
+td{padding:5px 6px;vertical-align:middle;border-bottom:1px solid #161a22}
+tr:hover td{background:#1a1d24;cursor:pointer}
+.sticky-header{position:sticky;top:0;z-index:50;background:#1a1d24;border-bottom:1px solid #1e222b;padding:12px 20px}
+.depth-col{background:#12151c;border-radius:12px;border:1px solid #1e222b;overflow:hidden;display:flex;flex-direction:column}
+.depth-col-header{padding:10px 14px;background:#1a1d24;border-bottom:1px solid #1e222b;display:flex;justify-content:space-between;align-items:center}
+.team-card{border-radius:12px;overflow:hidden;border:2px solid;transition:border-color .2s}
+.team-card.finalized{border-color:#f0a500!important}
+.drop-zone{padding:10px;min-height:120px}
+.drop-zone.drag-over{background:rgba(240,165,0,.05);border-radius:8px}
+@media print{.no-print{display:none!important}body{background:#fff;color:#000}.team-print{border:1px solid #ccc!important;border-radius:8px;margin-bottom:12px;break-inside:avoid}}
+</style>
+</head>
+<body>
+<div id="app"></div>
+
+<div id="volley-ai-trigger" style="position:fixed;bottom:30px;right:30px;width:60px;height:60px;background:#f0a500;border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:0 10px 25px rgba(0,0,0,0.3);z-index:1000;transition:transform 0.2s">🏐</div>
+
+<div id="chatbot-window" style="position:fixed;bottom:100px;right:30px;width:350px;height:500px;background:#1a1d24;border:1px solid #2a2e38;border-radius:16px;display:none;flex-direction:column;z-index:1000;box-shadow:0 10px 25px rgba(0,0,0,0.5);overflow:hidden">
+    <div style="padding:15px 20px;background:#2a2e38;display:flex;justify-content:space-between;align-items:center">
+        <h4 style="margin:0;color:#f0a500">Volley AI Chatbot</h4>
+        <span id="close-chat" style="cursor:pointer;color:#e8eaed;font-size:20px">&times;</span>
+    </div>
+    <div id="chat-messages" style="flex:1;padding:20px;overflow-y:auto;display:flex;flex-direction:column;gap:15px">
+        <div style="padding:10px 15px;border-radius:12px;max-width:80%;font-size:13px;background:#2a2e38;align-self:flex-start">Hi! I'm Volley AI. How can I help you with tryout management today?</div>
+    </div>
+    <div style="padding:15px;border-top:1px solid #2a2e38;display:flex;gap:10px">
+        <input type="text" id="chat-input" placeholder="Ask a question..." style="flex:1;background:#12151c;border:1px solid #2a2e38;border-radius:8px;padding:8px 12px;color:#e8eaed;font-size:13px"/>
+        <button id="send-btn" style="background:#f0a500;border:none;border-radius:8px;padding:8px 15px;cursor:pointer;font-weight:700">Send</button>
+    </div>
+</div>
+
+<script>
+    const trigger = document.getElementById('volley-ai-trigger');
+    const chatWindow = document.getElementById('chatbot-window');
+    const closeChat = document.getElementById('close-chat');
+    const sendBtn = document.getElementById('send-btn');
+    const chatInput = document.getElementById('chat-input');
+    const chatMessages = document.getElementById('chat-messages');
+
+    trigger.onclick = () => chatWindow.style.display = 'flex';
+    closeChat.onclick = () => chatWindow.style.display = 'none';
+
+    async function handleSend() {
+        const text = chatInput.value.trim();
+        if(!text) return;
+
+        const userDiv = document.createElement('div');
+        userDiv.style.cssText = "padding:10px 15px;border-radius:12px;max-width:80%;font-size:13px;background:#f0a500;color:#000;align-self:flex-end";
+        userDiv.textContent = text;
+        chatMessages.appendChild(userDiv);
+        chatInput.value = '';
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+
+        const botDiv = document.createElement('div');
+        botDiv.style.cssText = "padding:10px 15px;border-radius:12px;max-width:80%;font-size:13px;background:#2a2e38;align-self:flex-start";
+        botDiv.textContent = '...';
+        chatMessages.appendChild(botDiv);
+
+        const response = await fetchAnswer(text, 'manager');
+        botDiv.textContent = response;
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+    }
+
+    sendBtn.onclick = handleSend;
+    chatInput.onkeydown = (e) => { if(e.key === 'Enter') handleSend(); };
+
+    async function fetchAnswer(query, context) {
+        try {
+            const res = await fetch('data/knowledge_base.json');
+            const data = await res.json();
+            const q = query.toLowerCase();
+
+            if(context === 'manager') {
+                if(q.includes('pin')) return "The PINs are: Check-In (9999), Station 1 (1111), Station 2 (2222), and Head Coach (0000).";
+                if(q.includes('how to') || q.includes('guide')) return "This is the Tryout Manager. You can check athletes in, record physical metrics, and build teams in the Head Coach view.";
+            }
+
+            if(q.includes('cost')) return data.faqs.find(f => f.q.includes('cost'))?.a || "Tryouts cost $50 for pre-registration and $60 for walk-ups.";
+            if(q.includes('sign in') || q.includes('check in') || q.includes('location')) return data.faqs.find(f => f.q.includes('sign in'))?.a || "Sign-in is at our facility: 6910 Stroop Ln, Smyrna, TN 37167.";
+            if(q.includes('ready') || q.includes('expect') || q.includes('bring')) return data.faqs.find(f => f.q.includes('ready'))?.a || "Bring water and knee pads. Be ready for physical testing and skill drills.";
+            if(q.includes('rule') || q.includes('regulation')) return data.rules.usav_summary + " " + data.rules.srva_summary;
+            if(q.includes('srva')) return data.rules.srva_summary;
+            if(q.includes('usav') || q.includes('usa volleyball')) return data.rules.usav_summary;
+
+            return "I'm not sure about that, but I'm an expert on our club tryouts, costs, and USAV/SRVA rules. Ask me about PINs or how to use this manager!";
+        } catch(e) {
+            return "I'm having trouble accessing my knowledge base right now. Please try asking about PINs or tryout results.";
+        }
+    }
+</script>
+
+<script type="module">
+import{h,render,Fragment}from'https://esm.sh/preact@10.19.2';
+import{useState,useEffect,useMemo,useRef,useCallback}from'https://esm.sh/preact@10.19.2/hooks';
+import htm from'https://esm.sh/htm@3.1.1';
+const html=htm.bind(h);
+
+// ── CONSTANTS ──────────────────────────────────────────────────────
+const LOCAL_KEY='midtn_tryout_v2';
+const STATIONS=[
+  {key:'checkin',label:'Check-In',pin:'9999',metrics:[],isCheckin:true},
+  {key:'s1',label:'Station 1: Physical',pin:'1111',metrics:['Height (in)','Reach (in)','Vertical (in)']},
+  {key:'s2',label:'Station 2: Agility',pin:'2222',metrics:['Shuttle Run (sec)']},
+];
+const HC_PIN='0000';
+const AGES=['12','13','14','15','16','17','18'];
+const LEVELS=['Black','Blue','Silver','Yellow','White'];
+const TEAM_STYLE={
+  Black:{bg:'#0d0d1a',border:'#3a3a5c',hdr:'#1a1a3a'},
+  Blue: {bg:'#0f1f35',border:'#1e4a8a',hdr:'#1a3460'},
+  Silver:{bg:'#1a1e24',border:'#6b7280',hdr:'#374151'},
+  Yellow:{bg:'#1a1700',border:'#92700a',hdr:'#3d3200'},
+  White:{bg:'#1a1a20',border:'#9ca3af',hdr:'#374151'},
+};
+const POS_CATS=[
+  {key:'setter',label:'Setters',abbrs:['setter','s']},
+  {key:'middle',label:'Middles',abbrs:['middle hitter','middle','m','mb']},
+  {key:'outside',label:'Outside / RS',abbrs:['outside hitter','outside','oh','right side hitter','right side','rs']},
+  {key:'defense',label:'Defense',abbrs:['defensive specialist','defense','ds','libero','l']},
+];
+const STATUSES=['pending','arrived','contacted','offered','accepted','declined','info_requested'];
+const HIDE_REASONS=['Athlete Declined','Coach Declined','Age/Division Issue','Other'];
+
+// ── ATHLETES ───────────────────────────────────────────────────────
+const RAW=[
+  {first:'Bristol',last:'Ardissono',dob:'12/23/2013',division:'12 & Under',primaryPos:'Defensive Specialist',altPos:'Setter',phone:'615-359-8436',email:'slardissono@gmail.com'},
+  {first:'Emmalee',last:'Bringhurst',dob:'7/15/2013',division:'12 & Under',primaryPos:'Defensive Specialist',altPos:'Setter',phone:'6158126284',email:'robincluck@hotmail.com'},
+  {first:'Leeone',last:'Haley',dob:'2/16/2014',division:'12 & Under',primaryPos:'Middle Hitter',altPos:'Outside Hitter',phone:'2707790450',email:'lhaley820@hotmail.com'},
+  {first:'Hensley',last:'Hampton',dob:'',division:'12 & Under',primaryPos:'Outside Hitter',altPos:'',phone:'',email:''},
+  {first:'Sophia',last:'Ison',dob:'10/22/2013',division:'12 & Under',primaryPos:'Middle Hitter',altPos:'Right Side Hitter',phone:'6159007764',email:'boandsarah@mac.com'},
+  {first:'Ella',last:'LaChappelle',dob:'10/29/2013',division:'12 & Under',primaryPos:'Outside Hitter',altPos:'',phone:'810-869-3540',email:'slachappelle@gmail.com'},
+  {first:'Jennifer',last:'MacDonald',dob:'1/14/2014',division:'12 & Under',primaryPos:'Outside Hitter',altPos:'Defensive Specialist',phone:'5086410435',email:'jennyvizueta@hotmail.com'},
+  {first:'Ellie',last:'Parker',dob:'9/4/2013',division:'12 & Under',primaryPos:'Outside Hitter',altPos:'Middle Hitter',phone:'615-427-1587',email:'parker22db@gmail.com'},
+  {first:'Annabelle',last:'Acosta',dob:'1/9/2014',division:'12 & Under',primaryPos:'Defensive Specialist',altPos:'Setter',phone:'4352380331',email:'samantha_acosta1@yahoo.com'},
+  {first:'Kennedy',last:'Hale',dob:'9/6/2013',division:'12 & Under',primaryPos:'Outside Hitter',altPos:'Defensive Specialist',phone:'419-575-1735',email:'nickihale@yahoo.com'},
+  {first:'Paisley',last:'Adams',dob:'9/10/2012',division:'13 & Under',primaryPos:'Outside Hitter',altPos:'Defensive Specialist',phone:'6144021180',email:'ilovetojump@gmail.com'},
+  {first:'Emma-Rae',last:'Epps',dob:'8/16/2012',division:'13 & Under',primaryPos:'Defensive Specialist',altPos:'Outside Hitter',phone:'6155461308',email:'erin.bengough@gmail.com'},
+  {first:'McKenzie',last:'Greer',dob:'9/18/2012',division:'13 & Under',primaryPos:'Setter',altPos:'Middle Hitter',phone:'6157853020',email:'dearia.johns@yahoo.com'},
+  {first:'Madelynn',last:'LaFave',dob:'9/5/2012',division:'13 & Under',primaryPos:'Outside Hitter',altPos:'Right Side Hitter',phone:'615-944-3999',email:'andrealafave@gmail.com'},
+  {first:'Britta',last:'Lamb',dob:'7/1/2012',division:'13 & Under',primaryPos:'Setter',altPos:'Outside Hitter',phone:'6154733098',email:'katiellamb5@gmail.com'},
+  {first:'Lynden',last:'Borendame',dob:'12/22/2011',division:'14 & Under',primaryPos:'Defensive Specialist',altPos:'Setter',phone:'6152953607',email:'g.borendame@gmail.com'},
+  {first:'Anistyn',last:'Craig',dob:'4/19/2012',division:'14 & Under',primaryPos:'Setter',altPos:'Right Side Hitter',phone:'931-267-6482',email:'cdscraig@yahoo.com'},
+  {first:'Mya',last:'Dryden',dob:'3/13/2012',division:'14 & Under',primaryPos:'Defensive Specialist',altPos:'Outside Hitter',phone:'9012333339',email:'melissa.m.dryden@gmail.com'},
+  {first:'Emily',last:'Bauer',dob:'9/27/2010',division:'15 & Under',primaryPos:'Setter',altPos:'Defensive Specialist',phone:'615-504-7727',email:'tina@walterhillutilities.com'},
+  {first:'Gabriella',last:'Casias',dob:'9/27/2010',division:'15 & Under',primaryPos:'Setter',altPos:'Setter',phone:'7194802268',email:'rachelnoellecasias@gmail.com'},
+  {first:'Berkeley',last:'Cernak',dob:'1/30/2011',division:'15 & Under',primaryPos:'Right Side Hitter',altPos:'Outside Hitter',phone:'6159482970',email:'allthenaks@gmail.com'},
+  {first:'Makayla',last:'Ardissono',dob:'8/28/2010',division:'16 & Under',primaryPos:'Outside Hitter',altPos:'Middle Hitter',phone:'615-359-8436',email:'slardissono@gmail.com'},
+  {first:'Harper',last:'Brown',dob:'11/30/2009',division:'16 & Under',primaryPos:'Middle Hitter',altPos:'Outside Hitter',phone:'8654065586',email:'alysonbrown5@gmail.com'},
+  {first:'Ellie Kate',last:'Knox',dob:'7/22/2009',division:'16 & Under',primaryPos:'Setter',altPos:'Right Side Hitter',phone:'6158044912',email:'knoxpartyof4@yahoo.com'},
+  {first:'Sofia',last:'Bottoms',dob:'3/31/2009',division:'17 & Under',primaryPos:'Setter',altPos:'Defensive Specialist',phone:'931-265-1069',email:'zavala@pcsstn.com'},
+  {first:'Abigail',last:'Carroll',dob:'11/18/2008',division:'17 & Under',primaryPos:'Outside Hitter',altPos:'Defensive Specialist',phone:'6152996493',email:'monwellac@gmail.com'},
+  {first:'Cecilia',last:'Damron',dob:'1/3/2009',division:'17 & Under',primaryPos:'Middle Hitter',altPos:'Middle Hitter',phone:'6158698253',email:'damronl79@gmail.com'},
+  {first:'Isabella',last:'Martin',dob:'3/20/2008',division:'18 & Under',primaryPos:'Middle Hitter',altPos:'Middle Hitter',phone:'6156361587',email:'kanmartin24@yahoo.com'},
+  {first:'Carlina',last:'Bauer',dob:'6/2/2008',division:'18 & Under',primaryPos:'Outside Hitter',altPos:'Middle Hitter',phone:'615-504-7727',email:'tina@walterhillutilities.com'},
+  {first:'Kierstan',last:'Blocker',dob:'8/5/2008',division:'18 & Under',primaryPos:'Outside Hitter',altPos:'Defensive Specialist',phone:'6159954049',email:'laquandablocker@att.net'},
+];
+
+// ── UTILS ──────────────────────────────────────────────────────────
+function posAbbr(p){
+  if(!p) return '---'; const s=p.toLowerCase();
+  if(s.includes('setter')||s==='s') return 'S';
+  if(s.includes('middle')||s==='mb') return 'M';
+  if(s.includes('outside')||s==='oh') return 'OH';
+  if(s.includes('right side')||s==='rs') return 'RS';
+  if(s.includes('defensive')||s==='ds') return 'DS';
+  if(s.includes('libero')||s==='l') return 'L';
+  if(s.includes('unsure')) return '?';
+  return p.substring(0,3).toUpperCase();
+}
+function classifyPos(p){
+  if(!p) return 'unsorted'; const s=p.toLowerCase();
+  for(const c of POS_CATS) if(c.abbrs.some(a=>s===a||s.includes(a))) return c.key;
+  return 'unsorted';
+}
+function divAge(d){const m=(d||'').match(/(\d+)/);return m?m[1]:'';}
+function sAvg(metrics,key){
+  const v=((metrics||{})[key]||[]).filter(x=>x!==''&&x!==null&&!isNaN(Number(x))).map(Number);
+  return v.length?v.reduce((a,b)=>a+b,0)/v.length:null;
+}
+function totalScore(metrics){
+  let s=0,c=0;
+  ['s1','s2'].forEach(k=>{const a=sAvg(metrics,k);if(a!==null){s+=a;c++;}});
+  return c>0?(s/c).toFixed(1):null;
+}
+function scoreColor(sc){return Number(sc)>=7?'#66bb6a':Number(sc)>=5?'#ffa726':'#ef5350';}
+let toN=100;
+function mkId(){return Math.random().toString(36).substr(2,6);}
+function initAthletes(raw){
+  return raw.filter(a=>a.first).map(a=>({
+    ...a,
+    id:a.id||`${a.first}-${mkId()}`,
+    to:a.to||String(toN++),
+    ageGroup:divAge(a.division),
+    posCategory:classifyPos(a.primaryPos),
+    status:a.status||'pending',
+    teamAssignment:a.teamAssignment||null,
+    teamLocked:a.teamLocked||false,
+    coachPos:a.coachPos||'',
+    hidden:a.hidden||false,
+    hideReason:a.hideReason||'',
+    isWalkup:a.isWalkup||false,
+    arrived:a.arrived||false,
+    notes:a.notes||'',
+    wontAccept:a.wontAccept||'',
+    metrics:a.metrics||{},
+  }));
+}
+function saveLocal(a){try{localStorage.setItem(LOCAL_KEY,JSON.stringify(a));}catch(e){}}
+function loadLocal(){try{return JSON.parse(localStorage.getItem(LOCAL_KEY)||'null');}catch(e){return null;}}
+function exportCSV(rows,name){
+  const csv=rows.map(r=>r.map(v=>`"${String(v||'').replace(/"/g,'""')}"`).join(',')).join('\n');
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv'}));
+  a.download=name; a.click();
+}
+
+// ── COMPONENTS ─────────────────────────────────────────────────────
+function Badge({c='#4fc3f7',children,sm}){
+  return html`<span class="${'badge'+(sm?' badge-sm':'')}" style=${{background:c+'22',color:c,border:`1px solid ${c}44`}}>${children}</span>`;
+}
+function SBadge({status}){
+  const M={pending:['#78909c','Pending'],arrived:['#26c6da','Arrived'],contacted:['#ffa726','Contacted'],offered:['#42a5f5','Offered'],accepted:['#66bb6a','Accepted'],declined:['#ef5350','Declined'],info_requested:['#ab47bc','Info Req.']};
+  const [c,l]=M[status]||M.pending;
+  return html`<${Badge} c=${c} sm>${l}<//>`;
+}
+function Btn({children,onClick,color='#1565c0',outline,sm,disabled,style:sx,danger}){
+  const c=danger?'#ef5350':color;
+  return html`<button class=${'btn'+(sm?' btn-sm':'')+(outline?' btn-outline':'')} onClick=${onClick} disabled=${disabled}
+    style=${{background:outline?'transparent':c,color:outline?c:'#fff',border:outline?`1px solid ${c}`:'none',opacity:disabled?.5:1,...sx}}>${children}</button>`;
+}
+
+// ── LOGIN ──────────────────────────────────────────────────────────
+function Login({onLogin}){
+  const [pin,setPin]=useState('');
+  const [err,setErr]=useState('');
+  const go=()=>{
+    if(pin===HC_PIN){onLogin({role:'hc'});return;}
+    const s=STATIONS.find(x=>x.pin===pin);
+    if(s){onLogin({role:'station',...s});return;}
+    setErr('Invalid PIN');setPin('');
+  };
+  return html`
+    <div style=${{minHeight:'100vh',display:'flex',alignItems:'center',justifyContent:'center',background:'#0d1017'}}>
+      <div class="card" style=${{padding:40,width:380,textAlign:'center'}}>
+        <div style=${{fontSize:48,marginBottom:12}}>🏐</div>
+        <h1 style=${{fontSize:26,fontWeight:800,margin:'0 0 4px'}}><span style=${{color:'#f0a500'}}>MID TN</span> VBC</h1>
+        <p style=${{color:'#78909c',fontSize:13,margin:'0 0 6px'}}>Tryout Manager · 2026–2027</p>
+        <a href="../" style=${{display:'block',fontSize:12,color:'#4fc3f7',marginBottom:24}}>← Back to Hub</a>
+        <input type="password" placeholder="Enter PIN" maxLength="6" value=${pin}
+          onInput=${e=>{setPin(e.target.value);setErr('');}}
+          onKeyDown=${e=>e.key==='Enter'&&go()}
+          style=${{width:'100%',padding:12,background:'#12151c',border:'1px solid #2a2e38',borderRadius:8,color:'#e8eaed',fontSize:22,textAlign:'center',letterSpacing:12,marginBottom:10}}/>
+        ${err&&html`<p style=${{color:'#ef5350',fontSize:13,marginBottom:10}}>${err}</p>`}
+        <button onClick=${go} style=${{width:'100%',padding:12,background:'#f0a500',border:'none',borderRadius:8,color:'#000',fontSize:15,fontWeight:800,cursor:'pointer',marginBottom:20}}>Log In →</button>
+        <div style=${{borderTop:'1px solid #2a2e38',paddingTop:14,fontSize:11,color:'#546e7a'}}>
+          <div style=${{fontWeight:700,marginBottom:8,textTransform:'uppercase',letterSpacing:1}}>PINs</div>
+          <div style=${{display:'grid',gridTemplateColumns:'1fr 1fr',gap:4,textAlign:'left',marginBottom:6}}>
+            <div>Check-In: <span style=${{color:'#26c6da',fontFamily:'monospace'}}>9999</span></div>
+            <div>Station 1: <span style=${{color:'#f0a500',fontFamily:'monospace'}}>1111</span></div>
+            <div>Station 2: <span style=${{color:'#f0a500',fontFamily:'monospace'}}>2222</span></div>
+          </div>
+          <div>Head Coach: <span style=${{color:'#ef5350',fontFamily:'monospace'}}>0000</span></div>
+        </div>
+      </div>
+    </div>`;
+}
+
+// ── CHECK-IN ───────────────────────────────────────────────────────
+function CheckIn({athletes,onArrive,onAddWalkup,onLogout,onEdit}){
+  const [q,setQ]=useState('');
+  const [wu,setWu]=useState(false);
+  const [form,setForm]=useState({first:'',last:'',dob:'',division:'12 & Under',primaryPos:'Outside Hitter',phone:'',email:''});
+  const [recent,setRecent]=useState([]);
+  const results=useMemo(()=>{
+    const s=q.trim().toLowerCase();
+    if(!s) return [];
+    return athletes.filter(a=>!a.hidden&&(a.first.toLowerCase().includes(s)||a.last.toLowerCase().includes(s)||a.to.includes(q.trim())));
+  },[q,athletes]);
+  const arrive=a=>{onArrive(a.id);setRecent(p=>[a,...p.filter(x=>x.id!==a.id)].slice(0,8));setQ('');};
+  const addWu=()=>{
+    if(!form.first||!form.last) return;
+    const id=`wu-${Date.now()}`;
+    onAddWalkup({...form,id,to:String(200+athletes.filter(a=>a.isWalkup).length),isWalkup:true,arrived:true,status:'arrived'});
+    setRecent(p=>[{...form,isWalkup:true},...p].slice(0,8));
+    setForm({first:'',last:'',dob:'',division:'12 & Under',primaryPos:'Outside Hitter',phone:'',email:''});
+    setWu(false);
+  };
+  const arrived=athletes.filter(a=>a.arrived&&!a.hidden).length;
+  return html`
+    <div style=${{minHeight:'100vh',background:'#0d1017'}}>
+      <div class="sticky-header" style=${{display:'flex',justifyContent:'space-between',alignItems:'center'}}>
+        <div><h1 style=${{fontSize:20,fontWeight:800,color:'#26c6da',margin:0}}>Check-In Station</h1>
+          <p style=${{fontSize:12,color:'#546e7a',margin:0}}>Mid TN VBC Tryouts</p></div>
+        <div style=${{display:'flex',gap:12,alignItems:'center'}}>
+          <div style=${{textAlign:'center'}}><div style=${{fontSize:28,fontWeight:800,color:'#26c6da'}}>${arrived}</div>
+            <div style=${{fontSize:10,color:'#546e7a',textTransform:'uppercase'}}>Arrived / ${athletes.filter(a=>!a.hidden).length}</div></div>
+          <${Btn} sm onClick=${()=>setWu(true)} color="#f0a500">+ Walkup<//>
+          <${Btn} sm onClick=${onLogout} color="#ef5350" outline>Log Out<//>
+        </div>
+      </div>
+      <div style=${{maxWidth:560,margin:'0 auto',padding:24}}>
+        ${!wu?html`
+          <div class="card" style=${{padding:20,marginBottom:16}}>
+            <label class="label">Search by name or TO#</label>
+            <input class="input" placeholder="Type name or TO#..." autoFocus value=${q}
+              onInput=${e=>setQ(e.target.value)} style=${{fontSize:18,padding:12}}/>
+            ${q&&!results.length&&html`<div style=${{marginTop:8,fontSize:12,color:'#ef5350'}}>No match — use walkup button</div>`}
+          </div>
+          ${results.map(a=>html`
+            <div style=${{display:'flex',alignItems:'center',gap:10,padding:'12px 16px',background:a.arrived?'#0a2010':'#1a1d24',border:`1px solid ${a.arrived?'#66bb6a44':'#2a2e38'}`,borderRadius:10,marginBottom:8}}>
+              <span style=${{fontFamily:'monospace',color:'#4fc3f7',fontSize:12}}>  #${a.to}</span>
+              <div style=${{flex:1}}><div style=${{fontWeight:700,fontSize:15}}>${a.first} ${a.last}</div>
+                <div style=${{fontSize:11,color:'#78909c'}}>${a.division} · ${posAbbr(a.primaryPos)}</div></div>
+              ${a.isWalkup&&html`<${Badge} c="#ffa726" sm>Walkup<//>`}
+              <${Btn} sm onClick=${()=>onEdit(a)} color="#4fc3f7" outline style=${{padding:'4px 8px'}}>✏️<//>
+              ${a.arrived?html`<${Badge} c="#66bb6a">✓ Arrived<//>`:html`<${Btn} onClick=${()=>arrive(a)} color="#26c6da" style=${{padding:'8px 20px',fontSize:14}}>Mark Arrived ✓<//>`}
+            </div>`)}
+          ${recent.length>0&&html`
+            <div class="card" style=${{padding:14,marginTop:8}}>
+              <div style=${{fontSize:11,color:'#546e7a',textTransform:'uppercase',letterSpacing:1,marginBottom:8}}>Recent Check-Ins</div>
+              ${recent.map((a,i)=>html`
+                <div key=${i} style=${{display:'flex',alignItems:'center',gap:8,padding:'5px 0',borderBottom:'1px solid #1e222b'}}>
+                  <span style=${{fontFamily:'monospace',color:'#4fc3f7',fontSize:11}}>#${a.to||'WU'}</span>
+                  <span style=${{flex:1,fontSize:12}}>${a.first} ${a.last}</span>
+                  <${Badge} c="#26c6da" sm>✓<//>
+                  ${a.isWalkup&&html`<${Badge} c="#ffa726" sm>WU<//>`}
+                </div>`)}`}
+        `:html`
+          <div class="card" style=${{padding:24,border:'1px solid #f0a50033'}}>
+            <div style=${{display:'flex',justifyContent:'space-between',marginBottom:20}}>
+              <h3 style=${{color:'#f0a500',fontSize:16,margin:0}}>Add Walkup</h3>
+              <${Btn} sm onClick=${()=>setWu(false)} color="#2a2e38">Cancel<//>
+            </div>
+            <div style=${{display:'grid',gridTemplateColumns:'1fr 1fr',gap:12,marginBottom:12}}>
+              ${[['First *','first'],['Last *','last'],['DOB','dob'],['Phone','phone']].map(([l,k])=>html`
+                <div key=${k}><label class="label">${l}</label>
+                  <input class="input" value=${form[k]} onInput=${e=>setForm(p=>({...p,[k]:e.target.value}))}/></div>`)}
+              <div style=${{gridColumn:'span 2'}}><label class="label">Email</label>
+                <input class="input" value=${form.email} onInput=${e=>setForm(p=>({...p,email:e.target.value}))}/></div>
+              <div><label class="label">Division *</label>
+                <select class="select" value=${form.division} onChange=${e=>setForm(p=>({...p,division:e.target.value}))}>
+                  ${AGES.map(a=>html`<option value=${a+' & Under'}>${a}s</option>`)}</select></div>
+              <div><label class="label">Primary Pos *</label>
+                <select class="select" value=${form.primaryPos} onChange=${e=>setForm(p=>({...p,primaryPos:e.target.value}))}>
+                  ${['Outside Hitter','Middle Hitter','Setter','Right Side Hitter','Defensive Specialist','Libero','I am unsure'].map(p=>html`<option>${p}</option>`)}</select></div>
+            </div>
+            <${Btn} onClick=${addWu} color="#f0a500" disabled=${!form.first||!form.last} style=${{width:'100%',padding:12,fontSize:14}}>Add & Check In ✓<//>
+          </div>`}
+      </div>
+    </div>`;
+}
+
+// ── STATION ────────────────────────────────────────────────────────
+function Station({stationKey,label,metrics:metricDefs,athletes,onMetric,onLogout}){
+  const [q,setQ]=useState('');
+  const [active,setActive]=useState(null);
+  const [recent,setRecent]=useState([]);
+  const inp=useRef();
+  const found=useMemo(()=>{
+    const s=q.trim();
+    if(!s) return null;
+    return athletes.find(a=>a.to===s&&!a.hidden)||athletes.find(a=>(a.first+' '+a.last).toLowerCase()===s.toLowerCase()&&!a.hidden)||null;
+  },[q,athletes]);
+  const vals=active?((active.metrics||{})[stationKey]||metricDefs.map(()=>'')):metricDefs.map(()=>'');
+  const avg=active?sAvg(active.metrics,stationKey):null;
+  const save=()=>{
+    if(active){setRecent(p=>[active,...p.filter(x=>x.id!==active.id)].slice(0,8));setActive(null);setQ('');}
+    setTimeout(()=>inp.current?.focus(),50);
+  };
+  return html`
+    <div style=${{minHeight:'100vh',background:'#0d1017'}}>
+      <div class="sticky-header no-print" style=${{display:'flex',justifyContent:'space-between',alignItems:'center'}}>
+        <div><h1 style=${{fontSize:20,fontWeight:800,color:'#f0a500',margin:0}}>${label}</h1>
+          <p style=${{fontSize:12,color:'#546e7a',margin:0}}>Mid TN VBC Tryouts</p></div>
+        <${Btn} sm onClick=${onLogout} color="#ef5350" outline>Log Out<//>
+      </div>
+      <div style=${{maxWidth:520,margin:'0 auto',padding:24}}>
+        <div class="card" style=${{padding:20,marginBottom:16}}>
+          <label class="label">Athlete TO# or Name</label>
+          <div style=${{display:'flex',gap:8}}>
+            <input ref=${inp} class="input" placeholder="TO# or full name" autoFocus value=${q}
+              onInput=${e=>setQ(e.target.value)} onKeyDown=${e=>e.key==='Enter'&&found&&setActive({...found})}
+              style=${{fontFamily:'monospace',fontSize:16}}/>
+            <${Btn} onClick=${()=>found&&setActive({...found})} disabled=${!found} color="#f0a500">Load<//>
+          </div>
+          ${q&&!found&&html`<div style=${{marginTop:6,fontSize:12,color:'#ef5350'}}>Not found</div>`}
+        </div>
+        ${active&&html`
+          <div class="card" style=${{padding:20,marginBottom:16}}>
+            <div style=${{display:'flex',justifyContent:'space-between',alignItems:'flex-start',marginBottom:16}}>
+              <div>
+                <div style=${{fontSize:20,fontWeight:800}}>${active.first} ${active.last}</div>
+                <div style=${{display:'flex',gap:6,marginTop:4,flexWrap:'wrap',alignItems:'center'}}>
+                  <span style=${{color:'#4fc3f7',fontFamily:'monospace',fontSize:12}}>TO# ${active.to}</span>
+                  <${Badge} c="#78909c" sm>${posAbbr(active.primaryPos)}<//>
+                  ${active.altPos&&html`<${Badge} c="#546e7a" sm>${posAbbr(active.altPos)}<//>`}
+                  ${active.isWalkup&&html`<${Badge} c="#ffa726" sm>Walkup<//>`}
+                </div>
+              </div>
+              ${avg!==null&&html`<div style=${{textAlign:'right'}}><div style=${{fontSize:11,color:'#78909c'}}>Avg</div><div style=${{fontSize:30,fontWeight:800,color:'#66bb6a'}}>${avg.toFixed(1)}</div></div>`}
+            </div>
+            <div style=${{display:'grid',gridTemplateColumns:`repeat(${metricDefs.length},1fr)`,gap:12,marginBottom:16}}>
+              ${metricDefs.map((lbl,idx)=>html`
+                <div key=${idx}>
+                  <label class="label">${lbl}</label>
+                  <input type="number" value=${vals[idx]||''} autoFocus=${idx===0}
+                    onInput=${e=>{const nv=[...vals];nv[idx]=e.target.value;onMetric(active.id,stationKey,nv);setActive(a=>({...a,metrics:{...a.metrics,[stationKey]:nv}}));}}
+                    onKeyDown=${e=>e.key==='Enter'&&idx===metricDefs.length-1&&save()}
+                    style=${{width:'100%',padding:10,background:'#12151c',border:'1px solid #2a2e38',borderRadius:8,color:'#e8eaed',fontSize:24,textAlign:'center',fontFamily:'monospace'}}/>
+                </div>`)}
+            </div>
+            <button onClick=${save} style=${{width:'100%',padding:12,background:'#66bb6a',border:'none',borderRadius:8,color:'#fff',fontSize:15,fontWeight:700,cursor:'pointer'}}>Save & Next ✓</button>
+          </div>`}
+        ${recent.length>0&&html`
+          <div class="card" style=${{padding:14}}>
+            <div style=${{fontSize:11,color:'#546e7a',textTransform:'uppercase',letterSpacing:1,marginBottom:8}}>Recent (${recent.length})</div>
+            ${recent.map(a=>{const av=sAvg(a.metrics,stationKey);return html`
+              <div key=${a.id} style=${{display:'flex',alignItems:'center',gap:8,padding:'5px 0',borderBottom:'1px solid #1e222b'}}>
+                <span style=${{fontFamily:'monospace',color:'#4fc3f7',fontSize:11}}>#${a.to}</span>
+                <span style=${{flex:1,fontSize:12}}>${a.first} ${a.last}</span>
+                ${av!==null?html`<${Badge} c="#66bb6a">${av.toFixed(1)}<//>`:''}
+                <${Btn} sm onClick=${()=>setActive({...a})} color="#4fc3f7" outline>Edit<//>
+              </div>`;})}
+          </div>`}
+      </div>
+    </div>`;
+}
+
+// ── ATHLETE MODAL ──────────────────────────────────────────────────
+function AthleteModal({athlete,onClose,onChange,onHide,onUnhide,onEmail}){
+  if(!athlete) return null;
+  const locked=athlete.status==='accepted';
+  const sc=totalScore(athlete.metrics);
+  const [ef,setEf]=useState(null);
+  const [ev,setEv]=useState('');
+  const startEdit=(k,v)=>{if(locked)return;setEf(k);setEv(v||'');};
+  const saveEdit=()=>{if(ef){onChange(athlete.id,{[ef]:ev});setEf(null);}};
+  const F=(label,key,opts)=>html`
+    <div>
+      <div class="label">${label}</div>
+      ${ef===key?(opts
+        ?html`<select class="select" value=${ev} onChange=${e=>setEv(e.target.value)} onBlur=${saveEdit} autoFocus>${opts.map(o=>html`<option>${o}</option>`)}</select>`
+        :html`<input class="input" value=${ev} onInput=${e=>setEv(e.target.value)} onBlur=${saveEdit} onKeyDown=${e=>e.key==='Enter'&&saveEdit()} autoFocus style=${{fontSize:13,padding:'6px 8px'}}/>`)
+      :html`<div onClick=${()=>startEdit(key,athlete[key])} style=${{fontSize:13,color:athlete[key]?'#e8eaed':'#444',cursor:locked?'default':'pointer',padding:'2px 0',borderBottom:'1px dashed #2a2e38',wordBreak:'break-all',minHeight:20}}>
+        ${athlete[key]||'—'}${!locked&&html`<span style=${{color:'#4fc3f7',marginLeft:4,fontSize:10}}>✏</span>`}
+      </div>`}
+    </div>`;
+  return html`
+    <div class="modal-overlay" onClick=${onClose}>
+      <div class="modal-box" style=${{width:640}} onClick=${e=>e.stopPropagation()}>
+        <div style=${{display:'flex',justifyContent:'space-between',alignItems:'flex-start',marginBottom:16}}>
+          <div>
+            <h3 style=${{fontSize:20,color:'#e8eaed',margin:0,display:'flex',alignItems:'center',gap:8}}>
+              ${locked&&'🔒 '}${athlete.first} ${athlete.last}
+              ${athlete.isWalkup&&html`<${Badge} c="#ffa726" sm>Walkup<//>`}
+              ${athlete.arrived&&html`<${Badge} c="#26c6da" sm>✓ Arrived<//>`}
+            </h3>
+            <div style=${{display:'flex',gap:8,marginTop:6,flexWrap:'wrap',alignItems:'center'}}>
+              <span style=${{color:'#4fc3f7',fontFamily:'monospace',fontSize:13}}>TO# ${athlete.to}</span>
+              ${sc&&html`<${Badge} c=${scoreColor(sc)}>Score: ${sc}<//>`}
+              <${SBadge} status=${athlete.status}/>
+              ${athlete.wontAccept&&html`<span title=${athlete.wontAccept}>⚠️</span>`}
+            </div>
+          </div>
+          <button onClick=${onClose} style=${{background:'none',border:'none',color:'#666',fontSize:24,cursor:'pointer'}}>×</button>
+        </div>
+        <div style=${{display:'grid',gridTemplateColumns:'1fr 1fr',gap:'12px 20px',marginBottom:16}}>
+          ${F('First Name','first')}${F('Last Name','last')}
+          ${F('Date of Birth','dob')}${F('Division','division',AGES.map(a=>a+' & Under'))}
+          ${F('Primary Position','primaryPos',['Outside Hitter','Middle Hitter','Setter','Right Side Hitter','Defensive Specialist','Libero','I am unsure'])}
+          ${F('Alt Position','altPos',['Outside Hitter','Middle Hitter','Setter','Right Side Hitter','Defensive Specialist','Libero','N/A'])}
+          ${F('Phone','phone')}${F('Email','email')}
+        </div>
+        <div style=${{display:'grid',gridTemplateColumns:'1fr 1fr 1fr',gap:12,marginBottom:14}}>
+          <div><label class="label">Status</label>
+            <select class="select" value=${athlete.status} onChange=${e=>onChange(athlete.id,{status:e.target.value})} disabled=${locked}>
+              ${STATUSES.map(s=>html`<option value=${s}>${s.charAt(0).toUpperCase()+s.slice(1).replace('_',' ')}</option>`)}</select></div>
+          <div><label class="label">Coach POS</label>
+            <select class="select" value=${athlete.coachPos||''} onChange=${e=>onChange(athlete.id,{coachPos:e.target.value})} disabled=${locked}>
+              <option value="">---</option>${['S','M','OH','RS','DS','L'].map(p=>html`<option>${p}</option>`)}</select></div>
+          <div><label class="label">Arrived</label>
+            <select class="select" value=${athlete.arrived?'yes':'no'}
+              onChange=${e=>onChange(athlete.id,{arrived:e.target.value==='yes',status:e.target.value==='yes'&&athlete.status==='pending'?'arrived':athlete.status})}>
+              <option value="no">Not Arrived</option><option value="yes">Arrived ✓</option></select></div>
+        </div>
+        <div style=${{marginBottom:14}}>
+          <label class="label">Notes (Phone Calls, Tryout Notes, etc.)</label>
+          <textarea class="input" rows="3" placeholder="Add call log, tryout notes, parent concerns..."
+            value=${athlete.notes||''} onInput=${e=>onChange(athlete.id,{notes:e.target.value})} disabled=${locked}
+            style=${{lineHeight:1.6,resize:'vertical',height:'auto'}}></textarea>
+        </div>
+        <div style=${{marginBottom:16}}>
+          <label class="label" style=${{color:'#ffa726'}}>⚠️ Won't Accept (team restrictions)</label>
+          <input class="input" placeholder="e.g. Will not accept 14 Silver or lower"
+            value=${athlete.wontAccept||''} onInput=${e=>onChange(athlete.id,{wontAccept:e.target.value})} disabled=${locked}
+            style=${{borderColor:'#ffa72633'}}/>
+        </div>
+        <div style=${{borderTop:'1px solid #2a2e38',paddingTop:14,marginBottom:14}}>
+          <div style=${{fontSize:13,fontWeight:700,color:'#4fc3f7',marginBottom:10}}>Tryout Scores</div>
+          ${STATIONS.filter(s=>!s.isCheckin).map(st=>{
+            const vs=(athlete.metrics&&athlete.metrics[st.key])||st.metrics.map(()=>'');
+            const av=sAvg(athlete.metrics,st.key);
+            return html`
+              <div style=${{marginBottom:12}}>
+                <div style=${{fontSize:11,color:'#78909c',fontWeight:600,marginBottom:6,display:'flex',justifyContent:'space-between'}}>
+                  <span>${st.label}</span>${av!==null&&html`<span style=${{color:'#66bb6a'}}>Avg: ${av.toFixed(1)}</span>`}
+                </div>
+                <div style=${{display:'grid',gridTemplateColumns:`repeat(${st.metrics.length},1fr)`,gap:8}}>
+                  ${st.metrics.map((lbl,idx)=>html`
+                    <div key=${idx}><div style=${{fontSize:10,color:'#546e7a',marginBottom:2}}>${lbl}</div>
+                      <input type="number" value=${vs[idx]||''} disabled=${locked}
+                        onInput=${e=>{const nv=[...vs];nv[idx]=e.target.value;onChange(athlete.id,{metrics:{...athlete.metrics,[st.key]:nv}});}}
+                        style=${{width:'100%',padding:'5px',background:'#12151c',border:'1px solid #2a2e38',borderRadius:4,color:'#e8eaed',fontSize:13,textAlign:'center'}}/></div>`)}
+                </div>
+              </div>`;})}
+          ${sc&&html`<div style=${{textAlign:'right',fontWeight:800,fontSize:15,color:'#66bb6a'}}>Total Score: ${sc}</div>`}
+        </div>
+        <div style=${{display:'flex',gap:8,flexWrap:'wrap'}}>
+          ${!locked&&html`<${Btn} onClick=${()=>{onEmail(athlete);onClose();}} color="#42a5f5">📬 Send Offer<//>`}
+          ${!locked&&!athlete.hidden&&html`<${Btn} onClick=${()=>{onHide(athlete);onClose();}} danger outline>Hide<//>`}
+          ${athlete.hidden&&html`<${Btn} onClick=${()=>{onUnhide(athlete.id);onClose();}} color="#66bb6a">Unhide<//>`}
+          ${locked&&html`<${Badge} c="#66bb6a">🔒 Accepted — Locked<//>`}
+        </div>
+      </div>
+    </div>`;
+}
+
+// ── EMAIL MODAL ────────────────────────────────────────────────────
+function EmailModal({athlete,team,onClose,onSend}){
+  const tpl=`Hello,\n\nWe are pleased to offer ${athlete?.first||''} ${athlete?.last||''} a roster spot on Mid TN VBC${team?' — '+team:''} for the 2026-2027 season.\n\nDetails at www.midtnvbc.com/clubtryouts\n\nPlease reply:\n  1. Accept\n  2. Request a call\n  3. Decline\n\nThank you!\nMid TN VBC`;
+  const [body,setBody]=useState(tpl);
+  useEffect(()=>{if(athlete)setBody(tpl);},[athlete?.id]);
+  if(!athlete) return null;
+  return html`
+    <div class="modal-overlay" onClick=${onClose}>
+      <div class="modal-box" style=${{width:560}} onClick=${e=>e.stopPropagation()}>
+        <h3 style=${{margin:'0 0 4px',fontSize:16}}>Send Offer — ${athlete.first} ${athlete.last}</h3>
+        ${team&&html`<p style=${{margin:'0 0 4px',fontSize:12,color:'#f0a500',fontWeight:600}}>${team}</p>`}
+        <p style=${{margin:'0 0 14px',fontSize:12,color:'#78909c'}}>${athlete.email||'⚠️ No email on file'}</p>
+        <textarea class="input" rows="12" style=${{lineHeight:1.6,resize:'vertical',height:'auto',marginBottom:14}}
+          value=${body} onInput=${e=>setBody(e.target.value)}></textarea>
+        <div style=${{display:'flex',gap:8}}>
+          <${Btn} onClick=${onClose} color="#2a2e38">Cancel<//>
+          <${Btn} onClick=${()=>navigator.clipboard?.writeText(body)} color="#ffa726" outline>Copy Text<//>
+          <${Btn} onClick=${()=>{onSend(athlete,body,team);onClose();}} color="#66bb6a" style=${{flex:1}}>
+            ${athlete.email?'Open Mail App ✓':'Copy & Mark Contacted'}
+          <//>
+        </div>
+      </div>
+    </div>`;
+}
+
+// ── HIDE MODAL ─────────────────────────────────────────────────────
+function HideModal({athlete,onClose,onHide}){
+  const [reason,setReason]=useState(HIDE_REASONS[0]);
+  const [note,setNote]=useState('');
+  if(!athlete) return null;
+  return html`
+    <div class="modal-overlay" onClick=${onClose}>
+      <div class="modal-box" style=${{width:400}} onClick=${e=>e.stopPropagation()}>
+        <h3 style=${{color:'#ef5350',margin:'0 0 16px'}}>Hide ${athlete.first} ${athlete.last}</h3>
+        <div style=${{marginBottom:12}}><label class="label">Reason</label>
+          <select class="select" value=${reason} onChange=${e=>setReason(e.target.value)}>
+            ${HIDE_REASONS.map(r=>html`<option>${r}</option>`)}</select></div>
+        <div style=${{marginBottom:20}}><label class="label">Notes (optional)</label>
+          <input class="input" value=${note} onInput=${e=>setNote(e.target.value)} placeholder="Additional context..."/></div>
+        <div style=${{display:'flex',gap:8}}>
+          <${Btn} onClick=${onClose} color="#2a2e38" style=${{flex:1}}>Cancel<//>
+          <${Btn} onClick=${()=>{onHide(athlete.id,reason,note);onClose();}} danger style=${{flex:1}}>Hide Athlete<//>
+        </div>
+      </div>
+    </div>`;
+}
+
+// ── PLAYER CARD ────────────────────────────────────────────────────
+function PCard({athlete,onClick,compact,showScore,teamKey}){
+  const sc=totalScore(athlete.metrics);
+  const locked=athlete.teamLocked||athlete.status==='accepted';
+  return html`
+    <div class=${'player-card'+(athlete.status==='declined'?' declined':'')+(locked?' locked':'')}
+      draggable=${!locked} onDragStart=${e=>!locked&&e.dataTransfer.setData('text/plain',athlete.id)}
+      onClick=${()=>onClick?.(athlete)}>
+      ${locked&&html`<span title="Locked">🔒</span>`}
+      <span style=${{fontFamily:'monospace',fontSize:10,color:'#4fc3f7',minWidth:22}}>#${athlete.to}</span>
+      <span style=${{fontWeight:600,fontSize:compact?12:13,flex:1,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>${athlete.first} ${athlete.last}</span>
+      <${Badge} c="#78909c" sm>${posAbbr(athlete.primaryPos)}<//>
+      ${athlete.altPos&&athlete.altPos!==athlete.primaryPos&&html`<${Badge} c="#3a3f47" sm>${posAbbr(athlete.altPos)}<//>`}
+      ${athlete.wontAccept&&html`<span title=${athlete.wontAccept} style=${{fontSize:14,marginLeft:4,cursor:'help'}}>⚠️</span>`}
+      ${athlete.notes&&html`<span title=${athlete.notes} style=${{fontSize:14,marginLeft:4,cursor:'help'}}>📝</span>`}
+      ${showScore&&sc&&html`<${Badge} c=${scoreColor(sc)} sm>${sc}<//>`}
+      <${SBadge} status=${athlete.status}/>
+    </div>`;
+}
+
+// ── HEAD COACH ─────────────────────────────────────────────────────
+function HeadCoach({athletes,setAthletes,onLogout}){
+  const [view,setView]=useState('allreg');
+  const [age,setAge]=useState('12');
+  const [selAth,setSelAth]=useState(null);
+  const [emailAth,setEmailAth]=useState(null);
+  const [emailTeam,setEmailTeam]=useState('');
+  const [hideAth,setHideAth]=useState(null);
+
+  useEffect(()=>saveLocal(athletes),[athletes]);
+
+  const upd=useCallback((id,updates)=>{
+    const finalUpdates={...updates};
+    if(updates.status==='accepted') finalUpdates.teamLocked=true;
+    setAthletes(p=>p.map(a=>a.id===id?{...a,...finalUpdates}:a));
+    setSelAth(p=>p?.id===id?{...p,...finalUpdates}:p);
+  },[]);
+  const updMetric=useCallback((id,key,vals)=>{
+    setAthletes(p=>p.map(a=>a.id===id?{...a,metrics:{...a.metrics,[key]:vals}}:a));
+    setSelAth(p=>p?.id===id?{...p,metrics:{...p.metrics,[key]:vals}}:p);
+  },[]);
+  const addWalkup=useCallback(wu=>{setAthletes(p=>[...p,...initAthletes([wu])]);},[]);
+  const doHide=(id,reason,note)=>upd(id,{hidden:true,hideReason:reason,hideNote:note,teamAssignment:null,teamLocked:false});
+  const doUnhide=id=>upd(id,{hidden:false,hideReason:'',hideNote:''});
+  const doArrive=id=>upd(id,{arrived:true,status:'arrived'});
+  const doEmail=(athlete,body,team)=>{
+    upd(athlete.id,{status:['pending','arrived'].includes(athlete.status)?'contacted':athlete.status});
+    if(athlete.email) window.open(`mailto:${athlete.email}?subject=${encodeURIComponent('Mid TN VBC - Offer'+(team?' - '+team:''))}&body=${encodeURIComponent(body)}`,'_blank');
+    else navigator.clipboard?.writeText(body);
+  };
+
+  const hidden=athletes.filter(a=>a.hidden);
+  const arrived=athletes.filter(a=>a.arrived&&!a.hidden).length;
+  const assigned=athletes.filter(a=>a.teamAssignment&&!a.hidden).length;
+  const accepted=athletes.filter(a=>a.status==='accepted'&&!a.hidden).length;
+  const walkups=athletes.filter(a=>a.isWalkup&&!a.hidden).length;
+  const VIEWS=['allreg','depth','results','teams','allteams','hidden'];
+  const VLABELS={allreg:'All Reg',depth:'Depth Chart',results:'Results',teams:'Team Builder',allteams:'All Teams',hidden:`Hidden (${hidden.length})`};
+  const showAgeNav=['depth','results','teams'].includes(view);
+
+  // ── ALL REG ──
+  const [regQ,setRegQ]=useState('');
+  const [addWu,setAddWu]=useState(false);
+  const [wuForm,setWuForm]=useState({first:'',last:'',dob:'',division:'12 & Under',primaryPos:'Outside Hitter',altPos:'',phone:'',email:''});
+  const regList=useMemo(()=>{
+    let l=athletes.filter(a=>!a.hidden);
+    if(regQ){const s=regQ.toLowerCase();l=l.filter(a=>a.first.toLowerCase().includes(s)||a.last.toLowerCase().includes(s)||a.to.includes(regQ)||(a.division||'').toLowerCase().includes(s)||(a.primaryPos||'').toLowerCase().includes(s));}
+    return l;
+  },[athletes,regQ]);
+  const submitWu=()=>{
+    if(!wuForm.first||!wuForm.last) return;
+    addWalkup({...wuForm,id:`wu-${Date.now()}`,to:String(200+athletes.filter(a=>a.isWalkup).length),isWalkup:true,arrived:true,status:'arrived'});
+    setWuForm({first:'',last:'',dob:'',division:'12 & Under',primaryPos:'Outside Hitter',altPos:'',phone:'',email:''});
+    setAddWu(false);
+  };
+
+  // ── DEPTH ──
+  const depthPool=useMemo(()=>{
+    const pool=athletes.filter(a=>a.ageGroup===age&&!a.hidden);
+    const g={setter:[],middle:[],outside:[],defense:[],unsorted:[]};
+    pool.forEach(a=>(g[a.posCategory]||g.unsorted).push(a));
+    Object.keys(g).forEach(k=>g[k].sort((a,b)=>(Number(totalScore(b.metrics))||0)-(Number(totalScore(a.metrics))||0)));
+    return g;
+  },[athletes,age]);
+
+  // ── RESULTS ──
+  const [resSort,setResSort]=useState('score');
+  const resList=useMemo(()=>{
+    const l=athletes.filter(a=>a.ageGroup===age&&!a.hidden);
+    if(resSort==='score') l.sort((a,b)=>(Number(totalScore(b.metrics))||0)-(Number(totalScore(a.metrics))||0));
+    else if(resSort==='name') l.sort((a,b)=>a.last.localeCompare(b.last));
+    else l.sort((a,b)=>(sAvg(b.metrics,resSort)||0)-(sAvg(a.metrics,resSort)||0));
+    return l;
+  },[athletes,age,resSort]);
+
+  // ── TEAMS ──
+  const [poolSort,setPoolSort]=useState('score');
+  const [showPool,setShowPool]=useState(true);
+  const [dragOver,setDragOver]=useState(null);
+  const ageAths=athletes.filter(a=>a.ageGroup===age&&!a.hidden);
+  const pool=useMemo(()=>{
+    let l=ageAths.filter(a=>!a.teamAssignment);
+    if(poolSort==='score') l.sort((a,b)=>(Number(totalScore(b.metrics))||0)-(Number(totalScore(a.metrics))||0));
+    else if(poolSort==='name') l.sort((a,b)=>a.last.localeCompare(b.last));
+    else l.sort((a,b)=>(a.posCategory||'z').localeCompare(b.posCategory||'z'));
+
+    if(poolSort==='pos'){
+      const g={setter:[],middle:[],outside:[],defense:[],unsorted:[]};
+      l.forEach(a=>(g[a.posCategory]||g.unsorted).push(a));
+      return g;
+    }
+    return l;
+  },[ageAths,poolSort]);
+  const drop=(e,teamKey)=>{e.preventDefault();const id=e.dataTransfer.getData('text/plain');const a=athletes.find(x=>x.id===id);if(a&&!a.teamLocked&&a.status!=='accepted') upd(id,{teamAssignment:teamKey});setDragOver(null);};
+
+  const th={};
+  const td={};
+
+  return html`
+    <div style=${{minHeight:'100vh',background:'#0d1017',paddingBottom:20}}>
+      <div class="sticky-header no-print">
+        <div style=${{display:'flex',alignItems:'center',gap:10,flexWrap:'wrap',marginBottom:10}}>
+          <a href="../" style=${{color:'#546e7a',textDecoration:'none',fontSize:12}}>← Hub</a>
+          <span style=${{color:'#2a2e38'}}>|</span>
+          <h1 style=${{margin:0,fontSize:18,fontWeight:800}}><span style=${{color:'#f0a500'}}>MID TN</span> VBC Tryout Manager</h1>
+          <div style=${{flex:1}}/>
+          <${Badge} c="#26c6da">${arrived} Arrived<//>
+          <${Badge} c="#66bb6a">${assigned} Assigned<//>
+          <${Badge} c="#ab47bc">${accepted} Accepted<//>
+          <${Badge} c="#ffa726">${walkups} Walkups<//>
+          <${Btn} sm onClick=${onLogout} color="#ef5350" outline>Log Out<//>
+        </div>
+        <div style=${{display:'flex',gap:4,flexWrap:'wrap',alignItems:'center'}}>
+          ${VIEWS.map(v=>html`<button key=${v} class=${'nav-tab'+(view===v?' active':'')} onClick=${()=>setView(v)}>${VLABELS[v]}</button>`)}
+          <div style=${{flex:1}}/>
+          ${showAgeNav&&html`
+            <div style=${{display:'flex',gap:2,background:'#12151c',borderRadius:6,padding:2}}>
+              ${AGES.map(a=>html`<button key=${a} class=${'age-tab'+(age===a?' active':'')} onClick=${()=>setAge(a)}>${a}s</button>`)}</div>`}
+          ${view==='allteams'&&html`
+            <${Btn} sm onClick=${()=>exportCSV([['Age','Team','TO#','First','Last','POS','Coach POS','Score','Status','Phone','Email','Notes','Wont Accept'],...athletes.filter(a=>a.teamAssignment&&!a.hidden).map(a=>[a.ageGroup+'s',a.teamAssignment,a.to,a.first,a.last,a.primaryPos,a.coachPos,totalScore(a.metrics)||'',a.status,a.phone,a.email,a.notes,a.wontAccept])],'MidTN_Teams.csv')} color="#66bb6a" outline>Export CSV<//>
+            <${Btn} sm onClick=${()=>window.print()} color="#4fc3f7" outline>Print<//>
+          `}
+        </div>
+      </div>
+
+      <div style=${{padding:'16px 20px'}}>
+
+        ${view==='allreg'&&html`
+          <div>
+            <div style=${{display:'flex',gap:10,marginBottom:14,alignItems:'center',flexWrap:'wrap'}}>
+              <input class="input" placeholder="Search name, TO#, position..." value=${regQ}
+                onInput=${e=>setRegQ(e.target.value)} style=${{flex:1,minWidth:200,padding:'7px 12px'}}/>
+              <${Badge} c="#26c6da">${regList.filter(a=>a.arrived).length} Arrived<//>
+              <${Badge} c="#78909c">${regList.length} Total<//>
+              <${Btn} sm onClick=${()=>setAddWu(p=>!p)} color="#f0a500">+ Add Walkup<//>
+              <${Btn} sm onClick=${()=>exportCSV([['TO#','First','Last','Division','Primary','Alt','Score','Status','Arrived','Walkup','Phone','Email','Notes','Wont Accept'],...athletes.filter(a=>!a.hidden).map(a=>[a.to,a.first,a.last,a.division,a.primaryPos,a.altPos,totalScore(a.metrics)||'',a.status,a.arrived?'Yes':'',a.isWalkup?'Yes':'',a.phone,a.email,a.notes,a.wontAccept])],'MidTN_Reg.csv')} color="#4fc3f7" outline>Export CSV<//>
+            </div>
+            ${addWu&&html`
+              <div class="card" style=${{padding:16,marginBottom:14,border:'1px solid #f0a50033'}}>
+                <div style=${{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(130px,1fr))',gap:10,marginBottom:10}}>
+                  ${[['First *','first'],['Last *','last'],['DOB','dob'],['Phone','phone'],['Email','email']].map(([l,k])=>html`
+                    <div key=${k}><label class="label">${l}</label>
+                      <input class="input" value=${wuForm[k]||''} onInput=${e=>setWuForm(p=>({...p,[k]:e.target.value}))} style=${{padding:'6px 8px',fontSize:12}}/></div>`)}
+                  <div><label class="label">Division *</label>
+                    <select class="select" value=${wuForm.division} onChange=${e=>setWuForm(p=>({...p,division:e.target.value}))} style=${{padding:'6px 8px',fontSize:12}}>
+                      ${AGES.map(a=>html`<option value=${a+' & Under'}>${a}s</option>`)}</select></div>
+                  <div><label class="label">Primary Pos *</label>
+                    <select class="select" value=${wuForm.primaryPos} onChange=${e=>setWuForm(p=>({...p,primaryPos:e.target.value}))} style=${{padding:'6px 8px',fontSize:12}}>
+                      ${['Outside Hitter','Middle Hitter','Setter','Right Side Hitter','Defensive Specialist','Libero','I am unsure'].map(p=>html`<option>${p}</option>`)}</select></div>
+                </div>
+                <div style=${{display:'flex',gap:8}}><${Btn} sm onClick=${()=>setAddWu(false)} color="#2a2e38">Cancel<//>
+                  <${Btn} sm onClick=${submitWu} color="#f0a500" disabled=${!wuForm.first||!wuForm.last}>Add & Check In ✓<//></div>
+              </div>`}
+            <div style=${{overflowX:'auto',maxHeight:'calc(100vh - 280px)'}}>
+              <table>
+                <thead><tr>${['TO#','Name','Div','Primary','Alt','Coach','Score','Status','Arrived','Notes','Phone','Email'].map(h=>html`<th key=${h}>${h}</th>`)}</tr></thead>
+                <tbody>
+                  ${regList.map(a=>html`
+                    <tr key=${a.id} onClick=${()=>setSelAth(a)}>
+                      <td style=${{fontFamily:'monospace',color:'#4fc3f7'}}>${a.to}</td>
+                      <td style=${{fontWeight:600,whiteSpace:'nowrap'}}>${a.first} ${a.last}${a.isWalkup&&html`<span style=${{marginLeft:4,fontSize:10,color:'#ffa726'}}>WU</span>`}</td>
+                      <td><${Badge} c="#78909c" sm>${a.ageGroup}s<//></td>
+                      <td><${Badge} c="#4fc3f7" sm>${posAbbr(a.primaryPos)}<//></td>
+                      <td><${Badge} c="#546e7a" sm>${posAbbr(a.altPos)}<//></td>
+                      <td>${a.coachPos&&html`<${Badge} c="#ffa726" sm>${a.coachPos}<//>`}</td>
+                      <td style=${{fontFamily:'monospace',fontWeight:700,color:totalScore(a.metrics)?scoreColor(totalScore(a.metrics)):'#444'}}>${totalScore(a.metrics)||'—'}</td>
+                      <td><${SBadge} status=${a.status}/></td>
+                      <td>${a.arrived?html`<${Badge} c="#26c6da" sm>✓<//>`
+                        :html`<${Btn} sm onClick=${e=>{e.stopPropagation();doArrive(a.id);}} color="#26c6da" outline>Check In<//>`}</td>
+                      <td>${a.notes&&html`<span title=${a.notes}>📝</span>`}${a.wontAccept&&html`<span title=${a.wontAccept} style=${{marginLeft:4}}>⚠️</span>`}</td>
+                      <td style=${{color:'#78909c',whiteSpace:'nowrap',fontSize:11}}>${a.phone}</td>
+                      <td style=${{color:'#78909c',maxWidth:140,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap',fontSize:11}}>${a.email}</td>
+                    </tr>`)}</tbody></table>
+              ${regList.length===0&&html`<div style=${{padding:40,textAlign:'center',color:'#444'}}>No results</div>`}
+            </div>
+          </div>`}
+
+        ${view==='depth'&&html`
+          <div>
+            <h2 style=${{fontSize:17,fontWeight:700,margin:'0 0 14px'}}>${age}'s Depth Chart <span style=${{fontSize:12,color:'#78909c',fontWeight:400}}>sorted by score · alt pos shown</span></h2>
+            <div style=${{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(240px,1fr))',gap:14}}>
+              ${[...POS_CATS,{key:'unsorted',label:'Unsorted'}].map(cat=>{
+                const list=depthPool[cat.key]||[];
+                return html`
+                  <div key=${cat.key} class="depth-col">
+                    <div class="depth-col-header">
+                      <span style=${{fontWeight:700,fontSize:13,color:cat.key==='unsorted'?'#ffa726':'#4fc3f7'}}>${cat.label}</span>
+                      <span style=${{fontSize:11,color:'#546e7a'}}>${list.length}</span>
+                    </div>
+                    <div style=${{padding:8,overflowY:'auto',maxHeight:420}}>
+                      ${list.map((a,i)=>html`
+                        <div key=${a.id} onClick=${()=>setSelAth(a)} style=${{display:'flex',alignItems:'center',gap:6,padding:'6px 8px',background:'#1a1d24',borderRadius:6,marginBottom:4,cursor:'pointer'}}>
+                          <span style=${{fontSize:11,color:'#546e7a',minWidth:16,textAlign:'right'}}>${i+1}</span>
+                          <span style=${{fontFamily:'monospace',fontSize:10,color:'#4fc3f7',minWidth:24}}>#${a.to}</span>
+                          <span style=${{flex:1,fontSize:12,fontWeight:600}}>${a.first} ${a.last}</span>
+                          <${Badge} c="#78909c" sm>${posAbbr(a.primaryPos)}<//>
+                          <${Badge} c="#546e7a" sm>${posAbbr(a.altPos)}<//>
+                          ${totalScore(a.metrics)&&html`<${Badge} c=${scoreColor(totalScore(a.metrics))} sm>${totalScore(a.metrics)}<//>`}
+                          ${a.wontAccept&&html`<span title=${a.wontAccept}>⚠️</span>`}
+                          ${a.notes&&html`<span title=${a.notes}>📝</span>`}
+                        </div>`)}
+                      ${list.length===0&&html`<div style=${{padding:20,textAlign:'center',color:'#333',fontSize:12}}>None</div>`}
+                    </div>
+                  </div>`;})}</div></div>`}
+
+        ${view==='results'&&html`
+          <div>
+            <div style=${{display:'flex',gap:12,alignItems:'center',marginBottom:14,flexWrap:'wrap'}}>
+              <h2 style=${{margin:0,fontSize:17,fontWeight:700}}>${age}'s Results</h2>
+              <select class="select" style=${{width:'auto'}} value=${resSort} onChange=${e=>setResSort(e.target.value)}>
+                <option value="score">Sort: Total Score</option><option value="name">Sort: Name</option>
+                ${STATIONS.filter(s=>!s.isCheckin).map(s=>html`<option value=${s.key}>Sort: ${s.label}</option>`)}</select></div>
+            <div style=${{overflowX:'auto'}}>
+              <table>
+                <thead><tr>
+                  <th>TO#</th><th>Name</th><th>POS</th><th>Alt</th>
+                  ${STATIONS.filter(s=>!s.isCheckin).map(s=>s.metrics.map((m,i)=>html`<th key=${s.key+i} style=${{color:'#4fc3f7'}}>${m}</th>`))}
+                  ${STATIONS.filter(s=>!s.isCheckin).map(s=>html`<th key=${s.key+'a'} style=${{color:'#ffa726'}}>Avg</th>`)}
+                  <th style=${{color:'#66bb6a'}}>Total</th><th>Status</th></tr></thead>
+                <tbody>${resList.map((a,ri)=>{const sc=totalScore(a.metrics);return html`
+                  <tr key=${a.id} onClick=${()=>setSelAth(a)} style=${{background:ri%2===0?'transparent':'#0a0d12'}}>
+                    <td style=${{fontFamily:'monospace',color:'#4fc3f7'}}>${a.to}</td>
+                    <td style=${{fontWeight:600}}>${a.first} ${a.last}${a.isWalkup&&html`<span style=${{marginLeft:4,fontSize:10,color:'#ffa726'}}>WU</span>`}</td>
+                    <td><${Badge} c="#78909c" sm>${posAbbr(a.primaryPos)}<//></td>
+                    <td><${Badge} c="#546e7a" sm>${posAbbr(a.altPos)}<//></td>
+                    ${STATIONS.filter(s=>!s.isCheckin).map(st=>st.metrics.map((m,idx)=>{
+                      const vs=(a.metrics&&a.metrics[st.key])||[];
+                      return html`<td key=${st.key+idx}>
+                        <input type="number" value=${vs[idx]||''} onClick=${e=>e.stopPropagation()}
+                          onInput=${e=>{const nv=[...(a.metrics?.[st.key]||st.metrics.map(()=>''))];nv[idx]=e.target.value;updMetric(a.id,st.key,nv);}}
+                          style=${{width:50,padding:'2px 4px',background:'#12151c',border:'1px solid #2a2e38',borderRadius:4,color:'#e8eaed',fontSize:12,textAlign:'center'}}/></td>`; }))}
+                    ${STATIONS.filter(s=>!s.isCheckin).map(s=>{const av=sAvg(a.metrics,s.key);return html`<td key=${s.key+'a'} style=${{color:'#ffa726',fontWeight:700,fontFamily:'monospace'}}>${av!==null?av.toFixed(1):'—'}</td>`;})}
+                    <td style=${{fontWeight:800,fontFamily:'monospace',color:sc?scoreColor(sc):'#444'}}>${sc||'—'}</td>
+                    <td><${SBadge} status=${a.status}/></td>
+                  </tr>`;})}
+                </tbody></table>
+              ${resList.length===0&&html`<div style=${{padding:40,textAlign:'center',color:'#444'}}>No athletes in ${age}s</div>`}
+            </div></div>`}
+
+        ${view==='teams'&&html`
+          <div style=${{display:'flex',gap:14,alignItems:'flex-start'}}>
+            ${showPool&&html`
+              <div style=${{width:270,flexShrink:0,background:'#12151c',borderRadius:12,border:'1px solid #1e222b',maxHeight:'calc(100vh-180px)',display:'flex',flexDirection:'column'}}>
+                <div style=${{padding:'10px 14px',borderBottom:'1px solid #1e222b'}}>
+                  <div style=${{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:6}}>
+                    <span style=${{fontWeight:700,fontSize:13}}>Pool <span style=${{color:'#546e7a',fontWeight:400}}>(${pool.length})</span></span>
+                    <select class="select" style=${{width:'auto',padding:'2px 6px',fontSize:11}} value=${poolSort} onChange=${e=>setPoolSort(e.target.value)}>
+                      <option value="score">Score</option><option value="pos">Position</option><option value="name">Name</option></select></div>
+                  <div style=${{fontSize:11,color:'#546e7a'}}>Drag into teams →</div>
+                </div>
+                <div style=${{overflow:'auto',flex:1,padding:8}}>
+                  ${poolSort==='pos'
+                    ? [...POS_CATS,{key:'unsorted',label:'Unsorted'}].map(cat=>{
+                        const list=pool[cat.key]||[];
+                        if(!list.length) return null;
+                        return html`
+                          <div key=${cat.key} style=${{marginBottom:12}}>
+                            <div style=${{fontSize:11,fontWeight:800,color:'#4fc3f7',textTransform:'uppercase',letterSpacing:1,marginBottom:4,padding:'0 4px'}}>${cat.label}</div>
+                            ${list.map(a=>html`<${PCard} key=${a.id} athlete=${a} onClick=${setSelAth} compact showScore/>`)}
+                          </div>`;
+                      })
+                    : pool.map(a=>html`<${PCard} key=${a.id} athlete=${a} onClick=${setSelAth} compact showScore/>`)
+                  }
+                  ${((poolSort==='pos' && Object.values(pool).flat().length===0) || (poolSort!=='pos' && pool.length===0)) && html`<div style=${{padding:24,textAlign:'center',color:'#444',fontSize:12}}>All assigned</div>`}
+                </div>
+              </div>`}
+            <div style=${{flex:1}}>
+              <div style=${{display:'flex',gap:8,marginBottom:14,flexWrap:'wrap',alignItems:'center'}}>
+                <h2 style=${{margin:0,fontSize:17,fontWeight:700}}>${age}'s Teams</h2>
+                <${Btn} sm onClick=${()=>setShowPool(p=>!p)} color="#2a2e38" outline>${showPool?'Hide Pool':'Show Pool'}<//>
+              </div>
+              <div style=${{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(280px,1fr))',gap:14}}>
+                ${LEVELS.map(lvl=>{
+                  const key=`${age}-${lvl}`;const ts=TEAM_STYLE[lvl];
+                  const roster=ageAths.filter(a=>a.teamAssignment===key);
+                  const isLocked=roster.length>0&&roster.every(a=>a.teamLocked);
+                  const active=roster.filter(a=>a.status!=='declined');
+                  const declined=roster.filter(a=>a.status==='declined');
+                  const toggleLock=()=>{
+                    const newLocked=!isLocked;
+                    roster.forEach(a=>upd(a.id,{teamLocked:newLocked}));
+                  };
+                  return html`
+                    <div key=${lvl} class=${'team-card'+(isLocked?' finalized':'')}
+                      style=${{background:ts.bg,borderColor:isLocked?'#f0a500':ts.border}}>
+                      <div style=${{padding:'10px 14px',background:ts.hdr,display:'flex',justifyContent:'space-between',alignItems:'center'}}>
+                        <div style=${{display:'flex',alignItems:'center',gap:8}}>
+                          ${isLocked&&html`<span>🔒</span>`}
+                          <span style=${{fontWeight:800,fontSize:14,color:'#fff'}}>${age} ${lvl}</span>
+                          <span style=${{fontSize:11,color:'rgba(255,255,255,.5)',background:'rgba(255,255,255,.1)',padding:'2px 7px',borderRadius:10}}>${roster.length}/12</span>
+                        </div>
+                        ${roster.length>0&&html`
+                          <${Btn} sm onClick=${toggleLock} color=${isLocked?'#ef5350':'#f0a500'} outline>
+                            ${isLocked?'🔓 Unlock':'🔒 Finalize'}<//>  `}
+                      </div>
+                      <div class=${'drop-zone'+(dragOver===key?' drag-over':'')}
+                        onDragOver=${e=>{e.preventDefault();setDragOver(key);}}
+                        onDragLeave=${()=>setDragOver(null)}
+                        onDrop=${e=>drop(e,key)}>
+                        ${active.length===0&&declined.length===0&&html`
+                          <div style=${{padding:20,textAlign:'center',color:'#555',fontSize:12,border:'2px dashed #333',borderRadius:8}}>
+                            ${isLocked?'Team locked':'Drop athletes here'}</div>`}
+                        ${active.map(a=>html`
+                          <div key=${a.id} style=${{position:'relative'}}>
+                            <${PCard} athlete=${a} onClick=${setSelAth} compact showScore teamKey=${key}/>
+                            ${!isLocked&&html`<button onClick=${()=>upd(a.id,{teamAssignment:null,teamLocked:false})}
+                              style=${{position:'absolute',right:4,top:'50%',transform:'translateY(-50%)',background:'#ef535033',border:'none',borderRadius:4,color:'#ef5350',cursor:'pointer',fontSize:10,padding:'2px 5px'}}>×</button>`}
+                          </div>`)}
+                        ${declined.length>0&&html`
+                          <div style=${{marginTop:6,borderTop:'1px solid rgba(255,255,255,.08)',paddingTop:6}}>
+                            <div style=${{fontSize:10,color:'#ef5350',fontWeight:700,marginBottom:4}}>DECLINED</div>
+                            ${declined.map(a=>html`<${PCard} key=${a.id} athlete=${a} onClick=${setSelAth} compact teamKey=${key}/>`)}</div>`}
+                      </div>
+                      ${roster.length>0&&html`
+                        <div style=${{padding:'8px 10px',borderTop:`1px solid ${ts.border}44`}}>
+                          <${Btn} sm onClick=${()=>{const u=roster.find(a=>!['offered','accepted','declined'].includes(a.status));if(u){setEmailAth(u);setEmailTeam(key);}}}
+                            style=${{width:'100%',background:ts.hdr,border:`1px solid ${ts.border}66`,color:'#fff',cursor:'pointer'}}>
+                            📬 Send Offers (${roster.filter(a=>!['offered','accepted','declined'].includes(a.status)).length} pending)
+                          <//></div>`}
+                    </div>`;})}</div></div></div>`}
+
+        ${view==='allteams'&&html`
+          <div>
+            <h2 style=${{fontSize:17,fontWeight:700,margin:'0 0 14px'}}>All Teams</h2>
+            ${AGES.map(ag=>{
+              const hasTeams=LEVELS.some(l=>athletes.some(a=>a.teamAssignment===`${ag}-${l}`&&!a.hidden));
+              if(!hasTeams) return null;
+              return html`
+                <div key=${ag} class="team-print" style=${{marginBottom:24}}>
+                  <h3 style=${{fontSize:15,fontWeight:800,color:'#f0a500',margin:'0 0 10px',paddingBottom:6,borderBottom:'1px solid #1e222b'}}>${ag}'s</h3>
+                  <div style=${{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(200px,1fr))',gap:10}}>
+                    ${LEVELS.map(lvl=>{
+                      const key=`${ag}-${lvl}`;const ts=TEAM_STYLE[lvl];
+                      const roster=athletes.filter(a=>a.teamAssignment===key&&!a.hidden);
+                      if(!roster.length) return null;
+                      const isLocked=roster.every(a=>a.teamLocked);
+                      return html`
+                        <div key=${lvl} class="team-card team-print" style=${{background:ts.bg,borderColor:isLocked?'#f0a500':ts.border}}>
+                          <div style=${{padding:'8px 12px',background:ts.hdr,display:'flex',justifyContent:'space-between'}}>
+                            <span style=${{fontWeight:800,fontSize:13,color:'#fff'}}>${isLocked?'🔒 ':''}${ag} ${lvl}</span>
+                            <span style=${{fontSize:11,color:'rgba(255,255,255,.5)'}}>${roster.length}</span>
+                          </div>
+                          <div style=${{padding:8}}>
+                            ${roster.map(a=>html`
+                              <div key=${a.id} onClick=${()=>setSelAth(a)} style=${{display:'flex',alignItems:'center',gap:5,padding:'4px 5px',borderBottom:`1px solid ${ts.border}22`,cursor:'pointer',fontSize:11}}>
+                                <span style=${{fontFamily:'monospace',color:'#4fc3f7',minWidth:22,fontSize:10}}>#${a.to}</span>
+                                <span style=${{flex:1,fontWeight:600}}>${a.first} ${a.last}</span>
+                                <${Badge} c="#78909c" sm>${a.coachPos||posAbbr(a.primaryPos)}<//>
+                                <${SBadge} status=${a.status}/>
+                              </div>`)}</div></div>`;})}</div></div>`;})}</div>`}
+
+        ${view==='hidden'&&html`
+          <div>
+            <h2 style=${{fontSize:17,fontWeight:700,margin:'0 0 14px'}}>Hidden Athletes (${hidden.length})</h2>
+            ${hidden.map(a=>html`
+              <div key=${a.id} style=${{display:'flex',alignItems:'center',gap:10,padding:'9px 14px',background:'#1a1a10',border:'1px solid #ffa72622',borderRadius:8,marginBottom:4}}>
+                <span style=${{fontFamily:'monospace',color:'#4fc3f7',fontSize:11}}>#${a.to}</span>
+                <span style=${{fontWeight:600,flex:1,cursor:'pointer'}} onClick=${()=>setSelAth(a)}>${a.first} ${a.last}</span>
+                <${Badge} c="#78909c" sm>${a.ageGroup}s<//>
+                <${Badge} c="#ffa726" sm>${a.hideReason||'Hidden'}<//>
+                <${Btn} sm onClick=${()=>doUnhide(a.id)} color="#66bb6a">Unhide<//>
+              </div>`)}
+            ${!hidden.length&&html`<div style=${{padding:40,textAlign:'center',color:'#444'}}>No hidden athletes</div>`}
+          </div>`}
+      </div>
+
+      <${AthleteModal} athlete=${selAth} onClose=${()=>setSelAth(null)} onChange=${upd}
+        onHide=${a=>{setSelAth(null);setHideAth(a);}} onUnhide=${doUnhide}
+        onEmail=${a=>{setSelAth(null);setEmailAth(a);setEmailTeam(a.teamAssignment||'');}}/>
+      <${EmailModal} athlete=${emailAth} team=${emailTeam} onClose=${()=>{setEmailAth(null);setEmailTeam('');}} onSend=${doEmail}/>
+      <${HideModal} athlete=${hideAth} onClose=${()=>setHideAth(null)} onHide=${doHide}/>
+    </div>`;
+}
+
+// ── ROOT ───────────────────────────────────────────────────────────
+function App(){
+  const [user,setUser]=useState(null);
+  const [selAth,setSelAth]=useState(null);
+  const [athletes,setAthletes]=useState(()=>{
+    const l=loadLocal();
+    return l?initAthletes(l):initAthletes(RAW);
+  });
+  const updMetric=useCallback((id,key,vals)=>{
+    setAthletes(p=>p.map(a=>a.id===id?{...a,metrics:{...a.metrics,[key]:vals}}:a));
+  },[]);
+  const doArrive=useCallback(id=>{setAthletes(p=>p.map(a=>a.id===id?{...a,arrived:true,status:'arrived'}:a));},[]);
+  const addWalkup=useCallback(wu=>{setAthletes(p=>[...p,...initAthletes([wu])]);},[]);
+  useEffect(()=>{if(athletes.length) saveLocal(athletes);},[athletes]);
+  const upd=useCallback((id,updates)=>{
+    const finalUpdates={...updates};
+    if(updates.status==='accepted') finalUpdates.teamLocked=true;
+    setAthletes(p=>p.map(a=>a.id===id?{...a,...finalUpdates}:a));
+    setSelAth(p=>p?.id===id?{...p,...finalUpdates}:p);
+  },[]);
+
+  if(!user) return html`<${Login} onLogin=${setUser}/>`;
+  const athleteModal=selAth?html`<${AthleteModal} athlete=${selAth} onClose=${()=>setSelAth(null)} onChange=${upd} onHide=${(a)=>{setAthletes(p=>p.map(x=>x.id===a.id?{...x,hidden:true}:x));setSelAth(null);}} onUnhide=${(id)=>setAthletes(p=>p.map(x=>x.id===id?{...x,hidden:false}:x))} onEmail=${()=>{}}/>`:null;
+
+  if(user.role==='station'&&user.isCheckin) return html`<${Fragment}><${CheckIn} athletes=${athletes} onArrive=${doArrive} onAddWalkup=${addWalkup} onLogout=${()=>setUser(null)} onEdit=${setSelAth}/>${athleteModal}<//>`;
+  if(user.role==='station') return html`<${Fragment}><${Station} stationKey=${user.key} label=${user.label} metrics=${user.metrics} athletes=${athletes} onMetric=${updMetric} onLogout=${()=>setUser(null)}/>${athleteModal}<//>`;
+  return html`<${HeadCoach} athletes=${athletes} setAthletes=${setAthletes} onLogout=${()=>setUser(null)}/>`;
+}
+render(html`<${App}/>`,document.getElementById('app'));
+</script>
+</body>
+</html>

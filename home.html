@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>MID TN VOLLEYBALL CLUB | Home</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{background:#0d1017;color:#e8eaed;font-family:'Inter',-apple-system,sans-serif;line-height:1.6}
+.container{max-width:1100px;margin:0 auto;padding:0 20px}
+header{padding:20px 0;border-bottom:1px solid #1e222b;position:sticky;top:0;background:rgba(13,16,23,0.8);backdrop-filter:blur(10px);z-index:100}
+nav{display:flex;justify-content:space-between;align-items:center}
+.logo{font-size:24px;font-weight:800;text-decoration:none;color:#e8eaed}
+.logo span{color:#f0a500}
+.nav-links{display:flex;gap:30px}
+.nav-links a{text-decoration:none;color:#78909c;font-size:14px;font-weight:600;transition:color 0.2s}
+.nav-links a:hover{color:#f0a500}
+.hero{padding:100px 0;text-align:center;background:linear-gradient(rgba(13,16,23,0.7), rgba(13,16,23,0.7)), url('https://images.unsplash.com/photo-1592656670497-3c3e0e7ef93a?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80');background-size:cover;background-position:center}
+.hero h1{font-size:48px;font-weight:800;margin-bottom:20px}
+.hero p{font-size:18px;color:#78909c;max-width:600px;margin:0 auto 30px}
+.btn{display:inline-block;padding:12px 30px;background:#f0a500;color:#000;text-decoration:none;border-radius:8px;font-weight:700;transition:transform 0.2s}
+.btn:hover{transform:translateY(-2px)}
+section{padding:80px 0}
+h2{font-size:32px;font-weight:800;margin-bottom:40px;text-align:center}
+.grid{display:grid;grid-template-columns:repeat(auto-fit, minmax(300px, 1fr));gap:30px}
+.card{background:#1a1d24;border:1px solid #2a2e38;border-radius:16px;padding:30px;transition:border-color 0.2s}
+.card:hover{border-color:#f0a500}
+.card h3{font-size:20px;margin-bottom:15px;color:#f0a500}
+.news-item{border-bottom:1px solid #1e222b;padding:20px 0}
+.news-item:last-child{border-bottom:none}
+.news-date{font-size:12px;color:#546e7a;margin-bottom:5px}
+footer{padding:60px 0;border-top:1px solid #1e222b;color:#546e7a;font-size:14px}
+.footer-grid{display:grid;grid-template-columns:repeat(auto-fit, minmax(200px, 1fr));gap:40px}
+.footer-logo{font-size:20px;font-weight:800;color:#e8eaed;margin-bottom:20px}
+.footer-logo span{color:#f0a500}
+/* Chatbot Styles */
+#volley-ai-trigger{position:fixed;bottom:30px;right:30px;width:60px;height:60px;background:#f0a500;border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:0 10px 25px rgba(0,0,0,0.3);z-index:1000;transition:transform 0.2s}
+#volley-ai-trigger:hover{transform:scale(1.1)}
+#chatbot-window{position:fixed;bottom:100px;right:30px;width:350px;height:500px;background:#1a1d24;border:1px solid #2a2e38;border-radius:16px;display:none;flex-direction:column;z-index:1000;box-shadow:0 10px 25px rgba(0,0,0,0.5);overflow:hidden}
+.chat-header{padding:15px 20px;background:#2a2e38;display:flex;justify-content:space-between;align-items:center}
+.chat-header h4{margin:0;color:#f0a500}
+.chat-messages{flex:1;padding:20px;overflow-y:auto;display:flex;flex-direction:column;gap:15px}
+.message{padding:10px 15px;border-radius:12px;max-width:80%;font-size:13px}
+.bot-message{background:#2a2e38;align-self:flex-start}
+.user-message{background:#f0a500;color:#000;align-self:flex-end}
+.chat-input{padding:15px;border-top:1px solid #2a2e38;display:flex;gap:10px}
+.chat-input input{flex:1;background:#12151c;border:1px solid #2a2e38;border-radius:8px;padding:8px 12px;color:#e8eaed;font-size:13px}
+.chat-input button{background:#f0a500;border:none;border-radius:8px;padding:8px 15px;cursor:pointer;font-weight:700}
+</style>
+</head>
+<body>
+
+<header>
+    <div class="container">
+        <nav>
+            <a href="home.html" class="logo">MID TN <span>VBC</span></a>
+            <div class="nav-links">
+                <a href="#programs">Programs</a>
+                <a href="#tryouts">Tryouts</a>
+                <a href="#news">News</a>
+                <a href="#about">About</a>
+                <a href="index.html">Tryout Manager</a>
+            </div>
+        </nav>
+    </div>
+</header>
+
+<section class="hero">
+    <div class="container">
+        <h1>Excellence on the Court</h1>
+        <p>Providing elite volleyball training and competition in Middle Tennessee for athletes of all skill levels.</p>
+        <a href="#tryouts" class="btn">Register for Tryouts</a>
+    </div>
+</section>
+
+<section id="programs">
+    <div class="container">
+        <h2>Our Programs</h2>
+        <div class="grid">
+            <div class="card">
+                <h3>Travel Club Teams</h3>
+                <p>Highly competitive teams for ages 12-18. Teams practice twice weekly and compete in SRVA and USAV sanctioned tournaments.</p>
+            </div>
+            <div class="card">
+                <h3>Youth Training League</h3>
+                <p>Fundamental skill development for grades 2nd-8th. Positional training and league play during Fall and Winter sessions.</p>
+            </div>
+            <div class="card">
+                <h3>Private Lessons</h3>
+                <p>Customized 1-on-1 or small group sessions with our elite coaching staff to master specific volleyball techniques.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section id="about" style="background:#1a1d24">
+    <div class="container">
+        <h2>About Mid TN VBC</h2>
+        <div style="max-width:800px;margin:0 auto;text-align:center">
+            <p style="margin-bottom:20px">Mid TN Volleyball Club is Smyrna's premier destination for elite volleyball. For over a decade, we have provided top-tier training and competitive opportunities for athletes in Middle Tennessee.</p>
+            <p style="margin-bottom:20px">We are proud members of the Southern Region Volleyball Association (SRVA) and USA Volleyball. Our mission is to build strong athletes and even stronger teams through disciplined training and a culture of excellence.</p>
+            <p>Our facility at Hooptown serves as the hub for our travel teams, youth leagues, and private training programs.</p>
+        </div>
+    </div>
+</section>
+
+<section id="tryouts" style="background:#12151c">
+    <div class="container">
+        <h2>2026-2027 Tryouts</h2>
+        <div class="card" style="max-width:800px;margin:0 auto">
+            <p style="margin-bottom:20px;text-align:center">Join the Mid TN VBC family! Tryouts for all age groups (12U-18U) are coming up. Be ready for physical testing and skill evaluations.</p>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:30px">
+                <div>
+                    <h4 style="color:#f0a500;margin-bottom:10px">Location</h4>
+                    <p>Hooptown Facility<br/>6910 Stroop Ln<br/>Smyrna, TN 37167</p>
+                </div>
+                <div>
+                    <h4 style="color:#f0a500;margin-bottom:10px">Registration Fees</h4>
+                    <p>$50 Online Pre-registration<br/>$60 On-site Walk-up</p>
+                </div>
+            </div>
+            <div style="text-align:center">
+                <a href="index.html" class="btn">Register & Manage Tryouts</a>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section id="news">
+    <div class="container">
+        <h2>Latest News</h2>
+        <div id="news-container">
+            <div class="news-item">
+                <div class="news-date">November 2025</div>
+                <h4 style="margin-bottom:10px">November Newsletter Released</h4>
+                <p style="color:#78909c;font-size:14px">Check your email for important updates on practice schedules and tournament information.</p>
+            </div>
+            <div class="news-item">
+                <div class="news-date">October 2025</div>
+                <h4 style="margin-bottom:10px">Alumni Spotlight: Makenna Shotwell</h4>
+                <p style="color:#78909c;font-size:14px">Celebrating Makenna's success at Merrimack with career-high performances!</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<footer>
+    <div class="container">
+        <div class="footer-grid">
+            <div>
+                <div class="footer-logo">MID TN <span>VBC</span></div>
+                <p>Smyrna's premier volleyball destination.</p>
+            </div>
+            <div>
+                <h4 style="color:#e8eaed;margin-bottom:20px">Contact Us</h4>
+                <p>Email: info@midtnvbc.com</p>
+                <p>Phone: 615-200-8172</p>
+            </div>
+            <div>
+                <h4 style="color:#e8eaed;margin-bottom:20px">Follow Us</h4>
+                <p>Instagram: @midtnvbc</p>
+                <p>Facebook: Mid TN Volleyball Club</p>
+            </div>
+        </div>
+        <div style="margin-top:40px;text-align:center">
+            &copy; 2026 MID TN Volleyball Club. All rights reserved.
+        </div>
+    </div>
+</footer>
+
+<div id="volley-ai-trigger">🏐</div>
+
+<div id="chatbot-window">
+    <div class="chat-header">
+        <h4>Volley AI Chatbot</h4>
+        <span id="close-chat" style="cursor:pointer">&times;</span>
+    </div>
+    <div class="chat-messages" id="chat-messages">
+        <div class="message bot-message">Hi! I'm Volley AI, your MID TN VBC expert. How can I help you today?</div>
+    </div>
+    <div class="chat-input">
+        <input type="text" id="chat-input" placeholder="Ask a question..."/>
+        <button id="send-btn">Send</button>
+    </div>
+</div>
+
+<script>
+    const trigger = document.getElementById('volley-ai-trigger');
+    const chatWindow = document.getElementById('chatbot-window');
+    const closeChat = document.getElementById('close-chat');
+    const sendBtn = document.getElementById('send-btn');
+    const chatInput = document.getElementById('chat-input');
+    const chatMessages = document.getElementById('chat-messages');
+
+    trigger.onclick = () => chatWindow.style.display = 'flex';
+    closeChat.onclick = () => chatWindow.style.display = 'none';
+
+    async function handleSend() {
+        const text = chatInput.value.trim();
+        if(!text) return;
+
+        // User message
+        const userDiv = document.createElement('div');
+        userDiv.className = 'message user-message';
+        userDiv.textContent = text;
+        chatMessages.appendChild(userDiv);
+        chatInput.value = '';
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+
+        // Bot thinking
+        const botDiv = document.createElement('div');
+        botDiv.className = 'message bot-message';
+        botDiv.textContent = '...';
+        chatMessages.appendChild(botDiv);
+
+        // Fetch answer from our local knowledge base / "agent"
+        const response = await fetchAnswer(text, 'home');
+        botDiv.textContent = response;
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+    }
+
+    sendBtn.onclick = handleSend;
+    chatInput.onkeydown = (e) => { if(e.key === 'Enter') handleSend(); };
+
+    async function fetchAnswer(query, context) {
+        try {
+            const res = await fetch('data/knowledge_base.json');
+            const data = await res.json();
+            const q = query.toLowerCase();
+
+            if(context === 'manager') {
+                if(q.includes('pin')) return "The PINs are: Check-In (9999), Station 1 (1111), Station 2 (2222), and Head Coach (0000).";
+                if(q.includes('how to') || q.includes('guide')) return "This is the Tryout Manager. You can check athletes in, record physical metrics, and build teams in the Head Coach view.";
+            }
+
+            if(q.includes('cost')) return data.faqs.find(f => f.q.includes('cost'))?.a || "Tryouts cost $50 for pre-registration and $60 for walk-ups.";
+            if(q.includes('sign in') || q.includes('check in') || q.includes('location')) return data.faqs.find(f => f.q.includes('sign in'))?.a || "Sign-in is at our facility: 6910 Stroop Ln, Smyrna, TN 37167.";
+            if(q.includes('ready') || q.includes('expect') || q.includes('bring')) return data.faqs.find(f => f.q.includes('ready'))?.a || "Bring water and knee pads. Be ready for physical testing and skill drills.";
+            if(q.includes('rule') || q.includes('regulation')) return data.rules.usav_summary + " " + data.rules.srva_summary;
+            if(q.includes('srva')) return data.rules.srva_summary;
+            if(q.includes('usav') || q.includes('usa volleyball')) return data.rules.usav_summary;
+
+            return "I'm not sure about that specific question, but I'm an expert on our club tryouts, costs, and USAV/SRVA rules. Feel free to email info@midtnvbc.com for more info!";
+        } catch(e) {
+            return "I'm having trouble accessing my knowledge base right now. Please try asking about costs, rules, or tryout logistics.";
+        }
+    }
+</script>
+
+</body>
+</html>
