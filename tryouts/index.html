@@ -48,10 +48,12 @@ tr:hover td{background:#1a1d24;cursor:pointer}
 </head>
 <body>
 <div id="app"></div>
+<div id="chatbot-root"></div>
+<script src="../chatbot.js" type="module"></script>
 <script type="module">
-import{h,render,Fragment}from'https://esm.sh/preact@10.19.2';
-import{useState,useEffect,useMemo,useRef,useCallback}from'https://esm.sh/preact@10.19.2/hooks';
-import htm from'https://esm.sh/htm@3.1.1';
+import{h,render,Fragment}from'https://esm.sh/preact@10';
+import{useState,useEffect,useMemo,useRef,useCallback}from'https://esm.sh/preact@10/hooks';
+import htm from'https://esm.sh/htm@3';
 const html=htm.bind(h);
 
 // ── CONSTANTS ──────────────────────────────────────────────────────
@@ -128,7 +130,9 @@ function posAbbr(p){
 }
 function classifyPos(p){
   if(!p) return 'unsorted'; const s=p.toLowerCase();
-  for(const c of POS_CATS) if(c.abbrs.some(a=>s===a||s.includes(a))) return c.key;
+  for(const c of POS_CATS) {
+    if(c.abbrs.some(a => a.length <= 2 ? s === a : s.includes(a))) return c.key;
+  }
   return 'unsorted';
 }
 function divAge(d){const m=(d||'').match(/(\d+)/);return m?m[1]:'';}
@@ -138,7 +142,10 @@ function sAvg(metrics,key){
 }
 function totalScore(metrics){
   let s=0,c=0;
-  ['s1','s2'].forEach(k=>{const a=sAvg(metrics,k);if(a!==null){s+=a;c++;}});
+  STATIONS.filter(st=>!st.isCheckin).forEach(st=>{
+    const a=sAvg(metrics,st.key);
+    if(a!==null){s+=a;c++;}
+  });
   return c>0?(s/c).toFixed(1):null;
 }
 function scoreColor(sc){return Number(sc)>=7?'#66bb6a':Number(sc)>=5?'#ffa726':'#ef5350';}
@@ -217,7 +224,6 @@ function Login({onLogin}){
             <div>Check-In: <span style=${{color:'#26c6da',fontFamily:'monospace'}}>9999</span></div>
             <div>Station 1: <span style=${{color:'#f0a500',fontFamily:'monospace'}}>1111</span></div>
             <div>Station 2: <span style=${{color:'#f0a500',fontFamily:'monospace'}}>2222</span></div>
-            <div>Station 3: <span style=${{color:'#f0a500',fontFamily:'monospace'}}>3333</span></div>
           </div>
           <div>Head Coach: <span style=${{color:'#ef5350',fontFamily:'monospace'}}>0000</span></div>
         </div>
@@ -226,9 +232,10 @@ function Login({onLogin}){
 }
 
 // ── CHECK-IN ───────────────────────────────────────────────────────
-function CheckIn({athletes,onArrive,onAddWalkup,onLogout,onEdit}){
+function CheckIn({athletes,onArrive,onAddWalkup,onUpdate,onLogout}){
   const [q,setQ]=useState('');
   const [wu,setWu]=useState(false);
+  const [selAth,setSelAth]=useState(null);
   const [form,setForm]=useState({first:'',last:'',dob:'',division:'12 & Under',primaryPos:'Outside Hitter',phone:'',email:''});
   const [recent,setRecent]=useState([]);
   const results=useMemo(()=>{
@@ -272,8 +279,9 @@ function CheckIn({athletes,onArrive,onAddWalkup,onLogout,onEdit}){
               <div style=${{flex:1}}><div style=${{fontWeight:700,fontSize:15}}>${a.first} ${a.last}</div>
                 <div style=${{fontSize:11,color:'#78909c'}}>${a.division} · ${posAbbr(a.primaryPos)}</div></div>
               ${a.isWalkup&&html`<${Badge} c="#ffa726" sm>Walkup<//>`}
-              <${Btn} sm onClick=${()=>onEdit(a)} color="#4fc3f7" outline style=${{padding:'4px 8px'}}>✏️<//>
-              ${a.arrived?html`<${Badge} c="#66bb6a">✓ Arrived<//>`:html`<${Btn} onClick=${()=>arrive(a)} color="#26c6da" style=${{padding:'8px 20px',fontSize:14}}>Mark Arrived ✓<//>`}
+              ${a.arrived
+                ? html`<div style=${{display:'flex',gap:8}}><${Badge} c="#66bb6a">✓ Arrived<//><${Btn} sm onClick=${()=>setSelAth(a)} color="#2a2e38" outline>Edit<//></div>`
+                : html`<div style=${{display:'flex',gap:8}}><${Btn} onClick=${()=>arrive(a)} color="#26c6da" style=${{padding:'8px 20px',fontSize:14}}>Mark Arrived ✓<//><${Btn} sm onClick=${()=>setSelAth(a)} color="#2a2e38" outline>Edit<//></div>`}
             </div>`)}
           ${recent.length>0&&html`
             <div class="card" style=${{padding:14,marginTop:8}}>
@@ -307,6 +315,8 @@ function CheckIn({athletes,onArrive,onAddWalkup,onLogout,onEdit}){
             <${Btn} onClick=${addWu} color="#f0a500" disabled=${!form.first||!form.last} style=${{width:'100%',padding:12,fontSize:14}}>Add & Check In ✓<//>
           </div>`}
       </div>
+      <${AthleteModal} athlete=${selAth} onClose=${()=>setSelAth(null)} onChange=${onUpdate}
+        onHide=${()=>{}} onUnhide=${()=>{}} onEmail=${()=>{}}/>
     </div>`;
 }
 
@@ -444,7 +454,7 @@ function AthleteModal({athlete,onClose,onChange,onHide,onUnhide,onEmail}){
               <option value="no">Not Arrived</option><option value="yes">Arrived ✓</option></select></div>
         </div>
         <div style=${{marginBottom:14}}>
-          <label class="label">Notes (Phone Calls / Tryout Notes)</label>
+          <label class="label">Notes (calls, observations)</label>
           <textarea class="input" rows="3" placeholder="Add call log, tryout notes, parent concerns..."
             value=${athlete.notes||''} onInput=${e=>onChange(athlete.id,{notes:e.target.value})} disabled=${locked}
             style=${{lineHeight:1.6,resize:'vertical',height:'auto'}}></textarea>
@@ -540,13 +550,13 @@ function PCard({athlete,onClick,compact,showScore,teamKey}){
     <div class=${'player-card'+(athlete.status==='declined'?' declined':'')+(locked?' locked':'')}
       draggable=${!locked} onDragStart=${e=>!locked&&e.dataTransfer.setData('text/plain',athlete.id)}
       onClick=${()=>onClick?.(athlete)}>
-      ${locked&&html`<span title="Locked">🔒</span>`}
+      ${locked&&html`<span title="Locked">LOCKED</span>`}
       <span style=${{fontFamily:'monospace',fontSize:10,color:'#4fc3f7',minWidth:22}}>#${athlete.to}</span>
       <span style=${{fontWeight:600,fontSize:compact?12:13,flex:1,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>${athlete.first} ${athlete.last}</span>
       <${Badge} c="#78909c" sm>${posAbbr(athlete.primaryPos)}<//>
       ${athlete.altPos&&athlete.altPos!==athlete.primaryPos&&html`<${Badge} c="#3a3f47" sm>${posAbbr(athlete.altPos)}<//>`}
-      ${athlete.wontAccept&&html`<span title=${athlete.wontAccept} style=${{fontSize:14,marginLeft:4,cursor:'help'}}>⚠️</span>`}
-      ${athlete.notes&&html`<span title=${athlete.notes} style=${{fontSize:14,marginLeft:4,cursor:'help'}}>📝</span>`}
+      ${athlete.wontAccept&&html`<span title=${athlete.wontAccept} style=${{fontSize:14,cursor:'help'}}>⚠️</span>`}
+      ${athlete.notes&&html`<span title=${athlete.notes} style=${{fontSize:14,cursor:'help'}}>📝</span>`}
       ${showScore&&sc&&html`<${Badge} c=${scoreColor(sc)} sm>${sc}<//>`}
       <${SBadge} status=${athlete.status}/>
     </div>`;
@@ -564,8 +574,20 @@ function HeadCoach({athletes,setAthletes,onLogout}){
   useEffect(()=>saveLocal(athletes),[athletes]);
 
   const upd=useCallback((id,updates)=>{
-    setAthletes(p=>p.map(a=>a.id===id?{...a,...updates}:a));
-    setSelAth(p=>p?.id===id?{...p,...updates}:p);
+    setAthletes(p=>p.map(a=>{
+      if(a.id!==id) return a;
+      let next={...a,...updates};
+      if(updates.status==='accepted') next.teamLocked=true;
+      else if(updates.status && a.status==='accepted') next.teamLocked=false;
+      return next;
+    }));
+    setSelAth(p=>{
+      if(p?.id!==id) return p;
+      let next={...p,...updates};
+      if(updates.status==='accepted') next.teamLocked=true;
+      else if(updates.status && p.status==='accepted') next.teamLocked=false;
+      return next;
+    });
   },[]);
   const updMetric=useCallback((id,key,vals)=>{
     setAthletes(p=>p.map(a=>a.id===id?{...a,metrics:{...a.metrics,[key]:vals}}:a));
@@ -579,6 +601,23 @@ function HeadCoach({athletes,setAthletes,onLogout}){
     upd(athlete.id,{status:['pending','arrived'].includes(athlete.status)?'contacted':athlete.status});
     if(athlete.email) window.open(`mailto:${athlete.email}?subject=${encodeURIComponent('Mid TN VBC - Offer'+(team?' - '+team:''))}&body=${encodeURIComponent(body)}`,'_blank');
     else navigator.clipboard?.writeText(body);
+  };
+
+  const exportToCSV=()=>{
+    const headers=['TO#','First','Last','Age','Primary','Alt','Coach','Status','Team','Score','Height','Reach','Vertical','Shuttle','Arrived','Notes','WontAccept','Phone','Email'];
+    const rows=athletes.filter(a=>!a.hidden).map(a=>[
+      a.to,a.first,a.last,a.ageGroup+'s',a.primaryPos,a.altPos,a.coachPos,a.status,a.teamAssignment||'',totalScore(a.metrics)||'',
+      (a.metrics?.s1?.[0]||''),(a.metrics?.s1?.[1]||''),(a.metrics?.s1?.[2]||''),(a.metrics?.s2?.[0]||''),
+      a.arrived?'YES':'NO',(a.notes||'').replace(/"/g,'""'),(a.wontAccept||'').replace(/"/g,'""'),a.phone,a.email
+    ]);
+    const csvContent='data:text/csv;charset=utf-8,'+headers.join(',')+'\n'+rows.map(r=>r.map(v=>`"${v}"`).join(',')).join('\n');
+    const encodedUri=encodeURI(csvContent);
+    const link=document.createElement('a');
+    link.setAttribute('href',encodedUri);
+    link.setAttribute('download',`midtn_tryouts_export_${new Date().toISOString().slice(0,10)}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
   };
 
   const hidden=athletes.filter(a=>a.hidden);
@@ -628,15 +667,16 @@ function HeadCoach({athletes,setAthletes,onLogout}){
   // ── TEAMS ──
   const [poolSort,setPoolSort]=useState('score');
   const [showPool,setShowPool]=useState(true);
+  const [showAllPool,setShowAllPool]=useState(false);
   const [dragOver,setDragOver]=useState(null);
   const ageAths=athletes.filter(a=>a.ageGroup===age&&!a.hidden);
   const pool=useMemo(()=>{
-    let l=ageAths.filter(a=>!a.teamAssignment);
+    let l=showAllPool ? [...ageAths] : ageAths.filter(a=>!a.teamAssignment);
     if(poolSort==='score') l.sort((a,b)=>(Number(totalScore(b.metrics))||0)-(Number(totalScore(a.metrics))||0));
     else if(poolSort==='name') l.sort((a,b)=>a.last.localeCompare(b.last));
     else l.sort((a,b)=>(a.posCategory||'z').localeCompare(b.posCategory||'z'));
     return l;
-  },[ageAths,poolSort]);
+  },[ageAths,poolSort,showAllPool]);
   const drop=(e,teamKey)=>{e.preventDefault();const id=e.dataTransfer.getData('text/plain');const a=athletes.find(x=>x.id===id);if(a&&!a.teamLocked&&a.status!=='accepted') upd(id,{teamAssignment:teamKey});setDragOver(null);};
 
   const th={};
@@ -654,6 +694,8 @@ function HeadCoach({athletes,setAthletes,onLogout}){
           <${Badge} c="#66bb6a">${assigned} Assigned<//>
           <${Badge} c="#ab47bc">${accepted} Accepted<//>
           <${Badge} c="#ffa726">${walkups} Walkups<//>
+          <${Btn} sm onClick=${exportToCSV} color="#26c6da" outline>Export CSV<//>
+          <${Btn} sm onClick=${()=>window.print()} color="#78909c" outline>Print<//>
           <${Btn} sm onClick=${onLogout} color="#ef5350" outline>Log Out<//>
         </div>
         <div style=${{display:'flex',gap:4,flexWrap:'wrap',alignItems:'center'}}>
@@ -663,7 +705,7 @@ function HeadCoach({athletes,setAthletes,onLogout}){
             <div style=${{display:'flex',gap:2,background:'#12151c',borderRadius:6,padding:2}}>
               ${AGES.map(a=>html`<button key=${a} class=${'age-tab'+(age===a?' active':'')} onClick=${()=>setAge(a)}>${a}s</button>`)}</div>`}
           ${view==='allteams'&&html`
-            <${Btn} sm onClick=${()=>exportCSV([['Age','Team','TO#','First','Last','POS','Coach POS','Score','Status','Phone','Email','Notes','Wont Accept'],...athletes.filter(a=>a.teamAssignment&&!a.hidden).map(a=>[a.ageGroup+'s',a.teamAssignment,a.to,a.first,a.last,a.primaryPos,a.coachPos,totalScore(a.metrics)||'',a.status,a.phone,a.email,a.notes,a.wontAccept])],'MidTN_Teams.csv')} color="#66bb6a" outline>Export CSV<//>
+            <${Btn} sm onClick=${()=>exportCSV([['Age','Team','TO#','First','Last','POS','Coach POS','Score','Height','Reach','Vertical','Shuttle','Status','Phone','Email','Notes','WontAccept'],...athletes.filter(a=>a.teamAssignment&&!a.hidden).map(a=>[a.ageGroup+'s',a.teamAssignment,a.to,a.first,a.last,a.primaryPos,a.coachPos,totalScore(a.metrics)||'',(a.metrics?.s1?.[0]||''),(a.metrics?.s1?.[1]||''),(a.metrics?.s1?.[2]||''),(a.metrics?.s2?.[0]||''),a.status,a.phone,a.email,a.notes,a.wontAccept])],'MidTN_Teams.csv')} color="#66bb6a" outline>Export CSV<//>
             <${Btn} sm onClick=${()=>window.print()} color="#4fc3f7" outline>Print<//>
           `}
         </div>
@@ -679,7 +721,7 @@ function HeadCoach({athletes,setAthletes,onLogout}){
               <${Badge} c="#26c6da">${regList.filter(a=>a.arrived).length} Arrived<//>
               <${Badge} c="#78909c">${regList.length} Total<//>
               <${Btn} sm onClick=${()=>setAddWu(p=>!p)} color="#f0a500">+ Add Walkup<//>
-              <${Btn} sm onClick=${()=>exportCSV([['TO#','First','Last','Division','Primary','Alt','Score','Status','Arrived','Walkup','Phone','Email','Notes','Wont Accept'],...athletes.filter(a=>!a.hidden).map(a=>[a.to,a.first,a.last,a.division,a.primaryPos,a.altPos,totalScore(a.metrics)||'',a.status,a.arrived?'Yes':'',a.isWalkup?'Yes':'',a.phone,a.email,a.notes,a.wontAccept])],'MidTN_Reg.csv')} color="#4fc3f7" outline>Export CSV<//>
+              <${Btn} sm onClick=${()=>exportCSV([['TO#','First','Last','Division','Primary','Alt','Score','Height','Reach','Vertical','Shuttle','Status','Arrived','Walkup','Phone','Email','Notes','WontAccept'],...athletes.filter(a=>!a.hidden).map(a=>[a.to,a.first,a.last,a.division,a.primaryPos,a.altPos,totalScore(a.metrics)||'',(a.metrics?.s1?.[0]||''),(a.metrics?.s1?.[1]||''),(a.metrics?.s1?.[2]||''),(a.metrics?.s2?.[0]||''),a.status,a.arrived?'Yes':'',a.isWalkup?'Yes':'',a.phone,a.email,a.notes,a.wontAccept])],'MidTN_Reg.csv')} color="#4fc3f7" outline>Export CSV<//>
             </div>
             ${addWu&&html`
               <div class="card" style=${{padding:16,marginBottom:14,border:'1px solid #f0a50033'}}>
@@ -699,22 +741,23 @@ function HeadCoach({athletes,setAthletes,onLogout}){
               </div>`}
             <div style=${{overflowX:'auto',maxHeight:'calc(100vh - 280px)'}}>
               <table>
-                <thead><tr>${['TO#','Name','Div','Primary','Alt','Coach','Score','Status','Arrived','Notes','Phone','Email'].map(h=>html`<th key=${h}>${h}</th>`)}</tr></thead>
+                <thead><tr>${['TO#','Name','Div','Primary','Alt','Coach','Score','Status','Arrived','Notes','Edit','Phone','Email'].map(h=>html`<th key=${h}>${h}</th>`)}</tr></thead>
                 <tbody>
                   ${regList.map(a=>html`
-                    <tr key=${a.id} onClick=${()=>setSelAth(a)}>
-                      <td style=${{fontFamily:'monospace',color:'#4fc3f7'}}>${a.to}</td>
-                      <td style=${{fontWeight:600,whiteSpace:'nowrap'}}>${a.first} ${a.last}${a.isWalkup&&html`<span style=${{marginLeft:4,fontSize:10,color:'#ffa726'}}>WU</span>`}</td>
+                    <tr key=${a.id}>
+                      <td onClick=${()=>setSelAth(a)} style=${{fontFamily:'monospace',color:'#4fc3f7'}}>${a.to}</td>
+                      <td onClick=${()=>setSelAth(a)} style=${{fontWeight:600,whiteSpace:'nowrap'}}>${a.first} ${a.last}${a.isWalkup&&html`<span style=${{marginLeft:4,fontSize:10,color:'#ffa726'}}>WU</span>`}</td>
                       <td><${Badge} c="#78909c" sm>${a.ageGroup}s<//></td>
                       <td><${Badge} c="#4fc3f7" sm>${posAbbr(a.primaryPos)}<//></td>
                       <td><${Badge} c="#546e7a" sm>${posAbbr(a.altPos)}<//></td>
                       <td>${a.coachPos&&html`<${Badge} c="#ffa726" sm>${a.coachPos}<//>`}</td>
                       <td style=${{fontFamily:'monospace',fontWeight:700,color:totalScore(a.metrics)?scoreColor(totalScore(a.metrics)):'#444'}}>${totalScore(a.metrics)||'—'}</td>
-                      <td><${SBadge} status=${a.status}/></td>
+                      <td onClick=${()=>setSelAth(a)}><${SBadge} status=${a.status}/></td>
                       <td>${a.arrived?html`<${Badge} c="#26c6da" sm>✓<//>`
                         :html`<${Btn} sm onClick=${e=>{e.stopPropagation();doArrive(a.id);}} color="#26c6da" outline>Check In<//>`}</td>
-                      <td>${a.notes&&html`<span title=${a.notes}>📝</span>`}${a.wontAccept&&html`<span title=${a.wontAccept} style=${{marginLeft:4}}>⚠️</span>`}</td>
-                      <td style=${{color:'#78909c',whiteSpace:'nowrap',fontSize:11}}>${a.phone}</td>
+                      <td onClick=${()=>setSelAth(a)}>${a.notes&&html`<span title=${a.notes}>📝</span>`}${a.wontAccept&&html`<span title=${a.wontAccept} style=${{marginLeft:4}}>⚠️</span>`}</td>
+                      <td onClick=${()=>setSelAth(a)} style=${{fontSize:14,textAlign:'center'}}>✏️</td>
+                      <td onClick=${()=>setSelAth(a)} style=${{color:'#78909c',whiteSpace:'nowrap',fontSize:11}}>${a.phone}</td>
                       <td style=${{color:'#78909c',maxWidth:140,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap',fontSize:11}}>${a.email}</td>
                     </tr>`)}</tbody></table>
               ${regList.length===0&&html`<div style=${{padding:40,textAlign:'center',color:'#444'}}>No results</div>`}
@@ -739,7 +782,6 @@ function HeadCoach({athletes,setAthletes,onLogout}){
                           <span style=${{fontSize:11,color:'#546e7a',minWidth:16,textAlign:'right'}}>${i+1}</span>
                           <span style=${{fontFamily:'monospace',fontSize:10,color:'#4fc3f7',minWidth:24}}>#${a.to}</span>
                           <span style=${{flex:1,fontSize:12,fontWeight:600}}>${a.first} ${a.last}</span>
-                          <${Badge} c="#78909c" sm>${posAbbr(a.primaryPos)}<//>
                           <${Badge} c="#546e7a" sm>${posAbbr(a.altPos)}<//>
                           ${totalScore(a.metrics)&&html`<${Badge} c=${scoreColor(totalScore(a.metrics))} sm>${totalScore(a.metrics)}<//>`}
                           ${a.wontAccept&&html`<span title=${a.wontAccept}>⚠️</span>`}
@@ -786,16 +828,43 @@ function HeadCoach({athletes,setAthletes,onLogout}){
         ${view==='teams'&&html`
           <div style=${{display:'flex',gap:14,alignItems:'flex-start'}}>
             ${showPool&&html`
-              <div style=${{width:270,flexShrink:0,background:'#12151c',borderRadius:12,border:'1px solid #1e222b',maxHeight:'calc(100vh-180px)',display:'flex',flexDirection:'column'}}>
+              <div style=${{width:320,flexShrink:0,background:'#12151c',borderRadius:12,border:'1px solid #1e222b',maxHeight:'calc(100vh-180px)',display:'flex',flexDirection:'column'}}>
                 <div style=${{padding:'10px 14px',borderBottom:'1px solid #1e222b'}}>
                   <div style=${{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:6}}>
                     <span style=${{fontWeight:700,fontSize:13}}>Pool <span style=${{color:'#546e7a',fontWeight:400}}>(${pool.length})</span></span>
-                    <select class="select" style=${{width:'auto',padding:'2px 6px',fontSize:11}} value=${poolSort} onChange=${e=>setPoolSort(e.target.value)}>
-                      <option value="score">Score</option><option value="pos">Position</option><option value="name">Name</option></select></div>
+                    <div style=${{display:'flex',gap:4}}>
+                      <button class=${'btn btn-sm '+(showAllPool?'btn-primary':'btn-outline')}
+                        onClick=${()=>setShowAllPool(!showAllPool)}
+                        style=${{fontSize:10,padding:'2px 6px',background:showAllPool?'#f0a500':'transparent',color:showAllPool?'#000':'#78909c',border:'1px solid #2a2e38'}}>
+                        ${showAllPool?'Showing All':'Show All'}
+                      </button>
+                      <select class="select" style=${{width:'auto',padding:'2px 6px',fontSize:11}} value=${poolSort} onChange=${e=>setPoolSort(e.target.value)}>
+                        <option value="score">Score</option><option value="pos">Position</option><option value="name">Name</option></select>
+                    </div>
+                  </div>
                   <div style=${{fontSize:11,color:'#546e7a'}}>Drag into teams →</div>
                 </div>
                 <div style=${{overflow:'auto',flex:1,padding:8}}>
-                  ${pool.map(a=>html`<${PCard} key=${a.id} athlete=${a} onClick=${setSelAth} compact showScore/>`)}
+                  ${poolSort==='pos'
+                    ? html`<div>
+                        ${[...POS_CATS,{key:'unsorted',label:'Unsorted'}].map(cat => {
+                          const list = pool.filter(a => a.posCategory === cat.key);
+                          if(list.length === 0) return null;
+                          return html`
+                            <div key=${cat.key} style=${{marginBottom:12}}>
+                              <div style=${{fontSize:10,fontWeight:700,color:cat.key==='unsorted'?'#ffa726':'#4fc3f7',textTransform:'uppercase',marginBottom:4,paddingLeft:4,borderLeft:`2px solid ${cat.key==='unsorted'?'#ffa726':'#4fc3f7'}`}}>${cat.label}</div>
+                              ${list.map(a => html`
+                                <div style=${{opacity:a.teamAssignment?.length?0.4:1,pointerEvents:a.teamAssignment?.length?'none':'auto'}}>
+                                  <${PCard} key=${a.id} athlete=${a} onClick=${setSelAth} compact showScore/>
+                                </div>`)}
+                            </div>`;
+                        })}
+                      </div>`
+                    : pool.map(a=>html`
+                        <div style=${{opacity:a.teamAssignment?.length?0.4:1,pointerEvents:a.teamAssignment?.length?'none':'auto'}}>
+                          <${PCard} key=${a.id} athlete=${a} onClick=${setSelAth} compact showScore/>
+                        </div>`)
+                  }
                   ${pool.length===0&&html`<div style=${{padding:24,textAlign:'center',color:'#444',fontSize:12}}>All assigned</div>`}
                 </div>
               </div>`}
@@ -811,10 +880,6 @@ function HeadCoach({athletes,setAthletes,onLogout}){
                   const isLocked=roster.length>0&&roster.every(a=>a.teamLocked);
                   const active=roster.filter(a=>a.status!=='declined');
                   const declined=roster.filter(a=>a.status==='declined');
-                  const toggleLock=()=>{
-                    const newLocked=!isLocked;
-                    roster.forEach(a=>upd(a.id,{teamLocked:newLocked}));
-                  };
                   return html`
                     <div key=${lvl} class=${'team-card'+(isLocked?' finalized':'')}
                       style=${{background:ts.bg,borderColor:isLocked?'#f0a500':ts.border}}>
@@ -824,9 +889,10 @@ function HeadCoach({athletes,setAthletes,onLogout}){
                           <span style=${{fontWeight:800,fontSize:14,color:'#fff'}}>${age} ${lvl}</span>
                           <span style=${{fontSize:11,color:'rgba(255,255,255,.5)',background:'rgba(255,255,255,.1)',padding:'2px 7px',borderRadius:10}}>${roster.length}/12</span>
                         </div>
-                        ${roster.length>0&&html`
-                          <${Btn} sm onClick=${toggleLock} color=${isLocked?'#ef5350':'#f0a500'} outline>
-                            ${isLocked?'🔓 Unlock':'🔒 Finalize'}<//>  `}
+                        <${Btn} sm onClick=${()=>roster.forEach(a=>upd(a.id,{teamLocked:!isLocked}))}
+                          disabled=${roster.length===0}
+                          color=${isLocked?'#ef5350':'#f0a500'} outline>
+                          ${isLocked?'🔓 Unlock':'🔒 Finalize'}<//>
                       </div>
                       <div class=${'drop-zone'+(dragOver===key?' drag-over':'')}
                         onDragOver=${e=>{e.preventDefault();setDragOver(key);}}
@@ -910,7 +976,6 @@ function HeadCoach({athletes,setAthletes,onLogout}){
 // ── ROOT ───────────────────────────────────────────────────────────
 function App(){
   const [user,setUser]=useState(null);
-  const [selAth,setSelAth]=useState(null);
   const [athletes,setAthletes]=useState(()=>{
     const l=loadLocal();
     return l?initAthletes(l):initAthletes(RAW);
@@ -921,271 +986,12 @@ function App(){
   const doArrive=useCallback(id=>{setAthletes(p=>p.map(a=>a.id===id?{...a,arrived:true,status:'arrived'}:a));},[]);
   const addWalkup=useCallback(wu=>{setAthletes(p=>[...p,...initAthletes([wu])]);},[]);
   useEffect(()=>{if(athletes.length) saveLocal(athletes);},[athletes]);
-  const upd=useCallback((id,updates)=>{
-    setAthletes(p=>p.map(a=>a.id===id?{...a,...updates}:a));
-    setSelAth(p=>p?.id===id?{...p,...updates}:p);
-  },[]);
-
   if(!user) return html`<${Login} onLogin=${setUser}/>`;
-  const athleteModal=selAth?html`<${AthleteModal} athlete=${selAth} onClose=${()=>setSelAth(null)} onChange=${upd} onHide=${(a)=>{setAthletes(p=>p.map(x=>x.id===a.id?{...x,hidden:true}:x));setSelAth(null);}} onUnhide=${(id)=>setAthletes(p=>p.map(x=>x.id===id?{...x,hidden:false}:x))} onEmail=${()=>{}}/>`:null;
-
-  if(user.role==='station'&&user.isCheckin) return html`<${Fragment}><${CheckIn} athletes=${athletes} onArrive=${doArrive} onAddWalkup=${addWalkup} onLogout=${()=>setUser(null)} onEdit=${setSelAth}/>${athleteModal}<//>`;
-  if(user.role==='station') return html`<${Fragment}><${Station} stationKey=${user.key} label=${user.label} metrics=${user.metrics} athletes=${athletes} onMetric=${updMetric} onLogout=${()=>setUser(null)}/>${athleteModal}<//>`;
+  if(user.role==='station'&&user.isCheckin) return html`<${CheckIn} athletes=${athletes} onArrive=${doArrive} onAddWalkup=${addWalkup} onUpdate=${(id,u)=>setAthletes(p=>p.map(a=>a.id===id?{...a,...u}:a))} onLogout=${()=>setUser(null)}/>`;
+  if(user.role==='station') return html`<${Station} stationKey=${user.key} label=${user.label} metrics=${user.metrics} athletes=${athletes} onMetric=${updMetric} onLogout=${()=>setUser(null)}/>`;
   return html`<${HeadCoach} athletes=${athletes} setAthletes=${setAthletes} onLogout=${()=>setUser(null)}/>`;
 }
 render(html`<${App}/>`,document.getElementById('app'));
 </script>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MID TN VOLLEYBALL CLUB | Home</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
-    <style>
-        :root {
-            --bg-color: #0d1017;
-            --card-bg: #1a1d24;
-            --text-color: #e8eaed;
-            --primary-color: #f0a500;
-            --secondary-color: #4fc3f7;
-            --border-color: #2a2e38;
-        }
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-        body {
-            background-color: var(--bg-color);
-            color: var(--text-color);
-            font-family: 'Inter', sans-serif;
-            line-height: 1.6;
-        }
-        header {
-            background-color: var(--card-bg);
-            padding: 1rem 2rem;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-bottom: 1px solid var(--border-color);
-            position: sticky;
-            top: 0;
-            z-index: 100;
-        }
-        .logo {
-            font-size: 1.5rem;
-            font-weight: 800;
-            color: var(--primary-color);
-            text-decoration: none;
-        }
-        nav a {
-            color: var(--text-color);
-            text-decoration: none;
-            margin-left: 1.5rem;
-            font-weight: 600;
-            font-size: 0.9rem;
-            transition: color 0.2s;
-        }
-        nav a:hover { color: var(--primary-color); }
-        .hero {
-            padding: 6rem 2rem;
-            text-align: center;
-            background: linear-gradient(rgba(13, 16, 23, 0.8), rgba(13, 16, 23, 0.8)), url('https://images.unsplash.com/photo-1592656094267-764a45160876?auto=format&fit=crop&q=80&w=1200') center/cover;
-            border-bottom: 1px solid var(--border-color);
-        }
-        .hero h1 { font-size: 3.5rem; margin-bottom: 1rem; }
-        .hero p { font-size: 1.25rem; color: #78909c; max-width: 800px; margin: 0 auto 2rem; }
-        .btn {
-            display: inline-block;
-            padding: 0.8rem 2rem;
-            background-color: var(--primary-color);
-            color: #000;
-            text-decoration: none;
-            border-radius: 6px;
-            font-weight: 700;
-            transition: transform 0.2s;
-        }
-        .btn:hover { transform: translateY(-2px); }
-        .section { padding: 4rem 2rem; max-width: 1200px; margin: 0 auto; }
-        .section-title {
-            font-size: 2.2rem;
-            margin-bottom: 2.5rem;
-            border-left: 5px solid var(--primary-color);
-            padding-left: 1.5rem;
-        }
-        .grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 2rem;
-        }
-        .card {
-            background-color: var(--card-bg);
-            border: 1px solid var(--border-color);
-            border-radius: 12px;
-            padding: 2rem;
-            transition: border-color 0.3s;
-        }
-        .card:hover {
-            border-color: var(--primary-color);
-        }
-        .card h3 { margin-bottom: 1rem; color: var(--primary-color); }
-        .staff-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 2rem;
-            margin-top: 2rem;
-        }
-        .staff-card {
-            text-align: center;
-        }
-        .staff-card img {
-            width: 150px;
-            height: 150px;
-            border-radius: 50%;
-            background-color: var(--border-color);
-            margin-bottom: 1rem;
-            object-fit: cover;
-        }
-        .faq-item {
-            margin-bottom: 1.5rem;
-            border-bottom: 1px solid var(--border-color);
-            padding-bottom: 1rem;
-        }
-        .faq-item h4 {
-            color: var(--secondary-color);
-            margin-bottom: 0.5rem;
-        }
-        footer {
-            background-color: var(--card-bg);
-            padding: 3rem 2rem;
-            text-align: center;
-            border-top: 1px solid var(--border-color);
-            margin-top: 4rem;
-        }
-        .footer-info {
-            margin-bottom: 2rem;
-            color: #78909c;
-        }
-        #chatbot-root { position: fixed; bottom: 20px; right: 20px; z-index: 1000; }
-    </style>
-</head>
-<body>
-    <header>
-        <a href="#" class="logo">MID TN VBC</a>
-        <nav>
-            <a href="#news">News</a>
-            <a href="#programs">Programs</a>
-            <a href="#tryouts">Tryouts</a>
-            <a href="#staff">Staff</a>
-            <a href="#facility">Facility</a>
-            <a href="./tryouts/index.html">Tryout Manager</a>
-        </nav>
-    </header>
-
-    <section class="hero">
-        <h1>MID TN VOLLEYBALL CLUB</h1>
-        <p>Building Champions on and off the court. Join Middle Tennessee's premier volleyball training program at Hooptown.</p>
-        <a href="#tryouts" class="btn">Register for 2025-2026 Tryouts</a>
-    </section>
-
-    <section id="news" class="section">
-        <h2 class="section-title">Club Updates & Social</h2>
-        <div class="grid">
-            <div class="card">
-                <h3>#PrayForNae</h3>
-                <p>We continue to support Janae Edmondson in her incredible journey. The volleyball community's strength and love remain with her and her family. Stay tuned for local fundraisers and updates.</p>
-            </div>
-            <div class="card">
-                <h3>Follow Us</h3>
-                <p>Get daily updates, photos, and highlights from our teams.</p>
-                <br>
-                <p><strong>Instagram:</strong> <a href="https://www.instagram.com/Midtvbc" style="color: var(--secondary-color);">@Midtvbc</a></p>
-                <p><strong>Facebook:</strong> <a href="https://www.facebook.com/midtnvbc" style="color: var(--secondary-color);">Mid TN VBC</a></p>
-            </div>
-            <div class="card">
-                <h3>USAV & SRVA News</h3>
-                <p>Important: The 2025-2027 USAV Indoor Rulebook is now in effect. All players and coaches must maintain an active SRVA membership.</p>
-            </div>
-        </div>
-    </section>
-
-    <section id="programs" class="section">
-        <h2 class="section-title">Our Programs</h2>
-        <div class="grid">
-            <div class="card">
-                <h3>Elite Travel</h3>
-                <p>Our top-tier national level competition teams. Designed for athletes seeking maximum exposure and the highest level of competition across the country.</p>
-            </div>
-            <div class="card">
-                <h3>Regional Teams</h3>
-                <p>Competitive play within the Southern Region (SRVA). Focuses on skill mastery and strategic team play with a reduced travel schedule compared to Elite.</p>
-            </div>
-            <div class="card">
-                <h3>Youth Training League</h3>
-                <p>Specifically for grades 2nd-5th. One weeknight of practice and match play at Hooptown. Perfect for developing fundamentals in a fun, controlled environment.</p>
-            </div>
-        </div>
-    </section>
-
-    <section id="staff" class="section">
-        <h2 class="section-title">Leadership & Staff</h2>
-        <div class="staff-grid">
-            <div class="staff-card">
-                <div style="width: 150px; height: 150px; border-radius: 50%; background: #2a2e38; margin: 0 auto 1rem; display: flex; align-items: center; justify-content: center; font-size: 3rem;">RR</div>
-                <h3>Rhonda Ross</h3>
-                <p style="color: var(--primary-color);">Club Director</p>
-            </div>
-            <div class="staff-card">
-                <div style="width: 150px; height: 150px; border-radius: 50%; background: #2a2e38; margin: 0 auto 1rem; display: flex; align-items: center; justify-content: center; font-size: 3rem;">JW</div>
-                <h3>Jeff Wismer</h3>
-                <p style="color: var(--primary-color);">Assistant Director</p>
-            </div>
-        </div>
-    </section>
-
-    <section id="facility" class="section">
-        <h2 class="section-title">Our Home: Hooptown</h2>
-        <div class="card" style="display: flex; gap: 2rem; flex-wrap: wrap; align-items: center;">
-            <div style="flex: 1; min-width: 300px;">
-                <h3>Hooptown Sports Facility</h3>
-                <p>Located in Smyrna, TN, Hooptown is our primary training center featuring multiple high-quality volleyball courts.</p>
-                <br>
-                <p><strong>Address:</strong><br>6910 Stroop Lane<br>Smyrna, TN 37167</p>
-                <br>
-                <p>Hooptown is located beside Grand Slam USA batting cages.</p>
-            </div>
-            <div style="flex: 1; min-width: 300px; height: 300px; background: #12151c; border-radius: 8px; display: flex; align-items: center; justify-content: center; color: #546e7a;">
-                [Map Representation]
-            </div>
-        </div>
-    </section>
-
-    <section id="faq" class="section">
-        <h2 class="section-title">Frequently Asked Questions</h2>
-        <div class="card">
-            <div class="faq-item">
-                <h4>Where do I sign in for tryouts?</h4>
-                <p>Check-in is located at the front desk of Hooptown. Please arrive 30 minutes before your scheduled session with all paperwork printed.</p>
-            </div>
-            <div class="faq-item">
-                <h4>What is the cost of tryouts?</h4>
-                <p>Pre-registration is $50. Walk-up registration on the day of tryouts is $60.</p>
-            </div>
-            <div class="faq-item">
-                <h4>What do I need to bring?</h4>
-                <p>Athletes should bring water, knee pads, and appropriate court shoes. You MUST have your SRVA tryout membership and medical release forms ready.</p>
-            </div>
-            <div class="faq-item">
-                <h4>When will team offers be made?</h4>
-                <p>Initial offers are often made within 24-48 hours after the conclusion of tryouts for your age group.</p>
-            </div>
-        </div>
-    </section>
-
-    <footer>
-        <div class="footer-info">
-            <p><strong>MID TN VOLLEYBALL CLUB</strong></p>
-            <p>6910 Stroop Lane, Smyrna, TN 37167</p>
-            <p>Email: info@midtnvbc.com | Phone: (615) 200-8172</p>
-        </div>
-        <p>&copy; 2025 MID TN VOLLEYBALL CLUB. All Rights Reserved. Member of SRVA & USA Volleyball.</p>
-    </footer>
-
-    <div id="chatbot-root"></div>
-    <script src="./chatbot.js" type="module"></script>
 </body>
 </html>
