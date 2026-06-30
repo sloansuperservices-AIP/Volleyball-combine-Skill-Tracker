@@ -130,7 +130,9 @@ function posAbbr(p){
 }
 function classifyPos(p){
   if(!p) return 'unsorted'; const s=p.toLowerCase();
-  for(const c of POS_CATS) if(c.abbrs.some(a=>s===a||s.includes(a))) return c.key;
+  for(const c of POS_CATS) {
+    if(c.abbrs.some(a => a.length <= 2 ? s === a : s.includes(a))) return c.key;
+  }
   return 'unsorted';
 }
 function divAge(d){const m=(d||'').match(/(\d+)/);return m?m[1]:'';}
@@ -553,8 +555,8 @@ function PCard({athlete,onClick,compact,showScore,teamKey}){
       <span style=${{fontWeight:600,fontSize:compact?12:13,flex:1,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>${athlete.first} ${athlete.last}</span>
       <${Badge} c="#78909c" sm>${posAbbr(athlete.primaryPos)}<//>
       ${athlete.altPos&&athlete.altPos!==athlete.primaryPos&&html`<${Badge} c="#3a3f47" sm>${posAbbr(athlete.altPos)}<//>`}
-      ${athlete.wontAccept&&html`<span title=${athlete.wontAccept} style=${{fontSize:12}}>RESTRICTED</span>`}
-      ${athlete.notes&&html`<span title=${athlete.notes} style=${{fontSize:12}}>NOTE</span>`}
+      ${athlete.wontAccept&&html`<span title=${athlete.wontAccept} style=${{fontSize:14,cursor:'help'}}>⚠️</span>`}
+      ${athlete.notes&&html`<span title=${athlete.notes} style=${{fontSize:14,cursor:'help'}}>📝</span>`}
       ${showScore&&sc&&html`<${Badge} c=${scoreColor(sc)} sm>${sc}<//>`}
       <${SBadge} status=${athlete.status}/>
     </div>`;
@@ -602,10 +604,11 @@ function HeadCoach({athletes,setAthletes,onLogout}){
   };
 
   const exportToCSV=()=>{
-    const headers=['TO#','First','Last','Age','Primary','Alt','Coach','Status','Team','Score','Arrived','Notes','WontAccept','Phone','Email'];
+    const headers=['TO#','First','Last','Age','Primary','Alt','Coach','Status','Team','Score','Height','Reach','Vertical','Shuttle','Arrived','Notes','WontAccept','Phone','Email'];
     const rows=athletes.filter(a=>!a.hidden).map(a=>[
-      a.to,a.first,a.last,a.ageGroup+'s',a.primaryPos,a.altPos,a.coachPos,a.status,a.teamAssignment||'',totalScore(a.metrics)||'',a.arrived?'YES':'NO',
-      (a.notes||'').replace(/"/g,'""'),(a.wontAccept||'').replace(/"/g,'""'),a.phone,a.email
+      a.to,a.first,a.last,a.ageGroup+'s',a.primaryPos,a.altPos,a.coachPos,a.status,a.teamAssignment||'',totalScore(a.metrics)||'',
+      (a.metrics?.s1?.[0]||''),(a.metrics?.s1?.[1]||''),(a.metrics?.s1?.[2]||''),(a.metrics?.s2?.[0]||''),
+      a.arrived?'YES':'NO',(a.notes||'').replace(/"/g,'""'),(a.wontAccept||'').replace(/"/g,'""'),a.phone,a.email
     ]);
     const csvContent='data:text/csv;charset=utf-8,'+headers.join(',')+'\n'+rows.map(r=>r.map(v=>`"${v}"`).join(',')).join('\n');
     const encodedUri=encodeURI(csvContent);
@@ -664,15 +667,16 @@ function HeadCoach({athletes,setAthletes,onLogout}){
   // ── TEAMS ──
   const [poolSort,setPoolSort]=useState('score');
   const [showPool,setShowPool]=useState(true);
+  const [showAllPool,setShowAllPool]=useState(false);
   const [dragOver,setDragOver]=useState(null);
   const ageAths=athletes.filter(a=>a.ageGroup===age&&!a.hidden);
   const pool=useMemo(()=>{
-    let l=ageAths.filter(a=>!a.teamAssignment);
+    let l=showAllPool ? [...ageAths] : ageAths.filter(a=>!a.teamAssignment);
     if(poolSort==='score') l.sort((a,b)=>(Number(totalScore(b.metrics))||0)-(Number(totalScore(a.metrics))||0));
     else if(poolSort==='name') l.sort((a,b)=>a.last.localeCompare(b.last));
     else l.sort((a,b)=>(a.posCategory||'z').localeCompare(b.posCategory||'z'));
     return l;
-  },[ageAths,poolSort]);
+  },[ageAths,poolSort,showAllPool]);
   const drop=(e,teamKey)=>{e.preventDefault();const id=e.dataTransfer.getData('text/plain');const a=athletes.find(x=>x.id===id);if(a&&!a.teamLocked&&a.status!=='accepted') upd(id,{teamAssignment:teamKey});setDragOver(null);};
 
   const th={};
@@ -701,7 +705,7 @@ function HeadCoach({athletes,setAthletes,onLogout}){
             <div style=${{display:'flex',gap:2,background:'#12151c',borderRadius:6,padding:2}}>
               ${AGES.map(a=>html`<button key=${a} class=${'age-tab'+(age===a?' active':'')} onClick=${()=>setAge(a)}>${a}s</button>`)}</div>`}
           ${view==='allteams'&&html`
-            <${Btn} sm onClick=${()=>exportCSV([['Age','Team','TO#','First','Last','POS','Coach POS','Score','Status','Phone','Email'],...athletes.filter(a=>a.teamAssignment&&!a.hidden).map(a=>[a.ageGroup+'s',a.teamAssignment,a.to,a.first,a.last,a.primaryPos,a.coachPos,totalScore(a.metrics)||'',a.status,a.phone,a.email])],'MidTN_Teams.csv')} color="#66bb6a" outline>Export CSV<//>
+            <${Btn} sm onClick=${()=>exportCSV([['Age','Team','TO#','First','Last','POS','Coach POS','Score','Height','Reach','Vertical','Shuttle','Status','Phone','Email','Notes','WontAccept'],...athletes.filter(a=>a.teamAssignment&&!a.hidden).map(a=>[a.ageGroup+'s',a.teamAssignment,a.to,a.first,a.last,a.primaryPos,a.coachPos,totalScore(a.metrics)||'',(a.metrics?.s1?.[0]||''),(a.metrics?.s1?.[1]||''),(a.metrics?.s1?.[2]||''),(a.metrics?.s2?.[0]||''),a.status,a.phone,a.email,a.notes,a.wontAccept])],'MidTN_Teams.csv')} color="#66bb6a" outline>Export CSV<//>
             <${Btn} sm onClick=${()=>window.print()} color="#4fc3f7" outline>Print<//>
           `}
         </div>
@@ -717,7 +721,7 @@ function HeadCoach({athletes,setAthletes,onLogout}){
               <${Badge} c="#26c6da">${regList.filter(a=>a.arrived).length} Arrived<//>
               <${Badge} c="#78909c">${regList.length} Total<//>
               <${Btn} sm onClick=${()=>setAddWu(p=>!p)} color="#f0a500">+ Add Walkup<//>
-              <${Btn} sm onClick=${()=>exportCSV([['TO#','First','Last','Division','Primary','Alt','Score','Status','Arrived','Walkup','Phone','Email','Notes'],...athletes.filter(a=>!a.hidden).map(a=>[a.to,a.first,a.last,a.division,a.primaryPos,a.altPos,totalScore(a.metrics)||'',a.status,a.arrived?'Yes':'',a.isWalkup?'Yes':'',a.phone,a.email,a.notes])],'MidTN_Reg.csv')} color="#4fc3f7" outline>Export CSV<//>
+              <${Btn} sm onClick=${()=>exportCSV([['TO#','First','Last','Division','Primary','Alt','Score','Height','Reach','Vertical','Shuttle','Status','Arrived','Walkup','Phone','Email','Notes','WontAccept'],...athletes.filter(a=>!a.hidden).map(a=>[a.to,a.first,a.last,a.division,a.primaryPos,a.altPos,totalScore(a.metrics)||'',(a.metrics?.s1?.[0]||''),(a.metrics?.s1?.[1]||''),(a.metrics?.s1?.[2]||''),(a.metrics?.s2?.[0]||''),a.status,a.arrived?'Yes':'',a.isWalkup?'Yes':'',a.phone,a.email,a.notes,a.wontAccept])],'MidTN_Reg.csv')} color="#4fc3f7" outline>Export CSV<//>
             </div>
             ${addWu&&html`
               <div class="card" style=${{padding:16,marginBottom:14,border:'1px solid #f0a50033'}}>
@@ -737,22 +741,23 @@ function HeadCoach({athletes,setAthletes,onLogout}){
               </div>`}
             <div style=${{overflowX:'auto',maxHeight:'calc(100vh - 280px)'}}>
               <table>
-                <thead><tr>${['TO#','Name','Div','Primary','Alt','Coach','Score','Status','Arrived','Notes','Phone','Email'].map(h=>html`<th key=${h}>${h}</th>`)}</tr></thead>
+                <thead><tr>${['TO#','Name','Div','Primary','Alt','Coach','Score','Status','Arrived','Notes','Edit','Phone','Email'].map(h=>html`<th key=${h}>${h}</th>`)}</tr></thead>
                 <tbody>
                   ${regList.map(a=>html`
-                    <tr key=${a.id} onClick=${()=>setSelAth(a)}>
-                      <td style=${{fontFamily:'monospace',color:'#4fc3f7'}}>${a.to}</td>
-                      <td style=${{fontWeight:600,whiteSpace:'nowrap'}}>${a.first} ${a.last}${a.isWalkup&&html`<span style=${{marginLeft:4,fontSize:10,color:'#ffa726'}}>WU</span>`}</td>
+                    <tr key=${a.id}>
+                      <td onClick=${()=>setSelAth(a)} style=${{fontFamily:'monospace',color:'#4fc3f7'}}>${a.to}</td>
+                      <td onClick=${()=>setSelAth(a)} style=${{fontWeight:600,whiteSpace:'nowrap'}}>${a.first} ${a.last}${a.isWalkup&&html`<span style=${{marginLeft:4,fontSize:10,color:'#ffa726'}}>WU</span>`}</td>
                       <td><${Badge} c="#78909c" sm>${a.ageGroup}s<//></td>
                       <td><${Badge} c="#4fc3f7" sm>${posAbbr(a.primaryPos)}<//></td>
                       <td><${Badge} c="#546e7a" sm>${posAbbr(a.altPos)}<//></td>
                       <td>${a.coachPos&&html`<${Badge} c="#ffa726" sm>${a.coachPos}<//>`}</td>
                       <td style=${{fontFamily:'monospace',fontWeight:700,color:totalScore(a.metrics)?scoreColor(totalScore(a.metrics)):'#444'}}>${totalScore(a.metrics)||'—'}</td>
-                      <td><${SBadge} status=${a.status}/></td>
+                      <td onClick=${()=>setSelAth(a)}><${SBadge} status=${a.status}/></td>
                       <td>${a.arrived?html`<${Badge} c="#26c6da" sm>✓<//>`
                         :html`<${Btn} sm onClick=${e=>{e.stopPropagation();doArrive(a.id);}} color="#26c6da" outline>Check In<//>`}</td>
-                      <td>${a.notes&&html`<span title=${a.notes}>📝</span>`}${a.wontAccept&&html`<span title=${a.wontAccept} style=${{marginLeft:4}}>⚠️</span>`}</td>
-                      <td style=${{color:'#78909c',whiteSpace:'nowrap',fontSize:11}}>${a.phone}</td>
+                      <td onClick=${()=>setSelAth(a)}>${a.notes&&html`<span title=${a.notes}>📝</span>`}${a.wontAccept&&html`<span title=${a.wontAccept} style=${{marginLeft:4}}>⚠️</span>`}</td>
+                      <td onClick=${()=>setSelAth(a)} style=${{fontSize:14,textAlign:'center'}}>✏️</td>
+                      <td onClick=${()=>setSelAth(a)} style=${{color:'#78909c',whiteSpace:'nowrap',fontSize:11}}>${a.phone}</td>
                       <td style=${{color:'#78909c',maxWidth:140,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap',fontSize:11}}>${a.email}</td>
                     </tr>`)}</tbody></table>
               ${regList.length===0&&html`<div style=${{padding:40,textAlign:'center',color:'#444'}}>No results</div>`}
@@ -823,33 +828,42 @@ function HeadCoach({athletes,setAthletes,onLogout}){
         ${view==='teams'&&html`
           <div style=${{display:'flex',gap:14,alignItems:'flex-start'}}>
             ${showPool&&html`
-              <div style=${{width:270,flexShrink:0,background:'#12151c',borderRadius:12,border:'1px solid #1e222b',maxHeight:'calc(100vh-180px)',display:'flex',flexDirection:'column'}}>
+              <div style=${{width:320,flexShrink:0,background:'#12151c',borderRadius:12,border:'1px solid #1e222b',maxHeight:'calc(100vh-180px)',display:'flex',flexDirection:'column'}}>
                 <div style=${{padding:'10px 14px',borderBottom:'1px solid #1e222b'}}>
                   <div style=${{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:6}}>
                     <span style=${{fontWeight:700,fontSize:13}}>Pool <span style=${{color:'#546e7a',fontWeight:400}}>(${pool.length})</span></span>
-                    <select class="select" style=${{width:'auto',padding:'2px 6px',fontSize:11}} value=${poolSort} onChange=${e=>setPoolSort(e.target.value)}>
-                      <option value="score">Score</option><option value="pos">Position</option><option value="name">Name</option></select></div>
+                    <div style=${{display:'flex',gap:4}}>
+                      <button class=${'btn btn-sm '+(showAllPool?'btn-primary':'btn-outline')}
+                        onClick=${()=>setShowAllPool(!showAllPool)}
+                        style=${{fontSize:10,padding:'2px 6px',background:showAllPool?'#f0a500':'transparent',color:showAllPool?'#000':'#78909c',border:'1px solid #2a2e38'}}>
+                        ${showAllPool?'Showing All':'Show All'}
+                      </button>
+                      <select class="select" style=${{width:'auto',padding:'2px 6px',fontSize:11}} value=${poolSort} onChange=${e=>setPoolSort(e.target.value)}>
+                        <option value="score">Score</option><option value="pos">Position</option><option value="name">Name</option></select>
+                    </div>
+                  </div>
                   <div style=${{fontSize:11,color:'#546e7a'}}>Drag into teams →</div>
                 </div>
                 <div style=${{overflow:'auto',flex:1,padding:8}}>
                   ${poolSort==='pos'
                     ? html`<div>
-                        ${POS_CATS.map(cat => {
+                        ${[...POS_CATS,{key:'unsorted',label:'Unsorted'}].map(cat => {
                           const list = pool.filter(a => a.posCategory === cat.key);
                           if(list.length === 0) return null;
                           return html`
                             <div key=${cat.key} style=${{marginBottom:12}}>
-                              <div style=${{fontSize:10,fontWeight:700,color:'#4fc3f7',textTransform:'uppercase',marginBottom:4,paddingLeft:4,borderLeft:'2px solid #4fc3f7'}}>${cat.label}</div>
-                              ${list.map(a => html`<${PCard} key=${a.id} athlete=${a} onClick=${setSelAth} compact showScore/>`)}
+                              <div style=${{fontSize:10,fontWeight:700,color:cat.key==='unsorted'?'#ffa726':'#4fc3f7',textTransform:'uppercase',marginBottom:4,paddingLeft:4,borderLeft:`2px solid ${cat.key==='unsorted'?'#ffa726':'#4fc3f7'}`}}>${cat.label}</div>
+                              ${list.map(a => html`
+                                <div style=${{opacity:a.teamAssignment?.length?0.4:1,pointerEvents:a.teamAssignment?.length?'none':'auto'}}>
+                                  <${PCard} key=${a.id} athlete=${a} onClick=${setSelAth} compact showScore/>
+                                </div>`)}
                             </div>`;
                         })}
-                        ${pool.filter(a => a.posCategory === 'unsorted').length > 0 && html`
-                          <div style=${{marginBottom:12}}>
-                            <div style=${{fontSize:10,fontWeight:700,color:'#ffa726',textTransform:'uppercase',marginBottom:4,paddingLeft:4,borderLeft:'2px solid #ffa726'}}>Unsorted</div>
-                            ${pool.filter(a => a.posCategory === 'unsorted').map(a => html`<${PCard} key=${a.id} athlete=${a} onClick=${setSelAth} compact showScore/>`)}
-                          </div>`}
                       </div>`
-                    : pool.map(a=>html`<${PCard} key=${a.id} athlete=${a} onClick=${setSelAth} compact showScore/>`)
+                    : pool.map(a=>html`
+                        <div style=${{opacity:a.teamAssignment?.length?0.4:1,pointerEvents:a.teamAssignment?.length?'none':'auto'}}>
+                          <${PCard} key=${a.id} athlete=${a} onClick=${setSelAth} compact showScore/>
+                        </div>`)
                   }
                   ${pool.length===0&&html`<div style=${{padding:24,textAlign:'center',color:'#444',fontSize:12}}>All assigned</div>`}
                 </div>
@@ -875,9 +889,10 @@ function HeadCoach({athletes,setAthletes,onLogout}){
                           <span style=${{fontWeight:800,fontSize:14,color:'#fff'}}>${age} ${lvl}</span>
                           <span style=${{fontSize:11,color:'rgba(255,255,255,.5)',background:'rgba(255,255,255,.1)',padding:'2px 7px',borderRadius:10}}>${roster.length}/12</span>
                         </div>
-                        ${roster.length>0&&html`
-                          <${Btn} sm onClick=${()=>roster.forEach(a=>upd(a.id,{teamLocked:!isLocked}))} color=${isLocked?'#ef5350':'#f0a500'} outline>
-                            ${isLocked?'🔓 Unlock':'🔒 Finalize'}<//>  `}
+                        <${Btn} sm onClick=${()=>roster.forEach(a=>upd(a.id,{teamLocked:!isLocked}))}
+                          disabled=${roster.length===0}
+                          color=${isLocked?'#ef5350':'#f0a500'} outline>
+                          ${isLocked?'🔓 Unlock':'🔒 Finalize'}<//>
                       </div>
                       <div class=${'drop-zone'+(dragOver===key?' drag-over':'')}
                         onDragOver=${e=>{e.preventDefault();setDragOver(key);}}
