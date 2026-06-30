@@ -1,0 +1,79 @@
+{
+  "club_info": {
+    "name": "Mid TN Volleyball Club",
+    "location": "Smyrna, TN",
+    "director": "Rhonda Ross",
+    "assistant_director": "Jeff Wismer",
+    "facility": "Hooptown",
+    "website": "http://MIDVBC.com",
+    "social_media": {
+      "facebook": "https://www.facebook.com/midtnvbc",
+      "instagram": "https://www.instagram.com/Midtvbc"
+    }
+  },
+  "news": [
+    {
+      "title": "2025-2026 Tryout Dates Announced",
+      "date": "2026-06-30",
+      "summary": "Official tryouts will begin on September 27, 2025. Register online via our Tryout Manager at MIDVBC.com."
+    },
+    {
+      "title": "Pray for Janae",
+      "date": "Ongoing",
+      "summary": "Janae Edmondson, a talented setter for Mid TN VBC, was seriously injured in a car accident in St. Louis. The volleyball community has come together to support her recovery. #prayfornae"
+    }
+  ],
+  "tryouts": {
+    "status": "Check the website for 2025-2026 dates",
+    "cost": "TBD (Estimate $65)",
+    "requirements": [
+      "SRVA Tryout Membership",
+      "Medical Release Form",
+      "Notarized USAV Medical Form"
+    ]
+  },
+  "programs": [
+    {
+      "name": "Elite/Travel",
+      "description": "High-level competitive teams traveling to national qualifiers."
+    },
+    {
+      "name": "Regional",
+      "description": "Competitive teams playing within the SRVA region."
+    },
+    {
+      "name": "Developmental/Training",
+      "description": "Focus on skill building for younger or newer players."
+    }
+  ],
+  "rules_and_regulations": {
+    "usa_volleyball": {
+      "expert_note": "USA Volleyball 2025-2027 rule highlights: Multiple contacts on the second hit are permitted if play continues without advantage. Serving tossing errors now result in a re-serve. Center line encroachment is permitted if it doesn't interfere or create safety hazards. Numbers must be centered on the upper half of uniform tops (by 2029).",
+      "link": "https://usavolleyball.org/resources-for-officials/rulebooks-and-interpretations/"
+    },
+    "srva": {
+      "expert_note": "SRVA 2025-2026: Membership is mandatory for all participants. Tryout memberships are available. Teams must honor officiating commitments after play is completed. SafeSport compliance is strictly enforced.",
+      "link": "https://www.srva.org"
+    }
+  },
+  "faq": [
+    {
+      "question": "Where do I sign in for tryouts?",
+      "answer": "You can sign in at the Check-In station at the facility (Hooptown) or use our online Tryout Manager."
+    },
+    {
+      "question": "What do I need to be ready for?",
+      "answer": "Arrive 30 minutes early, bring your water bottle, and ensure all SRVA paperwork is completed."
+    },
+    {
+      "question": "What is the cost?",
+      "answer": "Tryout fees are typically around $65, but please confirm the exact amount on our registration page."
+    }
+  ],
+  "social_updates": {
+    "instagram": "Recent post: Good luck to our teams competing this weekend! #midtnvbc @Midtvbc",
+    "facebook": "Recent post: Reminder to complete your SRVA membership before tryouts."
+  },
+  "usa_volleyball_latest": "Update: 2025-2027 Rulebook published. Multiple contacts on 2nd hit allowed if no advantage.",
+  "last_agent_run": "2026-06-30 04:50:35"
+}
