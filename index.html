@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MID TN VOLLEYBALL CLUB | Home</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #0d1017;
+            --card-bg: #1a1d24;
+            --text-color: #e8eaed;
+            --primary-color: #f0a500;
+            --secondary-color: #4fc3f7;
+            --border-color: #2a2e38;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            font-family: 'Inter', sans-serif;
+            line-height: 1.6;
+        }
+        header {
+            background-color: var(--card-bg);
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--border-color);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 800;
+            color: var(--primary-color);
+            text-decoration: none;
+        }
+        nav a {
+            color: var(--text-color);
+            text-decoration: none;
+            margin-left: 1.5rem;
+            font-weight: 600;
+            font-size: 0.9rem;
+            transition: color 0.2s;
+        }
+        nav a:hover { color: var(--primary-color); }
+        .hero {
+            padding: 4rem 2rem;
+            text-align: center;
+            background: linear-gradient(rgba(13, 16, 23, 0.8), rgba(13, 16, 23, 0.8)), url('https://images.unsplash.com/photo-1592656094267-764a45160876?auto=format&fit=crop&q=80&w=1200') center/cover;
+            border-bottom: 1px solid var(--border-color);
+        }
+        .hero h1 { font-size: 3rem; margin-bottom: 1rem; }
+        .hero p { font-size: 1.2rem; color: #78909c; max-width: 800px; margin: 0 auto 2rem; }
+        .btn {
+            display: inline-block;
+            padding: 0.8rem 2rem;
+            background-color: var(--primary-color);
+            color: #000;
+            text-decoration: none;
+            border-radius: 6px;
+            font-weight: 700;
+            transition: transform 0.2s;
+        }
+        .btn:hover { transform: translateY(-2px); }
+        .section { padding: 4rem 2rem; max-width: 1200px; margin: 0 auto; }
+        .section-title {
+            font-size: 2rem;
+            margin-bottom: 2rem;
+            border-left: 4px solid var(--primary-color);
+            padding-left: 1rem;
+        }
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+        }
+        .card {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 2rem;
+        }
+        .card h3 { margin-bottom: 1rem; color: var(--primary-color); }
+        footer {
+            background-color: var(--card-bg);
+            padding: 2rem;
+            text-align: center;
+            border-top: 1px solid var(--border-color);
+            margin-top: 4rem;
+        }
+        #chatbot-root { position: fixed; bottom: 20px; right: 20px; z-index: 1000; }
+    </style>
+</head>
+<body>
+    <header>
+        <a href="#" class="logo">MID TN VBC</a>
+        <nav>
+            <a href="#news">News</a>
+            <a href="#programs">Programs</a>
+            <a href="#tryouts">Tryouts</a>
+            <a href="./tryouts/index.html">Tryout Manager</a>
+        </nav>
+    </header>
+
+    <section class="hero">
+        <h1>Excellence in Volleyball</h1>
+        <p>Providing top-tier training and competition for athletes in Middle Tennessee for over a decade.</p>
+        <a href="#tryouts" class="btn">Join Our Club</a>
+    </section>
+
+    <section id="news" class="section">
+        <h2 class="section-title">Latest News</h2>
+        <div class="grid">
+            <div class="card">
+                <h3>#PrayForNae</h3>
+                <p>Support our setter Janae Edmondson in her journey to recovery. Janae was seriously injured in a car accident in St. Louis. The entire volleyball world stands with her.</p>
+            </div>
+            <div class="card">
+                <h3>2025-2026 Season Prep</h3>
+                <p>We are gearing up for our best season yet. Stay tuned for official tryout dates and program announcements.</p>
+            </div>
+        </div>
+    </section>
+
+    <section id="programs" class="section">
+        <h2 class="section-title">Our Programs</h2>
+        <div class="grid">
+            <div class="card">
+                <h3>Elite Travel</h3>
+                <p>National level competition for athletes looking to compete at the highest level and gain collegiate exposure.</p>
+            </div>
+            <div class="card">
+                <h3>Regional Teams</h3>
+                <p>Competitive teams playing within the SRVA region, focusing on skill development and team excellence.</p>
+            </div>
+            <div class="card">
+                <h3>Training League</h3>
+                <p>Skill-focused training for younger athletes or those looking to improve their fundamentals.</p>
+            </div>
+        </div>
+    </section>
+
+    <section id="tryouts" class="section">
+        <h2 class="section-title">Tryouts</h2>
+        <div class="card">
+            <h3>2025-2026 Tryout Information</h3>
+            <p>Tryouts will be held at our Hooptown facility. Registration will open soon. Make sure you have your SRVA membership ready.</p>
+            <br>
+            <a href="./tryouts/index.html" class="btn">View Tryout Manager</a>
+        </div>
+    </section>
+
+    <footer>
+        <p>&copy; 2025 MID TN VOLLEYBALL CLUB | Smyrna, TN | Hooptown</p>
+    </footer>
+
+    <div id="chatbot-root"></div>
+    <script src="./chatbot.js" type="module"></script>
+</body>
+</html>
