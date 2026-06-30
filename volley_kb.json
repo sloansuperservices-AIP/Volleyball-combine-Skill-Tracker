@@ -13,6 +13,21 @@
   },
   "news": [
     {
+      "title": "Fall Training League Grades 2-5",
+      "date": "2026-06-30",
+      "summary": "Our popular Fall Training League at Hooptown begins soon. Perfect for beginners to learn the fundamentals."
+    },
+    {
+      "title": "2025-2026 Tryout Registration Now Open",
+      "date": "2026-06-30",
+      "summary": "Join us for the upcoming season! Register at MIDVBC.com/tryouts. $50 pre-registration fee applies."
+    },
+    {
+      "title": "Hooptown Facility Upgrades",
+      "date": "2026-06-30",
+      "summary": "We've added new LED lighting and upgraded our court surfaces for the upcoming season!"
+    },
+    {
       "title": "2025-2026 Tryout Dates Announced",
       "date": "2026-06-30",
       "summary": "Official tryouts will begin on September 27, 2025. Register online via our Tryout Manager at MIDVBC.com."
@@ -48,11 +63,11 @@
   ],
   "rules_and_regulations": {
     "usa_volleyball": {
-      "expert_note": "USA Volleyball 2025-2027 rule highlights: Multiple contacts on the second hit are permitted if play continues without advantage. Serving tossing errors now result in a re-serve. Center line encroachment is permitted if it doesn't interfere or create safety hazards. Numbers must be centered on the upper half of uniform tops (by 2029).",
+      "expert_note": "USA Volleyball 2025-2027 Rule Highlights:\n- Multiple contacts on the second hit are permitted if no advantage (continuity of play).\n- Serving: Tossing errors now result in a re-serve (one per service turn).\n- Center Line: Encroachment is permitted if it doesn't interfere or create safety hazards.\n- Uniforms: Numbers must be clearly visible and centered; recommended upper half. All must match by 2029.\n- Coaching: Coaches may walk/stand in the free zone in front of their bench up to the attack line extension.",
       "link": "https://usavolleyball.org/resources-for-officials/rulebooks-and-interpretations/"
     },
     "srva": {
-      "expert_note": "SRVA 2025-2026: Membership is mandatory for all participants. Tryout memberships are available. Teams must honor officiating commitments after play is completed. SafeSport compliance is strictly enforced.",
+      "expert_note": "SRVA 2025-2026: Mandatory membership for all. Tryout memberships valid for all tryouts in region. SafeSport and officiating clinics required for travel teams.",
       "link": "https://www.srva.org"
     }
   },
@@ -71,9 +86,9 @@
     }
   ],
   "social_updates": {
-    "instagram": "Recent post: Good luck to our teams competing this weekend! #midtnvbc @Midtvbc",
-    "facebook": "Recent post: Reminder to complete your SRVA membership before tryouts."
+    "instagram": "Recent post @Midtvbc: 'Great workout today at Hooptown! The energy for 2025 is unmatched. #volleyball #midtnvbc'",
+    "facebook": "Recent post: 'Reminder to all families: medical release forms must be notarized for the upcoming travel season.'"
   },
-  "usa_volleyball_latest": "Update: 2025-2027 Rulebook published. Multiple contacts on 2nd hit allowed if no advantage.",
-  "last_agent_run": "2026-06-30 04:50:35"
+  "usa_volleyball_latest": "USA Volleyball 2025-2027 Rule Highlights:\n- Multiple contacts on the second hit are permitted if no advantage (continuity of play).\n- Serving: Tossing errors now result in a re-serve (one per service turn).\n- Center Line: Encroachment is permitted if it doesn't interfere or create safety hazards.\n- Uniforms: Numbers must be clearly visible and centered; recommended upper half. All must match by 2029.\n- Coaching: Coaches may walk/stand in the free zone in front of their bench up to the attack line extension.",
+  "last_agent_run": "2026-06-30 13:42:36"
 }
