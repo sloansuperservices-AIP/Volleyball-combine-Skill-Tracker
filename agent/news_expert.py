@@ -77,6 +77,10 @@ def update_knowledge_base():
     # but we represent the intent by keeping mock items if real ones fail.
     mock_sm = [
         {"source": "Instagram", "title": "New Practice Gear Arriving!", "content": "Check our stories for a sneak peek."},
+        {"source": "Facebook", "title": "Tryout Info Session Tonight", "content": "Join us on Zoom at 7 PM."}
+    ]
+
+    all_new = website_news + usav_updates + mock_sm
         {"source": "Facebook", "title": "Tryout Info Session Tonight", "content": "Join us on Zoom at 7 PM."},
         {"source": "Instagram", "title": "Season 2026 Kickoff!", "content": "We are excited to start another winning year."}
     ]

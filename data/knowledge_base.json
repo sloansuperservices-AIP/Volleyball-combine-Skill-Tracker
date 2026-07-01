@@ -1,4 +1,7 @@
 {
+  "last_updated": "2026-06-28T14:05:50.633538",
+  "news": [
+    {
   "last_updated": "2026-06-29T13:48:40.632025",
   "news": [
     {
@@ -75,6 +78,9 @@
     }
   ],
   "rules": {
+    "usav_summary": "USA Volleyball 2024-2025 rules include updates on uniform legality (Arabic numerals 1-99 required, contrasting colors for Libero) and allowing small, snug-fitting jewelry like nose rings and ear cuffs.",
+    "srva_summary": "SRVA (Southern Region Volleyball Association) governs regional tournament registrations and club management. All players and staff must be registered via the SRVAonline system.",
+    "expert_info": "USA Volleyball rules are the standard for our club. Key areas include service order, Libero transitions, and net contact rules. SRVA specific regulations often deal with tournament entry deadlines and roster requirements."
     "usav_summary": "USA Volleyball 2024-2025 rules: Jewelry is allowed if small and snug-fitting (nose rings/ear cuffs ok); Uniform numbers must be centered and clearly visible; Protests on judgment decisions are not allowed and may result in a penalty for the coach.",
     "srva_summary": "SRVA requires all athletes and staff to be registered via SRVAonline. Athletes must 'Accept' Mid TN VBC as their club in the SRVA system to be eligible for tournaments.",
     "expert_info": "We follow USA Volleyball and SRVA standards. Key areas: service order, Libero transitions, and tournament eligibility via SRVA membership."
@@ -82,6 +88,19 @@
   "faqs": [
     {
       "q": "What is the cost of tryouts?",
+      "a": "Tryouts cost $50 if you pre-register online, or $60 for walk-ups on the day of the event."
+    },
+    {
+      "q": "Where do I sign in for tryouts?",
+      "a": "Check-in and sign-in occur at our main facility located at 6910 Stroop Ln, Smyrna, TN 37167. Please arrive 30 minutes early."
+    },
+    {
+      "q": "When will we know team placements?",
+      "a": "Offers are typically sent out via email within 48-72 hours after the final tryout session for your age group."
+    },
+    {
+      "q": "What do I need to be ready for?",
+      "a": "Athletes should bring water, knee pads, and be ready for physical testing (height, reach, vertical) and agility drills (shuttle run) before moving into skill-based evaluations."
       "a": "Tryouts cost $50 for pre-registration and $60 for walk-ups."
     },
     {

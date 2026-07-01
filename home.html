@@ -80,6 +80,15 @@ footer{padding:60px 0;border-top:1px solid #1e222b;color:#546e7a;font-size:14px}
         <div class="grid">
             <div class="card">
                 <h3>Travel Club Teams</h3>
+                <p>Highly competitive teams for ages 12-18. Competing in local, regional, and national tournaments.</p>
+            </div>
+            <div class="card">
+                <h3>Youth Training League</h3>
+                <p>Focused on fundamental skills for grades 2nd-8th. Sessions in Fall and Winter.</p>
+            </div>
+            <div class="card">
+                <h3>Private Lessons</h3>
+                <p>One-on-one training with our expert coaching staff to refine specific skills.</p>
                 <p>Highly competitive teams for ages 12-18. Teams practice twice weekly and compete in SRVA and USAV sanctioned tournaments.</p>
             </div>
             <div class="card">
@@ -109,6 +118,19 @@ footer{padding:60px 0;border-top:1px solid #1e222b;color:#546e7a;font-size:14px}
     <div class="container">
         <h2>2026-2027 Tryouts</h2>
         <div class="card" style="max-width:800px;margin:0 auto">
+            <p style="margin-bottom:20px;text-align:center">Join the Mid TN VBC family! Tryouts for the upcoming season are fast approaching.</p>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:30px">
+                <div>
+                    <h4 style="color:#f0a500;margin-bottom:10px">Location</h4>
+                    <p>6910 Stroop Ln<br/>Smyrna, TN 37167</p>
+                </div>
+                <div>
+                    <h4 style="color:#f0a500;margin-bottom:10px">Cost</h4>
+                    <p>$50 Pre-registration<br/>$60 Walk-up</p>
+                </div>
+            </div>
+            <div style="text-align:center">
+                <a href="index.html" class="btn">Go to Tryout Manager</a>
             <p style="margin-bottom:20px;text-align:center">Join the Mid TN VBC family! Tryouts for all age groups (12U-18U) are coming up. Be ready for physical testing and skill evaluations.</p>
             <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:30px">
                 <div>
@@ -227,6 +249,17 @@ footer{padding:60px 0;border-top:1px solid #1e222b;color:#546e7a;font-size:14px}
         try {
             const res = await fetch('data/knowledge_base.json');
             const data = await res.json();
+
+            // Simple keyword matching for demo
+            const q = query.toLowerCase();
+            if(q.includes('cost')) return data.faqs.find(f => f.q.includes('cost'))?.a || "Tryouts cost $50 for pre-registration and $60 for walk-ups.";
+            if(q.includes('sign in') || q.includes('tryouts')) return "You can sign in for tryouts at our facility at 6910 Stroop Ln. Check-in starts 30 minutes before your age group's session.";
+            if(q.includes('rule') || q.includes('regulation')) return data.rules.usav_summary;
+            if(q.includes('srva')) return data.rules.srva_summary;
+
+            return "That's a great question! For more specific info about " + query + ", please email info@midtnvbc.com or check our latest newsletter.";
+        } catch(e) {
+            return "I'm having trouble accessing my knowledge base right now, but I'm learning! Try asking about costs or tryouts.";
             const q = query.toLowerCase();
 
             if(context === 'manager') {
