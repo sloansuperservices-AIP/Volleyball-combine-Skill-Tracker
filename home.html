@@ -89,7 +89,27 @@ footer{padding:60px 0;border-top:1px solid #1e222b;color:#546e7a;font-size:14px}
             <div class="card">
                 <h3>Private Lessons</h3>
                 <p>One-on-one training with our expert coaching staff to refine specific skills.</p>
+                <p>Highly competitive teams for ages 12-18. Teams practice twice weekly and compete in SRVA and USAV sanctioned tournaments.</p>
             </div>
+            <div class="card">
+                <h3>Youth Training League</h3>
+                <p>Fundamental skill development for grades 2nd-8th. Positional training and league play during Fall and Winter sessions.</p>
+            </div>
+            <div class="card">
+                <h3>Private Lessons</h3>
+                <p>Customized 1-on-1 or small group sessions with our elite coaching staff to master specific volleyball techniques.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section id="about" style="background:#1a1d24">
+    <div class="container">
+        <h2>About Mid TN VBC</h2>
+        <div style="max-width:800px;margin:0 auto;text-align:center">
+            <p style="margin-bottom:20px">Mid TN Volleyball Club is Smyrna's premier destination for elite volleyball. For over a decade, we have provided top-tier training and competitive opportunities for athletes in Middle Tennessee.</p>
+            <p style="margin-bottom:20px">We are proud members of the Southern Region Volleyball Association (SRVA) and USA Volleyball. Our mission is to build strong athletes and even stronger teams through disciplined training and a culture of excellence.</p>
+            <p>Our facility at Hooptown serves as the hub for our travel teams, youth leagues, and private training programs.</p>
         </div>
     </div>
 </section>
@@ -111,6 +131,19 @@ footer{padding:60px 0;border-top:1px solid #1e222b;color:#546e7a;font-size:14px}
             </div>
             <div style="text-align:center">
                 <a href="index.html" class="btn">Go to Tryout Manager</a>
+            <p style="margin-bottom:20px;text-align:center">Join the Mid TN VBC family! Tryouts for all age groups (12U-18U) are coming up. Be ready for physical testing and skill evaluations.</p>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:30px">
+                <div>
+                    <h4 style="color:#f0a500;margin-bottom:10px">Location</h4>
+                    <p>Hooptown Facility<br/>6910 Stroop Ln<br/>Smyrna, TN 37167</p>
+                </div>
+                <div>
+                    <h4 style="color:#f0a500;margin-bottom:10px">Registration Fees</h4>
+                    <p>$50 Online Pre-registration<br/>$60 On-site Walk-up</p>
+                </div>
+            </div>
+            <div style="text-align:center">
+                <a href="index.html" class="btn">Register & Manage Tryouts</a>
             </div>
         </div>
     </div>
@@ -227,6 +260,23 @@ footer{padding:60px 0;border-top:1px solid #1e222b;color:#546e7a;font-size:14px}
             return "That's a great question! For more specific info about " + query + ", please email info@midtnvbc.com or check our latest newsletter.";
         } catch(e) {
             return "I'm having trouble accessing my knowledge base right now, but I'm learning! Try asking about costs or tryouts.";
+            const q = query.toLowerCase();
+
+            if(context === 'manager') {
+                if(q.includes('pin')) return "The PINs are: Check-In (9999), Station 1 (1111), Station 2 (2222), and Head Coach (0000).";
+                if(q.includes('how to') || q.includes('guide')) return "This is the Tryout Manager. You can check athletes in, record physical metrics, and build teams in the Head Coach view.";
+            }
+
+            if(q.includes('cost')) return data.faqs.find(f => f.q.includes('cost'))?.a || "Tryouts cost $50 for pre-registration and $60 for walk-ups.";
+            if(q.includes('sign in') || q.includes('check in') || q.includes('location')) return data.faqs.find(f => f.q.includes('sign in'))?.a || "Sign-in is at our facility: 6910 Stroop Ln, Smyrna, TN 37167.";
+            if(q.includes('ready') || q.includes('expect') || q.includes('bring')) return data.faqs.find(f => f.q.includes('ready'))?.a || "Bring water and knee pads. Be ready for physical testing and skill drills.";
+            if(q.includes('rule') || q.includes('regulation')) return data.rules.usav_summary + " " + data.rules.srva_summary;
+            if(q.includes('srva')) return data.rules.srva_summary;
+            if(q.includes('usav') || q.includes('usa volleyball')) return data.rules.usav_summary;
+
+            return "I'm not sure about that specific question, but I'm an expert on our club tryouts, costs, and USAV/SRVA rules. Feel free to email info@midtnvbc.com for more info!";
+        } catch(e) {
+            return "I'm having trouble accessing my knowledge base right now. Please try asking about costs, rules, or tryout logistics.";
         }
     }
 </script>
