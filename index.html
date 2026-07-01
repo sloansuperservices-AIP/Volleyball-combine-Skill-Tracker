@@ -48,6 +48,83 @@ tr:hover td{background:#1a1d24;cursor:pointer}
 </head>
 <body>
 <div id="app"></div>
+
+<div id="volley-ai-trigger" style="position:fixed;bottom:30px;right:30px;width:60px;height:60px;background:#f0a500;border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:0 10px 25px rgba(0,0,0,0.3);z-index:1000;transition:transform 0.2s">🏐</div>
+
+<div id="chatbot-window" style="position:fixed;bottom:100px;right:30px;width:350px;height:500px;background:#1a1d24;border:1px solid #2a2e38;border-radius:16px;display:none;flex-direction:column;z-index:1000;box-shadow:0 10px 25px rgba(0,0,0,0.5);overflow:hidden">
+    <div style="padding:15px 20px;background:#2a2e38;display:flex;justify-content:space-between;align-items:center">
+        <h4 style="margin:0;color:#f0a500">Volley AI Chatbot</h4>
+        <span id="close-chat" style="cursor:pointer;color:#e8eaed;font-size:20px">&times;</span>
+    </div>
+    <div id="chat-messages" style="flex:1;padding:20px;overflow-y:auto;display:flex;flex-direction:column;gap:15px">
+        <div style="padding:10px 15px;border-radius:12px;max-width:80%;font-size:13px;background:#2a2e38;align-self:flex-start">Hi! I'm Volley AI. How can I help you with tryout management today?</div>
+    </div>
+    <div style="padding:15px;border-top:1px solid #2a2e38;display:flex;gap:10px">
+        <input type="text" id="chat-input" placeholder="Ask a question..." style="flex:1;background:#12151c;border:1px solid #2a2e38;border-radius:8px;padding:8px 12px;color:#e8eaed;font-size:13px"/>
+        <button id="send-btn" style="background:#f0a500;border:none;border-radius:8px;padding:8px 15px;cursor:pointer;font-weight:700">Send</button>
+    </div>
+</div>
+
+<script>
+    const trigger = document.getElementById('volley-ai-trigger');
+    const chatWindow = document.getElementById('chatbot-window');
+    const closeChat = document.getElementById('close-chat');
+    const sendBtn = document.getElementById('send-btn');
+    const chatInput = document.getElementById('chat-input');
+    const chatMessages = document.getElementById('chat-messages');
+
+    trigger.onclick = () => chatWindow.style.display = 'flex';
+    closeChat.onclick = () => chatWindow.style.display = 'none';
+
+    async function handleSend() {
+        const text = chatInput.value.trim();
+        if(!text) return;
+
+        const userDiv = document.createElement('div');
+        userDiv.style.cssText = "padding:10px 15px;border-radius:12px;max-width:80%;font-size:13px;background:#f0a500;color:#000;align-self:flex-end";
+        userDiv.textContent = text;
+        chatMessages.appendChild(userDiv);
+        chatInput.value = '';
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+
+        const botDiv = document.createElement('div');
+        botDiv.style.cssText = "padding:10px 15px;border-radius:12px;max-width:80%;font-size:13px;background:#2a2e38;align-self:flex-start";
+        botDiv.textContent = '...';
+        chatMessages.appendChild(botDiv);
+
+        const response = await fetchAnswer(text, 'manager');
+        botDiv.textContent = response;
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+    }
+
+    sendBtn.onclick = handleSend;
+    chatInput.onkeydown = (e) => { if(e.key === 'Enter') handleSend(); };
+
+    async function fetchAnswer(query, context) {
+        try {
+            const res = await fetch('data/knowledge_base.json');
+            const data = await res.json();
+            const q = query.toLowerCase();
+
+            if(context === 'manager') {
+                if(q.includes('pin')) return "The PINs are: Check-In (9999), Station 1 (1111), Station 2 (2222), and Head Coach (0000).";
+                if(q.includes('how to') || q.includes('guide')) return "This is the Tryout Manager. You can check athletes in, record physical metrics, and build teams in the Head Coach view.";
+            }
+
+            if(q.includes('cost')) return data.faqs.find(f => f.q.includes('cost'))?.a || "Tryouts cost $50 for pre-registration and $60 for walk-ups.";
+            if(q.includes('sign in') || q.includes('check in') || q.includes('location')) return data.faqs.find(f => f.q.includes('sign in'))?.a || "Sign-in is at our facility: 6910 Stroop Ln, Smyrna, TN 37167.";
+            if(q.includes('ready') || q.includes('expect') || q.includes('bring')) return data.faqs.find(f => f.q.includes('ready'))?.a || "Bring water and knee pads. Be ready for physical testing and skill drills.";
+            if(q.includes('rule') || q.includes('regulation')) return data.rules.usav_summary + " " + data.rules.srva_summary;
+            if(q.includes('srva')) return data.rules.srva_summary;
+            if(q.includes('usav') || q.includes('usa volleyball')) return data.rules.usav_summary;
+
+            return "I'm not sure about that, but I'm an expert on our club tryouts, costs, and USAV/SRVA rules. Ask me about PINs or how to use this manager!";
+        } catch(e) {
+            return "I'm having trouble accessing my knowledge base right now. Please try asking about PINs or tryout results.";
+        }
+    }
+</script>
+
 <script type="module">
 import{h,render,Fragment}from'https://esm.sh/preact@10.19.2';
 import{useState,useEffect,useMemo,useRef,useCallback}from'https://esm.sh/preact@10.19.2/hooks';
@@ -445,6 +522,7 @@ function AthleteModal({athlete,onClose,onChange,onHide,onUnhide,onEmail}){
         </div>
         <div style=${{marginBottom:14}}>
           <label class="label">Notes (Phone Calls / Tryout Notes)</label>
+          <label class="label">Notes (Phone Calls, Tryout Notes, etc.)</label>
           <textarea class="input" rows="3" placeholder="Add call log, tryout notes, parent concerns..."
             value=${athlete.notes||''} onInput=${e=>onChange(athlete.id,{notes:e.target.value})} disabled=${locked}
             style=${{lineHeight:1.6,resize:'vertical',height:'auto'}}></textarea>
@@ -566,6 +644,10 @@ function HeadCoach({athletes,setAthletes,onLogout}){
   const upd=useCallback((id,updates)=>{
     setAthletes(p=>p.map(a=>a.id===id?{...a,...updates}:a));
     setSelAth(p=>p?.id===id?{...p,...updates}:p);
+    const finalUpdates={...updates};
+    if(updates.status==='accepted') finalUpdates.teamLocked=true;
+    setAthletes(p=>p.map(a=>a.id===id?{...a,...finalUpdates}:a));
+    setSelAth(p=>p?.id===id?{...p,...finalUpdates}:p);
   },[]);
   const updMetric=useCallback((id,key,vals)=>{
     setAthletes(p=>p.map(a=>a.id===id?{...a,metrics:{...a.metrics,[key]:vals}}:a));
@@ -635,6 +717,12 @@ function HeadCoach({athletes,setAthletes,onLogout}){
     if(poolSort==='score') l.sort((a,b)=>(Number(totalScore(b.metrics))||0)-(Number(totalScore(a.metrics))||0));
     else if(poolSort==='name') l.sort((a,b)=>a.last.localeCompare(b.last));
     else l.sort((a,b)=>(a.posCategory||'z').localeCompare(b.posCategory||'z'));
+
+    if(poolSort==='pos'){
+      const g={setter:[],middle:[],outside:[],defense:[],unsorted:[]};
+      l.forEach(a=>(g[a.posCategory]||g.unsorted).push(a));
+      return g;
+    }
     return l;
   },[ageAths,poolSort]);
   const drop=(e,teamKey)=>{e.preventDefault();const id=e.dataTransfer.getData('text/plain');const a=athletes.find(x=>x.id===id);if(a&&!a.teamLocked&&a.status!=='accepted') upd(id,{teamAssignment:teamKey});setDragOver(null);};
@@ -797,6 +885,19 @@ function HeadCoach({athletes,setAthletes,onLogout}){
                 <div style=${{overflow:'auto',flex:1,padding:8}}>
                   ${pool.map(a=>html`<${PCard} key=${a.id} athlete=${a} onClick=${setSelAth} compact showScore/>`)}
                   ${pool.length===0&&html`<div style=${{padding:24,textAlign:'center',color:'#444',fontSize:12}}>All assigned</div>`}
+                  ${poolSort==='pos'
+                    ? [...POS_CATS,{key:'unsorted',label:'Unsorted'}].map(cat=>{
+                        const list=pool[cat.key]||[];
+                        if(!list.length) return null;
+                        return html`
+                          <div key=${cat.key} style=${{marginBottom:12}}>
+                            <div style=${{fontSize:11,fontWeight:800,color:'#4fc3f7',textTransform:'uppercase',letterSpacing:1,marginBottom:4,padding:'0 4px'}}>${cat.label}</div>
+                            ${list.map(a=>html`<${PCard} key=${a.id} athlete=${a} onClick=${setSelAth} compact showScore/>`)}
+                          </div>`;
+                      })
+                    : pool.map(a=>html`<${PCard} key=${a.id} athlete=${a} onClick=${setSelAth} compact showScore/>`)
+                  }
+                  ${((poolSort==='pos' && Object.values(pool).flat().length===0) || (poolSort!=='pos' && pool.length===0)) && html`<div style=${{padding:24,textAlign:'center',color:'#444',fontSize:12}}>All assigned</div>`}
                 </div>
               </div>`}
             <div style=${{flex:1}}>
@@ -922,8 +1023,10 @@ function App(){
   const addWalkup=useCallback(wu=>{setAthletes(p=>[...p,...initAthletes([wu])]);},[]);
   useEffect(()=>{if(athletes.length) saveLocal(athletes);},[athletes]);
   const upd=useCallback((id,updates)=>{
-    setAthletes(p=>p.map(a=>a.id===id?{...a,...updates}:a));
-    setSelAth(p=>p?.id===id?{...p,...updates}:p);
+    const finalUpdates={...updates};
+    if(updates.status==='accepted') finalUpdates.teamLocked=true;
+    setAthletes(p=>p.map(a=>a.id===id?{...a,...finalUpdates}:a));
+    setSelAth(p=>p?.id===id?{...p,...finalUpdates}:p);
   },[]);
 
   if(!user) return html`<${Login} onLogin=${setUser}/>`;
