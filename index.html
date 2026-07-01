@@ -299,6 +299,7 @@ function Login({onLogin}){
             <div>Check-In: <span style=${{color:'#26c6da',fontFamily:'monospace'}}>9999</span></div>
             <div>Station 1: <span style=${{color:'#f0a500',fontFamily:'monospace'}}>1111</span></div>
             <div>Station 2: <span style=${{color:'#f0a500',fontFamily:'monospace'}}>2222</span></div>
+            <div>Station 3: <span style=${{color:'#f0a500',fontFamily:'monospace'}}>3333</span></div>
           </div>
           <div>Head Coach: <span style=${{color:'#ef5350',fontFamily:'monospace'}}>0000</span></div>
         </div>
@@ -525,6 +526,7 @@ function AthleteModal({athlete,onClose,onChange,onHide,onUnhide,onEmail}){
               <option value="no">Not Arrived</option><option value="yes">Arrived ✓</option></select></div>
         </div>
         <div style=${{marginBottom:14}}>
+          <label class="label">Notes (Phone Calls / Tryout Notes)</label>
           <label class="label">Notes (Phone Calls, Tryout Notes, etc.)</label>
           <textarea class="input" rows="3" placeholder="Add call log, tryout notes, parent concerns..."
             value=${athlete.notes||''} onInput=${e=>onChange(athlete.id,{notes:e.target.value})} disabled=${locked}
@@ -657,6 +659,8 @@ function HeadCoach({athletes,setAthletes,onLogout}){
   useEffect(()=>saveLocal(athletes),[athletes]);
 
   const upd=useCallback((id,updates)=>{
+    setAthletes(p=>p.map(a=>a.id===id?{...a,...updates}:a));
+    setSelAth(p=>p?.id===id?{...p,...updates}:p);
     const finalUpdates={...updates};
     if(updates.status==='accepted') finalUpdates.teamLocked=true;
     setAthletes(p=>p.map(a=>a.id===id?{...a,...finalUpdates}:a));
@@ -911,6 +915,8 @@ function HeadCoach({athletes,setAthletes,onLogout}){
                   <div style=${{fontSize:11,color:'#546e7a'}}>Drag into teams →</div>
                 </div>
                 <div style=${{overflow:'auto',flex:1,padding:8}}>
+                  ${pool.map(a=>html`<${PCard} key=${a.id} athlete=${a} onClick=${setSelAth} compact showScore/>`)}
+                  ${pool.length===0&&html`<div style=${{padding:24,textAlign:'center',color:'#444',fontSize:12}}>All assigned</div>`}
                   ${poolSort==='pos'
                     ? [...POS_CATS,{key:'unsorted',label:'Unsorted'}].map(cat=>{
                         const list=pool[cat.key]||[];
