@@ -1,3 +1,11 @@
 127.0.0.1 - - [28/Jun/2026 14:03:35] "GET /home.html HTTP/1.1" 200 -
 127.0.0.1 - - [28/Jun/2026 14:03:39] "GET /data/knowledge_base.json HTTP/1.1" 200 -
 127.0.0.1 - - [28/Jun/2026 14:03:41] "GET /index.html HTTP/1.1" 200 -
+127.0.0.1 - - [01/Jul/2026 07:27:42] "GET /index.html HTTP/1.1" 200 -
+127.0.0.1 - - [01/Jul/2026 07:27:45] "GET /data/knowledge_base.json HTTP/1.1" 200 -
+127.0.0.1 - - [01/Jul/2026 07:27:47] "GET /tryouts/ HTTP/1.1" 200 -
+127.0.0.1 - - [01/Jul/2026 07:27:50] code 404, message File not found
+127.0.0.1 - - [01/Jul/2026 07:27:50] "GET /tryouts/data/knowledge_base.json HTTP/1.1" 404 -
+127.0.0.1 - - [01/Jul/2026 07:28:23] "GET /index.html HTTP/1.1" 200 -
+127.0.0.1 - - [01/Jul/2026 07:28:25] "GET /data/knowledge_base.json HTTP/1.1" 200 -
+127.0.0.1 - - [01/Jul/2026 07:28:28] "GET /tryouts/ HTTP/1.1" 200 -
