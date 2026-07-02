@@ -13,9 +13,9 @@ function Chatbot() {
     const [kb, setKb] = useState(null);
 
     useEffect(() => {
-        // Calculate the base path to ensure it works when deployed in subdirectories (like GitHub Pages)
-        const isTryouts = window.location.pathname.includes('tryouts');
-        const kbPath = isTryouts ? '../volley_kb.json' : './volley_kb.json';
+        // Correctly resolve path to volley_kb.json based on current location
+        const path = window.location.pathname;
+        const kbPath = (path.includes('tryouts') || path.endsWith('/tryouts')) ? '../volley_kb.json' : './volley_kb.json';
 
         fetch(kbPath)
             .then(res => res.json())
@@ -36,33 +36,41 @@ function Chatbot() {
         setMessages(newMessages);
         setInput('');
 
-        // Simple response logic based on KB
         setTimeout(() => {
-            let response = "I'm sorry, I don't have that information. Please check MIDVBC.com or follow @Midtvbc for more details.";
+            let response = "I'm sorry, I don't have that specific information. Please check MIDVBC.com or email info@midtnvbc.com for more details.";
             const q = input.toLowerCase();
 
             if (kb) {
-                const findFaq = (key) => kb.faq?.find(f => f.question.toLowerCase().includes(key))?.answer;
-                const findNews = (key) => kb.news?.find(n => n.title.toLowerCase().includes(key))?.summary;
+                // Find in FAQ
+                const faqMatch = kb.faq?.find(f => {
+                    const question = f.question.toLowerCase().replace('?', '');
+                    // Priority 1: High overlap or direct inclusion
+                    if (q.includes(question) || question.includes(q)) return true;
+                    // Priority 2: Key noun matching
+                    const keywords = ['cost', 'price', 'fee', 'sign in', 'check in', 'location', 'ready', 'bring', 'paperwork', 'result', 'offer'];
+                    return keywords.some(k => q.includes(k) && question.includes(k));
+                });
 
-                if (q.includes('sign in') || q.includes('tryout')) {
-                    response = findFaq('sign in') || response;
-                } else if (q.includes('cost') || q.includes('price')) {
-                    response = findFaq('cost') || response;
-                } else if (q.includes('ready') || q.includes('bring')) {
-                    response = findFaq('ready') || response;
+                if (faqMatch) {
+                    response = faqMatch.answer;
+                } else if (q.includes('rule') || q.includes('regulation') || q.includes('usa volleyball') || q.includes('usav')) {
+                    const usav = kb.rules_and_regulations?.usa_volleyball;
+                    response = usav ? usav.expert_note : response;
+                } else if (q.includes('srva')) {
+                    const srva = kb.rules_and_regulations?.srva;
+                    response = srva ? srva.expert_note : response;
                 } else if (q.includes('news') || q.includes('update')) {
                     response = kb.news?.[0] ? `Latest News: ${kb.news[0].title}. ${kb.news[0].summary}` : response;
-                } else if (q.includes('usa volleyball') || q.includes('rule') || q.includes('regulation')) {
-                    response = kb.rules_and_regulations?.usa_volleyball?.expert_note || response;
-                } else if (q.includes('srva')) {
-                    response = kb.rules_and_regulations?.srva?.expert_note || response;
-                } else if (q.includes('janae')) {
-                    response = findNews('janae') || response;
-                } else if (q.includes('website') || q.includes('url')) {
-                    response = kb.club_info?.website ? `Our official website is ${kb.club_info.website}.` : response;
-                } else if (q.includes('instagram') || q.includes('social')) {
-                    response = (kb.club_info?.social_media?.instagram) ? `Follow us on Instagram at ${kb.club_info.social_media.instagram} (@Midtvbc) and Facebook at ${kb.club_info.social_media.facebook}.` : response;
+                } else if (q.includes('social') || q.includes('instagram') || q.includes('facebook')) {
+                    const ig = kb.social_updates?.instagram || "";
+                    const fb = kb.social_updates?.facebook || "";
+                    response = `Social Media Updates: (IG) ${ig} (FB) ${fb}`;
+                } else if (q.includes('cost') || q.includes('price') || q.includes('fee')) {
+                    response = kb.faq?.find(f => f.question.toLowerCase().includes('cost'))?.answer || response;
+                } else if (q.includes('sign in') || q.includes('check in') || q.includes('location')) {
+                    response = kb.faq?.find(f => f.question.toLowerCase().includes('sign in'))?.answer || response;
+                } else if (q.includes('result') || q.includes('offer')) {
+                    response = kb.faq?.find(f => f.question.toLowerCase().includes('result'))?.answer || response;
                 }
             }
 
@@ -77,14 +85,14 @@ function Chatbot() {
     return html`
         <div style=${{ fontFamily: 'Inter, sans-serif' }}>
             ${!isOpen && html`
-                <button onClick=${() => setIsOpen(true)} style=${{
+                <button onClick=${() => setIsOpen(true)} id="volley-ai-trigger-preact" style=${{
                     width: '60px', height: '60px', borderRadius: '50%', backgroundColor: '#f0a500',
                     border: 'none', color: '#000', fontSize: '24px', cursor: 'pointer',
                     boxShadow: '0 4px 12px rgba(0,0,0,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center'
                 }}>🏐</button>
             `}
             ${isOpen && html`
-                <div style=${{
+                <div id="chatbot-window-preact" style=${{
                     width: '350px', height: '450px', backgroundColor: '#1a1d24', border: '1px solid #2a2e38',
                     borderRadius: '12px', display: 'flex', flexDirection: 'column', overflow: 'hidden',
                     boxShadow: '0 8px 24px rgba(0,0,0,0.5)'
