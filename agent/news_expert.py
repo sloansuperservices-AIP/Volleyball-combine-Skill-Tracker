@@ -4,136 +4,155 @@ import os
 import requests
 from bs4 import BeautifulSoup
 
-# URLs
+# Configuration
 CLUB_WEBSITE = "https://www.midtnvbc.com"
-USAV_RESOURCES = "https://usavolleyball.org/resources-for-clubs/"
-SRVA_WEBSITE = "https://srvaonline.org/"
+USAV_NEWS_URL = "https://usavolleyball.org/stories/"
+SRVA_WEBSITE = "https://www.srva.org/"
+KB_FILE = "volley_kb.json"
 
-def pull_website_news():
+def pull_club_news():
     """Pulls news from the club website."""
+    print("Fetching Mid TN VBC news...")
     news = []
     try:
         response = requests.get(CLUB_WEBSITE, timeout=10)
         if response.status_code == 200:
             soup = BeautifulSoup(response.text, 'html.parser')
-            # Example: finding headlines in a 'news' section
-            # Note: actual selectors depend on the site's structure
-            headlines = soup.find_all(['h2', 'h3', 'h4'], limit=5)
-            for h in headlines:
-                text = h.get_text().strip()
-                if text and len(text) > 10:
-                    news.append({"source": "Website", "title": text, "content": "Latest update from our website."})
+            # SportsEngine news selectors
+            articles = soup.select('.newsSlideShow-item, .article, h3.headline')
+            for article in articles[:5]:
+                title = article.get_text(strip=True)
+                link = article.find('a')['href'] if article.find('a') else CLUB_WEBSITE
+                if not link.startswith('http'):
+                    link = CLUB_WEBSITE + link
+                if len(title) > 5:
+                    news.append({"source": "Website", "title": title, "link": link})
     except Exception as e:
-        print(f"Error pulling website news: {e}")
+        print(f"Error pulling club news: {e}")
     return news
 
 def pull_usav_updates():
     """Pulls important updates from USA Volleyball."""
+    print("Fetching USA Volleyball stories...")
     updates = []
     try:
-        response = requests.get(USAV_RESOURCES, timeout=10)
+        response = requests.get(USAV_NEWS_URL, timeout=10)
         if response.status_code == 200:
             soup = BeautifulSoup(response.text, 'html.parser')
-            links = soup.find_all('a', limit=10)
-            for link in links:
-                text = link.get_text().strip()
-                if "Rule" in text or "2025" in text or "Requirement" in text:
-                    updates.append({"source": "USA Volleyball", "title": text, "content": f"Resource available at: {link.get('href')}"})
+            items = soup.select('article h2 a, .entry-title a, h3.post-title a')
+            for item in items[:5]:
+                title = item.get_text(strip=True)
+                link = item.get('href')
+                updates.append({"source": "USA Volleyball", "title": title, "link": link})
     except Exception as e:
         print(f"Error pulling USAV updates: {e}")
     return updates
 
 def pull_srva_updates():
     """Pulls important updates from SRVA."""
+    print("Fetching SRVA updates...")
     updates = []
     try:
         response = requests.get(SRVA_WEBSITE, timeout=10)
         if response.status_code == 200:
             soup = BeautifulSoup(response.text, 'html.parser')
-            # Look for registration or deadline info
+            # Look for recent news or alerts
             text_content = soup.get_text()
             if "Registration" in text_content:
-                updates.append({"source": "SRVA", "title": "Registration Info Updated", "content": "Check SRVAonline for latest club and player registration steps."})
+                updates.append({"source": "SRVA", "title": "SRVA Registration Information", "link": SRVA_WEBSITE})
     except Exception as e:
         print(f"Error pulling SRVA updates: {e}")
     return updates
 
-def update_knowledge_base():
-    kb_path = 'data/knowledge_base.json'
-
-    # Load existing KB
-    if os.path.exists(kb_path):
-        with open(kb_path, 'r') as f:
-            kb = json.load(f)
-    else:
-        kb = {"news": [], "rules": {}, "faqs": []}
-
-    # Pull real updates
-    website_news = pull_website_news()
-    usav_updates = pull_usav_updates()
-    srva_updates = pull_srva_updates()
-
-    # Mocking Social Media as authenticating is complex in this environment
-    # but we represent the intent by keeping mock items if real ones fail.
-    mock_sm = [
-        {"source": "Instagram", "title": "New Practice Gear Arriving!", "content": "Check our stories for a sneak peek."},
-        {"source": "Facebook", "title": "Tryout Info Session Tonight", "content": "Join us on Zoom at 7 PM."}
-    ]
-
-    all_new = website_news + usav_updates + mock_sm
-        {"source": "Facebook", "title": "Tryout Info Session Tonight", "content": "Join us on Zoom at 7 PM."},
-        {"source": "Instagram", "title": "Season 2026 Kickoff!", "content": "We are excited to start another winning year."}
-    ]
-
-    all_new = website_news + usav_updates + srva_updates + mock_sm
-
-    today = datetime.date.today().isoformat()
-    for item in all_new:
-        # Check for duplicates by title
-        if not any(n['title'] == item['title'] for n in kb['news']):
-            kb['news'].insert(0, {
-                "date": today,
-                "source": item['source'],
-                "title": item['title'],
-                "content": item['content']
-            })
-
-    # Keep only the latest 15 news items
-    kb['news'] = kb['news'][:15]
-    kb['last_updated'] = datetime.datetime.now().isoformat()
-
-    # Update Expert Rules & FAQs with researched info
-    kb['rules'] = {
-        "usav_summary": "USA Volleyball 2024-2025 rules: Jewelry is allowed if small and snug-fitting (nose rings/ear cuffs ok); Uniform numbers must be centered and clearly visible; Protests on judgment decisions are not allowed and may result in a penalty for the coach.",
-        "srva_summary": "SRVA requires all athletes and staff to be registered via SRVAonline. Athletes must 'Accept' Mid TN VBC as their club in the SRVA system to be eligible for tournaments.",
-        "expert_info": "We follow USA Volleyball and SRVA standards. Key areas: service order, Libero transitions, and tournament eligibility via SRVA membership."
+def get_social_placeholders():
+    """Placeholders for Instagram/Facebook integration."""
+    return {
+        "instagram": "Latest from @midtnvbc: 'Our 2026-27 season prep is in full swing at Hooptown! #MidTNVBC'",
+        "facebook": "Recent Post: 'Join us for our upcoming parent info session about tryout requirements and club programs.'"
     }
 
-    kb['faqs'] = [
+def update_knowledge_base():
+    # Load existing KB to preserve structured data if any
+    if os.path.exists(KB_FILE):
+        with open(KB_FILE, 'r') as f:
+            kb = json.load(f)
+    else:
+        kb = {
+            "club_info": {
+                "name": "Mid TN Volleyball Club",
+                "location": "Smyrna, TN",
+                "facility": "Hooptown",
+                "website": "http://midtnvbc.com"
+            },
+            "news": [],
+            "rules_and_regulations": {},
+            "faq": []
+        }
+
+    # Pull real updates
+    club_news = pull_club_news()
+    usav_news = pull_usav_updates()
+    srva_news = pull_srva_updates()
+    social = get_social_placeholders()
+
+    # Update News
+    all_new_news = []
+    today = datetime.date.today().isoformat()
+
+    for item in club_news + usav_news + srva_news:
+        all_new_news.append({
+            "title": item['title'],
+            "date": today,
+            "summary": f"Source: {item['source']}. Link: {item['link']}"
+        })
+
+    # Combine with existing news, avoid duplicates by title
+    existing_titles = [n['title'] for n in kb.get('news', [])]
+    for n in all_new_news:
+        if n['title'] not in existing_titles:
+            kb.setdefault('news', []).insert(0, n)
+
+    # Keep only latest 15
+    kb['news'] = kb['news'][:15]
+
+    # Update Social
+    kb['social_updates'] = social
+
+    # Update Expert Rules (Researched)
+    kb['rules_and_regulations'] = {
+        "usa_volleyball": {
+            "expert_note": "2025-2027 Rule Highlights: Jewelry allowed if small/snug; re-serve allowed for tossing error (once per turn); Libero can be team captain; Coaches can stand/walk in free zone to attack line extension.",
+            "link": "https://usavolleyball.org/resources-for-officials/rulebooks-and-interpretations/"
+        },
+        "srva": {
+            "expert_note": "SRVA Policies: All participants must have valid USAV membership before tryouts. Offers accepted in SportsEngine are binding for the season. Max tryout fee $75.",
+            "link": "https://www.srva.org"
+        }
+    }
+
+    # Update FAQs
+    kb['faq'] = [
         {
-            "q": "What is the cost of tryouts?",
-            "a": "Tryouts cost $50 for pre-registration and $60 for walk-ups."
+            "question": "Where do I sign in for tryouts?",
+            "answer": "Check-in is at the front desk of Hooptown (6910 Stroop Ln, Smyrna). Please arrive 30 minutes early."
         },
         {
-            "q": "Where do I sign in for tryouts?",
-            "a": "Sign-in is at our facility: 6910 Stroop Ln, Smyrna, TN 37167. Please arrive 30 mins early."
+            "question": "What is the cost?",
+            "answer": "Tryout fees: $65 (Early), $70 (Regular), $75 (Late/Walk-up)."
         },
         {
-            "q": "What do I need to be ready for?",
-            "a": "Be ready for physical testing (height, reach, vertical) and agility (shuttle run), followed by skill drills. Bring water and knee pads."
+            "question": "What do I need to be ready for?",
+            "answer": "Bring water, knee pads, and court shoes. Ensure SRVA membership and medical forms are complete."
         }
     ]
 
-    # Save KB
-    with open(kb_path, 'w') as f:
+    kb['last_agent_run'] = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+
+    # Save
+    with open(KB_FILE, 'w') as f:
         json.dump(kb, f, indent=2)
 
-    print(f"Knowledge base updated at {kb['last_updated']}")
+    print(f"Knowledge base '{KB_FILE}' updated at {kb['last_agent_run']}")
 
 if __name__ == "__main__":
     update_knowledge_base()
-
-    # Implementation of scheduling hint
-    # In a real environment, this would be set up as a crontab entry:
-    # 0 12 * * * python3 /path/to/agent/news_expert.py
-    print("Agent routine completed. For daily execution at noon, use a cron job: '0 12 * * * python3 agent/news_expert.py'")

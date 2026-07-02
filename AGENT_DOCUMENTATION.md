@@ -1,23 +1,34 @@
-# Mid TN Volleyball Club Updates Agent
+# Volleyball Updates Agent Documentation
 
-## Overview
-The `updates_agent.py` script is designed to run daily at noon to fetch the latest news from:
-- Mid TN Volleyball Club official website
-- USA Volleyball news
-- Club social media (Instagram & Facebook placeholders)
+The `agent/news_expert.py` script is an automated expert system that scrapes news and updates from Mid TN Volleyball Club, USA Volleyball, and SRVA. It populates `volley_kb.json` which powers the Volley AI chatbot.
 
-It updates `knowledge_base.json`, which serves as the primary data source for the Volley AI chatbot and the home page news section.
+## Features
+- **Club News Scraper**: Pulls headlines from midtnvbc.com.
+- **USAV Scraper**: Pulls latest stories from usavolleyball.org.
+- **SRVA Scraper**: Checks for registration updates on srva.org.
+- **Social Media**: Updates social media placeholders for Instagram and Facebook.
+- **Expert Rules**: Maintains a curated list of USAV and SRVA rule highlights.
 
-## Scheduling (Cron)
-To run the agent every day at noon, add the following line to your crontab (`crontab -e`):
+## Scheduling
+The agent is designed to run daily at 12:00 PM.
 
-```bash
-0 12 * * * /usr/bin/python3 /path/to/your/project/updates_agent.py >> /path/to/your/project/agent_log.txt 2>&1
-```
+### Setup Instructions (Crontab)
+To schedule the agent on a Linux/macOS server:
 
-## Dependencies
-- `requests`
-- `beautifulsoup4`
+1. Open your crontab editor:
+   ```bash
+   crontab -e
+   ```
 
-Install them using:
-`pip install requests beautifulsoup4`
+2. Add the following line (adjusting the path to your repository):
+   ```bash
+   0 12 * * * /bin/bash /path/to/your/repo/run_agent.sh
+   ```
+
+3. Ensure the script is executable:
+   ```bash
+   chmod +x run_agent.sh
+   ```
+
+## Logs
+Execution logs are written to `agent_run.log` in the repository root.
