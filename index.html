@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mid TN Volleyball Club | Home</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <header>
+        <nav>
+            <div class="logo">MidTN VBC</div>
+            <ul>
+                <li><a href="#home">Home</a></li>
+                <li><a href="#about">About</a></li>
+                <li><a href="#programs">Programs</a></li>
+                <li><a href="#tryouts">Tryouts</a></li>
+                <li><a href="#news">News</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main id="home">
+        <section class="hero">
+            <div class="hero-content">
+                <h1>Elevate Your Game</h1>
+                <p>Tennessee's top volleyball club for over 20 years.</p>
+                <a href="#tryouts" class="btn">2026-27 Tryouts</a>
+            </div>
+        </section>
+
+        <section id="about" class="about">
+            <h2>About Us</h2>
+            <p>Mid TN Volleyball Club was started in 2004 to improve the knowledge and skills of middle and high school age girls in the Murfreesboro area. We focus on character development, self-esteem, and high-level training.</p>
+            <div class="locations">
+                <div class="loc">
+                    <i class="fas fa-map-marker-alt"></i>
+                    <p><strong>Main Training:</strong> Hooptown Sportplex, Smyrna TN</p>
+                </div>
+                <div class="loc">
+                    <i class="fas fa-umbrella-beach"></i>
+                    <p><strong>Beach:</strong> Sportscom, Murfreesboro TN</p>
+                </div>
+            </div>
+        </section>
+
+        <section id="programs" class="programs">
+            <h2>Our Programs</h2>
+            <div class="program-grid">
+                <div class="card">
+                    <h3>Volley Tots</h3>
+                    <p>Ages 4-8. Beginner fundamentals and coordination.</p>
+                </div>
+                <div class="card">
+                    <h3>Volley Jrs</h3>
+                    <p>Ages 9-13. Skill strengthening and teamwork.</p>
+                </div>
+                <div class="card">
+                    <h3>Academy/League</h3>
+                    <p>Ages 12-18. Training and coached weekly matches.</p>
+                </div>
+                <div class="card">
+                    <h3>Club</h3>
+                    <p>Ages 12-18. High-level competitive teams and travel.</p>
+                </div>
+            </div>
+        </section>
+
+        <section id="tryouts" class="tryouts">
+            <h2>2026-2027 Tryouts</h2>
+            <div class="tryout-info">
+                <p><strong>Dates:</strong> July 11-12 (13U-18U), September 20 (12U)</p>
+                <p><strong>Cost:</strong> $65 (Early), $75 (Late)</p>
+                <a href="https://midtnvbc.sportngin.com/register/form/442382306" class="btn secondary">Register Now</a>
+            </div>
+        </section>
+
+        <section id="news" class="news">
+            <h2>Latest Updates</h2>
+            <div id="news-container">
+                <!-- Populated by JS -->
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <p>&copy; 2026 Mid TN Volleyball Club. All rights reserved.</p>
+        <div class="socials">
+            <a href="https://www.facebook.com/MidTNVBC"><i class="fab fa-facebook"></i></a>
+            <a href="https://www.instagram.com/midtnvbc/"><i class="fab fa-instagram"></i></a>
+        </div>
+    </footer>
+
+    <!-- Volley AI Chatbot -->
+    <div id="chatbot-launcher">
+        <i class="fas fa-comments"></i>
+    </div>
+    <div id="chatbot-window" class="hidden">
+        <div class="chatbot-header">
+            <span>Volley AI</span>
+            <button id="close-chatbot">&times;</button>
+        </div>
+        <div id="chatbot-messages">
+            <div class="msg bot">Hi! I'm Volley AI. How can I help you today? You can ask about tryouts, costs, or volleyball rules.</div>
+        </div>
+        <div class="chatbot-input">
+            <input type="text" id="chat-input" placeholder="Type a question...">
+            <button id="send-chat"><i class="fas fa-paper-plane"></i></button>
+        </div>
+    </div>
+
+    <script src="chatbot.js"></script>
+    <script>
+        // Load news from KB
+        fetch('knowledge_base.json')
+            .then(response => response.json())
+            .then(data => {
+                const container = document.getElementById('news-container');
+                data.latest_news.forEach(item => {
+                    const div = document.createElement('div');
+                    div.className = 'news-item';
+                    div.innerHTML = `<h4>${item.title}</h4><p>Source: ${item.source}</p><a href="${item.link}">Read More</a>`;
+                    container.appendChild(div);
+                });
+            });
+    </script>
+</body>
+</html>
