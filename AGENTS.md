@@ -13,6 +13,7 @@ This project is maintained through a collaborative loop between three primary en
 1. **GitHub**: The source of truth for code, version control, and repository management.
 2. **Google AI Studio**: Used for high-level strategic guidance, architectural planning, requirements analysis, and logic prototyping.
 3. **Jules AI (Coding Agent)**: The primary implementation and refinement engine. Jules executes code changes, performs bug fixes, ensures repository health, and verifies all features within the sandbox environment.
+- **Workflow**: Strategic goals and user feedback are analyzed in Google AI Studio, then translated into actionable tasks for Jules. Jules implements changes directly in the sandbox, which are then reviewed and pushed to GitHub for versioned stability.
 
 ## Core Features
 - **Role-Based Access**:
@@ -31,13 +32,18 @@ This project is maintained through a collaborative loop between three primary en
 
 This document outlines the integrated development pipeline and architectural details for the Mid TN VBC Tryout Manager.
 
-## Integrated Pipeline
+## Integrated Pipeline (The Tandem)
 
 The project is maintained through a collaborative effort involving:
 
 1.  **GitHub**: Serves as the primary source of truth for the codebase, handling version control and repository management.
 2.  **Google AI Studio**: Provides high-level strategic guidance, requirements analysis, and design patterns for complex features.
 3.  **Jules AI**: The primary coding agent responsible for implementation, bug fixes, and feature refinement within the sandbox environment.
+
+**The Workflow**:
+-   **Analyze**: Requirements and feedback are processed via Google AI Studio.
+-   **Implement**: Jules AI executes technical changes, styling updates, and logic refinements.
+-   **Review**: Changes are verified in the sandbox before being committed to GitHub.
 
 ## Technical Architecture
 
