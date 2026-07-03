@@ -31,3 +31,8 @@
 127.0.0.1 - - [03/Jul/2026 08:57:02] "GET /tryouts/ HTTP/1.1" 200 -
 127.0.0.1 - - [03/Jul/2026 08:57:02] "GET /chatbot.js HTTP/1.1" 200 -
 127.0.0.1 - - [03/Jul/2026 08:57:02] "GET /volley_kb.json HTTP/1.1" 200 -
+127.0.0.1 - - [02/Jul/2026 15:45:54] "GET /index.html HTTP/1.1" 200 -
+127.0.0.1 - - [02/Jul/2026 15:45:54] "GET /chatbot.js HTTP/1.1" 200 -
+127.0.0.1 - - [02/Jul/2026 15:45:55] "GET /volley_kb.json HTTP/1.1" 200 -
+127.0.0.1 - - [02/Jul/2026 15:46:04] "GET /tryouts/index.html HTTP/1.1" 200 -
+127.0.0.1 - - [02/Jul/2026 15:46:04] "GET /chatbot.js HTTP/1.1" 304 -

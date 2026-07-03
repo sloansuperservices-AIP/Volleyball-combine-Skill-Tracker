@@ -13,6 +13,31 @@
   },
   "news": [
     {
+      "title": "U.S. Men Fall in Five Sets in Showdown with Undefeated Japan at 2026 VNL",
+      "date": "2026-07-02",
+      "summary": "Source: USA Volleyball. Link: https://usavolleyball.org/story/u-s-men-fall-in-five-sets-in-showdown-with-undefeated-japan-at-2026-vnl/"
+    },
+    {
+      "title": "U.S. Men\u2019s U21 to Play for Gold at 2026 Pan Am Cup",
+      "date": "2026-07-02",
+      "summary": "Source: USA Volleyball. Link: https://usavolleyball.org/story/u-s-mens-u21-to-play-for-gold-at-2026-pan-am-cup/"
+    },
+    {
+      "title": "U.S. Men Down Serbia in Four Sets to Close Second Week of 2026 VNL",
+      "date": "2026-07-02",
+      "summary": "Source: USA Volleyball. Link: https://usavolleyball.org/story/u-s-men-down-serbia-in-four-sets-to-close-second-week-of-2026-vnl/"
+    },
+    {
+      "title": "U.S. Men\u2019s U21 Roll to 2026 Pan Am Cup Gold with Sweep of Canada",
+      "date": "2026-07-02",
+      "summary": "Source: USA Volleyball. Link: https://usavolleyball.org/story/u-s-mens-u21-roll-to-2026-pan-am-cup-gold-with-sweep-of-canada/"
+    },
+    {
+      "title": "2026 USA Volleyball Girls Junior National Championship 14-17 presented by Credit Union 1",
+      "date": "2026-07-02",
+      "summary": "Source: USA Volleyball. Link: https://usavolleyball.org/event/2026-usa-volleyball-girls-junior-national-championship-14-17/"
+    },
+    {
       "title": "Countdown to Club Volleyball Tryouts!",
       "date": "2026-07-02",
       "summary": "Updates from midtnvbc.com"
@@ -58,32 +83,32 @@
   ],
   "rules_and_regulations": {
     "usa_volleyball": {
-      "expert_note": "USA Volleyball 2025-2027 Rule Highlights:\n- Multiple contacts on the second hit are permitted if no advantage (continuity of play).\n- Serving: Tossing errors now result in a re-serve (one per service turn).\n- Center Line: Encroachment is permitted if it doesn't interfere or create safety hazards.\n- Uniforms: Numbers must be clearly visible and centered; recommended upper half. All must match by 2029.\n- Coaching: Coaches may walk/stand in the free zone in front of their bench up to the attack line extension.",
+      "expert_note": "2025-2027 Rule Highlights: Jewelry allowed if small/snug; re-serve allowed for tossing error (once per turn); Libero can be team captain; Coaches can stand/walk in free zone to attack line extension.",
       "link": "https://usavolleyball.org/resources-for-officials/rulebooks-and-interpretations/"
     },
     "srva": {
-      "expert_note": "SRVA 2025-2026: Mandatory membership for all. Tryout memberships valid for all tryouts in region. SafeSport and officiating clinics required for travel teams.",
+      "expert_note": "SRVA Policies: All participants must have valid USAV membership before tryouts. Offers accepted in SportsEngine are binding for the season. Max tryout fee $75.",
       "link": "https://www.srva.org"
     }
   },
   "faq": [
     {
       "question": "Where do I sign in for tryouts?",
-      "answer": "You can sign in at the Check-In station at the facility (Hooptown) or use our online Tryout Manager."
-    },
-    {
-      "question": "What do I need to be ready for?",
-      "answer": "Arrive 30 minutes early, bring your water bottle, and ensure all SRVA paperwork is completed."
+      "answer": "Check-in is at the front desk of Hooptown (6910 Stroop Ln, Smyrna). Please arrive 30 minutes early."
     },
     {
       "question": "What is the cost?",
-      "answer": "Tryout fees are typically around $65, but please confirm the exact amount on our registration page."
+      "answer": "Tryout fees: $65 (Early), $70 (Regular), $75 (Late/Walk-up)."
+    },
+    {
+      "question": "What do I need to be ready for?",
+      "answer": "Bring water, knee pads, and court shoes. Ensure SRVA membership and medical forms are complete."
     }
   ],
   "social_updates": {
-    "instagram": "Recent post @Midtvbc: 'Great workout today at Hooptown! The energy for 2025 is unmatched. #volleyball #midtnvbc'",
-    "facebook": "Recent post: 'Reminder to all families: medical release forms must be notarized for the upcoming travel season.'"
+    "instagram": "Latest from @midtnvbc: 'Our 2026-27 season prep is in full swing at Hooptown! #MidTNVBC'",
+    "facebook": "Recent Post: 'Join us for our upcoming parent info session about tryout requirements and club programs.'"
   },
   "usa_volleyball_latest": "Check usavolleyball.org for the latest updates.",
-  "last_agent_run": "2026-07-02 01:03:02"
+  "last_agent_run": "2026-07-02 15:42:52"
 }

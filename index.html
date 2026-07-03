@@ -3,130 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mid TN Volleyball Club | Home</title>
-    <link rel="stylesheet" href="styles.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-</head>
-<body>
-    <header>
-        <nav>
-            <div class="logo">MidTN VBC</div>
-            <ul>
-                <li><a href="#home">Home</a></li>
-                <li><a href="#about">About</a></li>
-                <li><a href="#programs">Programs</a></li>
-                <li><a href="#tryouts">Tryouts</a></li>
-                <li><a href="#news">News</a></li>
-            </ul>
-        </nav>
-    </header>
-
-    <main id="home">
-        <section class="hero">
-            <div class="hero-content">
-                <h1>Elevate Your Game</h1>
-                <p>Tennessee's top volleyball club for over 20 years.</p>
-                <a href="#tryouts" class="btn">2026-27 Tryouts</a>
-            </div>
-        </section>
-
-        <section id="about" class="about">
-            <h2>About Us</h2>
-            <p>Mid TN Volleyball Club was started in 2004 to improve the knowledge and skills of middle and high school age girls in the Murfreesboro area. We focus on character development, self-esteem, and high-level training.</p>
-            <div class="locations">
-                <div class="loc">
-                    <i class="fas fa-map-marker-alt"></i>
-                    <p><strong>Main Training:</strong> Hooptown Sportplex, Smyrna TN</p>
-                </div>
-                <div class="loc">
-                    <i class="fas fa-umbrella-beach"></i>
-                    <p><strong>Beach:</strong> Sportscom, Murfreesboro TN</p>
-                </div>
-            </div>
-        </section>
-
-        <section id="programs" class="programs">
-            <h2>Our Programs</h2>
-            <div class="program-grid">
-                <div class="card">
-                    <h3>Volley Tots</h3>
-                    <p>Ages 4-8. Beginner fundamentals and coordination.</p>
-                </div>
-                <div class="card">
-                    <h3>Volley Jrs</h3>
-                    <p>Ages 9-13. Skill strengthening and teamwork.</p>
-                </div>
-                <div class="card">
-                    <h3>Academy/League</h3>
-                    <p>Ages 12-18. Training and coached weekly matches.</p>
-                </div>
-                <div class="card">
-                    <h3>Club</h3>
-                    <p>Ages 12-18. High-level competitive teams and travel.</p>
-                </div>
-            </div>
-        </section>
-
-        <section id="tryouts" class="tryouts">
-            <h2>2026-2027 Tryouts</h2>
-            <div class="tryout-info">
-                <p><strong>Dates:</strong> July 11-12 (13U-18U), September 20 (12U)</p>
-                <p><strong>Cost:</strong> $65 (Early), $75 (Late)</p>
-                <a href="https://midtnvbc.sportngin.com/register/form/442382306" class="btn secondary">Register Now</a>
-            </div>
-        </section>
-
-        <section id="news" class="news">
-            <h2>Latest Updates</h2>
-            <div id="news-container">
-                <!-- Populated by JS -->
-            </div>
-        </section>
-    </main>
-
-    <footer>
-        <p>&copy; 2026 Mid TN Volleyball Club. All rights reserved.</p>
-        <div class="socials">
-            <a href="https://www.facebook.com/MidTNVBC"><i class="fab fa-facebook"></i></a>
-            <a href="https://www.instagram.com/midtnvbc/"><i class="fab fa-instagram"></i></a>
-        </div>
-    </footer>
-
-    <!-- Volley AI Chatbot -->
-    <div id="chatbot-launcher">
-        <i class="fas fa-comments"></i>
-    </div>
-    <div id="chatbot-window" class="hidden">
-        <div class="chatbot-header">
-            <span>Volley AI</span>
-            <button id="close-chatbot">&times;</button>
-        </div>
-        <div id="chatbot-messages">
-            <div class="msg bot">Hi! I'm Volley AI. How can I help you today? You can ask about tryouts, costs, or volleyball rules.</div>
-        </div>
-        <div class="chatbot-input">
-            <input type="text" id="chat-input" placeholder="Type a question...">
-            <button id="send-chat"><i class="fas fa-paper-plane"></i></button>
-        </div>
-    </div>
-
-    <script src="chatbot.js"></script>
-    <script>
-        // Load news from KB
-        fetch('knowledge_base.json')
-            .then(response => response.json())
-            .then(data => {
-                const container = document.getElementById('news-container');
-                data.latest_news.forEach(item => {
-                    const div = document.createElement('div');
-                    div.className = 'news-item';
-                    div.innerHTML = `<h4>${item.title}</h4><p>Source: ${item.source}</p><a href="${item.link}">Read More</a>`;
-                    container.appendChild(div);
-                });
-            });
-    </script>
     <title>MID TN VBC | Premier Volleyball Club in Middle Tennessee</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         :root {
             --primary-color: #f0a500; /* Gold */
@@ -142,6 +21,7 @@
             color: var(--text-color);
             font-family: 'Inter', sans-serif;
             line-height: 1.6;
+            scroll-behavior: smooth;
         }
         header {
             background-color: var(--card-bg);
@@ -170,25 +50,25 @@
         }
         nav a:hover { color: var(--primary-color); }
         .hero {
-            padding: 6rem 2rem;
+            padding: 8rem 2rem;
             text-align: center;
-            background: linear-gradient(rgba(13, 16, 23, 0.8), rgba(13, 16, 23, 0.8)), url('https://images.unsplash.com/photo-1592656094267-764a45159576?auto=format&fit=crop&q=80&w=1200') center/cover;
+            background: linear-gradient(rgba(13, 16, 23, 0.85), rgba(13, 16, 23, 0.85)), url('https://images.unsplash.com/photo-1592656094267-764a45159576?auto=format&fit=crop&q=80&w=1200') center/cover;
             border-bottom: 1px solid var(--border-color);
         }
         .hero h1 { font-size: 3.5rem; margin-bottom: 1rem; }
         .hero p { font-size: 1.25rem; color: #78909c; max-width: 800px; margin: 0 auto 2rem; }
         .btn {
             display: inline-block;
-            padding: 0.8rem 2rem;
+            padding: 1rem 2.5rem;
             background-color: var(--primary-color);
             color: #000;
             text-decoration: none;
             border-radius: 6px;
             font-weight: 700;
-            transition: transform 0.2s;
+            transition: transform 0.2s, background-color 0.2s;
         }
-        .btn:hover { transform: translateY(-2px); }
-        .section { padding: 4rem 2rem; max-width: 1200px; margin: 0 auto; }
+        .btn:hover { transform: translateY(-2px); background-color: #d49200; }
+        .section { padding: 5rem 2rem; max-width: 1200px; margin: 0 auto; }
         .section-title {
             font-size: 2.2rem;
             margin-bottom: 2.5rem;
@@ -204,51 +84,79 @@
             background-color: var(--card-bg);
             border: 1px solid var(--border-color);
             border-radius: 12px;
-            padding: 2rem;
-            transition: border-color 0.3s;
+            padding: 2.5rem;
+            transition: border-color 0.3s, transform 0.3s;
         }
         .card:hover {
             border-color: var(--primary-color);
+            transform: translateY(-5px);
         }
-        .card h3 { margin-bottom: 1rem; color: var(--primary-color); }
+        .card h3 { margin-bottom: 1.2rem; color: var(--primary-color); }
         .staff-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 2rem;
+            gap: 3rem;
             margin-top: 2rem;
         }
         .staff-card {
             text-align: center;
         }
-        .staff-card img {
-            width: 150px;
-            height: 150px;
+        .staff-card .avatar {
+            width: 160px;
+            height: 160px;
             border-radius: 50%;
-            background-color: var(--border-color);
-            margin-bottom: 1rem;
-            object-fit: cover;
+            background: #2a2e38;
+            margin: 0 auto 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3.5rem;
+            color: var(--primary-color);
+            border: 3px solid var(--border-color);
         }
         .faq-item {
-            margin-bottom: 1.5rem;
+            margin-bottom: 2rem;
             border-bottom: 1px solid var(--border-color);
-            padding-bottom: 1rem;
+            padding-bottom: 1.5rem;
         }
         .faq-item h4 {
             color: var(--secondary-color);
-            margin-bottom: 0.5rem;
+            margin-bottom: 0.8rem;
+            font-size: 1.1rem;
         }
         footer {
             background-color: var(--card-bg);
-            padding: 3rem 2rem;
+            padding: 4rem 2rem;
             text-align: center;
             border-top: 1px solid var(--border-color);
             margin-top: 4rem;
         }
         .footer-info {
-            margin-bottom: 2rem;
+            margin-bottom: 2.5rem;
             color: #78909c;
         }
-        #chatbot-root { position: fixed; bottom: 20px; right: 20px; z-index: 1000; }
+        .socials {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+        .socials a {
+            color: var(--text-color);
+            font-size: 1.8rem;
+            transition: color 0.2s;
+        }
+        .socials a:hover { color: var(--primary-color); }
+        #chatbot-root { position: fixed; bottom: 30px; right: 30px; z-index: 1000; }
+
+        .news-item {
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+        .news-item h4 { color: var(--primary-color); margin-bottom: 0.5rem; }
+        .news-item p { font-size: 0.9rem; color: #78909c; }
+        .news-item a { color: var(--secondary-color); text-decoration: none; font-size: 0.9rem; }
     </style>
 </head>
 <body>
@@ -264,29 +172,36 @@
         </nav>
     </header>
 
-    <section class="hero">
+    <section id="home" class="hero">
         <h1>MID TN VOLLEYBALL CLUB</h1>
-        <p>Building Champions on and off the court. Join Middle Tennessee's premier volleyball training program at Hooptown.</p>
-        <a href="#tryouts" class="btn">Register for 2025-2026 Tryouts</a>
+        <p>Building Champions on and off the court. Join Middle Tennessee's premier volleyball training program at Hooptown for over 20 years.</p>
+        <a href="#tryouts" class="btn">Register for 2026-2027 Tryouts</a>
     </section>
 
     <section id="news" class="section">
         <h2 class="section-title">Club Updates & Social</h2>
         <div class="grid">
             <div class="card">
-                <h3>#PrayForNae</h3>
-                <p>We continue to support Janae Edmondson in her incredible journey. The volleyball community's strength and love remain with her and her family. Stay tuned for local fundraisers and updates.</p>
+                <h3>Latest News</h3>
+                <div id="news-container">
+                    <p>Loading latest updates...</p>
+                </div>
             </div>
             <div class="card">
                 <h3>Follow Us</h3>
                 <p>Get daily updates, photos, and highlights from our teams.</p>
-                <br>
-                <p><strong>Instagram:</strong> <a href="https://www.instagram.com/Midtvbc" style="color: var(--secondary-color);">@Midtvbc</a></p>
-                <p><strong>Facebook:</strong> <a href="https://www.facebook.com/midtnvbc" style="color: var(--secondary-color);">Mid TN VBC</a></p>
+                <div class="socials" style="margin-top: 2rem; justify-content: flex-start;">
+                    <a href="https://www.facebook.com/midtnvbc"><i class="fab fa-facebook"></i></a>
+                    <a href="https://www.instagram.com/midtnvbc/"><i class="fab fa-instagram"></i></a>
+                </div>
+                <p><strong>Instagram:</strong> @midtnvbc</p>
+                <p><strong>Facebook:</strong> Mid TN VBC</p>
             </div>
             <div class="card">
                 <h3>USAV & SRVA News</h3>
-                <p>Important: The 2025-2027 USAV Indoor Rulebook is now in effect. All players and coaches must maintain an active SRVA membership.</p>
+                <div id="usav-news-container">
+                    <p>The 2025-2027 USAV Indoor Rulebook is now in effect. All players and coaches must maintain an active SRVA membership.</p>
+                </div>
             </div>
         </div>
     </section>
@@ -303,8 +218,10 @@
                 <p>Competitive play within the Southern Region (SRVA). Focuses on skill mastery and strategic team play with a reduced travel schedule compared to Elite.</p>
             </div>
             <div class="card">
-                <h3>Youth Training League</h3>
-                <p>Specifically for grades 2nd-5th. One weeknight of practice and match play at Hooptown. Perfect for developing fundamentals in a fun, controlled environment.</p>
+                <h3>Youth Programs</h3>
+                <p><strong>Volley Tots (4-8):</strong> Fundamentals & coordination.</p>
+                <p><strong>Volley Jrs (9-13):</strong> Skill strengthening.</p>
+                <p><strong>Academy (12-18):</strong> Training & League play.</p>
             </div>
         </div>
     </section>
@@ -313,12 +230,12 @@
         <h2 class="section-title">Leadership & Staff</h2>
         <div class="staff-grid">
             <div class="staff-card">
-                <div style="width: 150px; height: 150px; border-radius: 50%; background: #2a2e38; margin: 0 auto 1rem; display: flex; align-items: center; justify-content: center; font-size: 3rem;">RR</div>
+                <div class="avatar">RR</div>
                 <h3>Rhonda Ross</h3>
                 <p style="color: var(--primary-color);">Club Director</p>
             </div>
             <div class="staff-card">
-                <div style="width: 150px; height: 150px; border-radius: 50%; background: #2a2e38; margin: 0 auto 1rem; display: flex; align-items: center; justify-content: center; font-size: 3rem;">JW</div>
+                <div class="avatar">JW</div>
                 <h3>Jeff Wismer</h3>
                 <p style="color: var(--primary-color);">Assistant Director</p>
             </div>
@@ -336,8 +253,36 @@
                 <br>
                 <p>Hooptown is located beside Grand Slam USA batting cages.</p>
             </div>
-            <div style="flex: 1; min-width: 300px; height: 300px; background: #12151c; border-radius: 8px; display: flex; align-items: center; justify-content: center; color: #546e7a;">
-                [Map Representation]
+            <div style="flex: 1; min-width: 300px; height: 300px; background: #12151c; border-radius: 8px; display: flex; align-items: center; justify-content: center; color: #546e7a; border: 1px solid var(--border-color);">
+                <i class="fas fa-map-marked-alt" style="font-size: 4rem;"></i>
+            </div>
+        </div>
+    </section>
+
+    <section id="tryouts" class="section">
+        <h2 class="section-title">2026-2027 Tryouts</h2>
+        <div class="card">
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 2rem;">
+                <div>
+                    <h4>Dates & Times</h4>
+                    <p><strong>13U - 18U:</strong> July 11-12, 2026</p>
+                    <p><strong>12U:</strong> September 20, 2026</p>
+                </div>
+                <div>
+                    <h4>Cost</h4>
+                    <p><strong>Early Registration:</strong> $65</p>
+                    <p><strong>Regular:</strong> $70</p>
+                    <p><strong>Late/Walk-up:</strong> $75</p>
+                </div>
+                <div>
+                    <h4>Requirements</h4>
+                    <p>• SRVA Tryout Membership</p>
+                    <p>• Medical Release Form</p>
+                    <p>• Online Registration</p>
+                </div>
+            </div>
+            <div style="margin-top: 2.5rem; text-align: center;">
+                <a href="https://midtnvbc.sportngin.com/register/form/442382306" class="btn">Register Now</a>
             </div>
         </div>
     </section>
@@ -347,19 +292,15 @@
         <div class="card">
             <div class="faq-item">
                 <h4>Where do I sign in for tryouts?</h4>
-                <p>Check-in is located at the front desk of Hooptown. Please arrive 30 minutes before your scheduled session with all paperwork printed.</p>
-            </div>
-            <div class="faq-item">
-                <h4>What is the cost of tryouts?</h4>
-                <p>Pre-registration is $50. Walk-up registration on the day of tryouts is $60.</p>
+                <p>Check-in is located at the front desk of Hooptown. Please arrive 30 minutes before your scheduled session with all paperwork ready.</p>
             </div>
             <div class="faq-item">
                 <h4>What do I need to bring?</h4>
-                <p>Athletes should bring water, knee pads, and appropriate court shoes. You MUST have your SRVA tryout membership and medical release forms ready.</p>
+                <p>Athletes should bring water, knee pads, and appropriate court shoes. You MUST have your SRVA tryout membership confirmation and medical release forms ready.</p>
             </div>
             <div class="faq-item">
-                <h4>When will team offers be made?</h4>
-                <p>Initial offers are often made within 24-48 hours after the conclusion of tryouts for your age group.</p>
+                <h4>When will we know about team offers?</h4>
+                <p>Initial offers are typically made within 24-48 hours after the conclusion of tryouts for your age group via email/SportsEngine.</p>
             </div>
         </div>
     </section>
@@ -370,10 +311,33 @@
             <p>6910 Stroop Lane, Smyrna, TN 37167</p>
             <p>Email: info@midtnvbc.com | Phone: (615) 200-8172</p>
         </div>
-        <p>&copy; 2025 MID TN VOLLEYBALL CLUB. All Rights Reserved. Member of SRVA & USA Volleyball.</p>
+        <p>&copy; 2026 MID TN VOLLEYBALL CLUB. All Rights Reserved. Member of SRVA & USA Volleyball.</p>
     </footer>
 
     <div id="chatbot-root"></div>
     <script src="./chatbot.js" type="module"></script>
+    <script>
+        // Dynamic News Loading
+        fetch('volley_kb.json')
+            .then(res => res.json())
+            .then(data => {
+                const newsContainer = document.getElementById('news-container');
+                if (data.news && data.news.length > 0) {
+                    newsContainer.innerHTML = '';
+                    data.news.slice(0, 3).forEach(item => {
+                        const div = document.createElement('div');
+                        div.className = 'news-item';
+                        div.innerHTML = `<h4>${item.title}</h4><p>${item.date || ''}</p><p>${item.summary || ''}</p>`;
+                        newsContainer.appendChild(div);
+                    });
+                }
+
+                const usavContainer = document.getElementById('usav-news-container');
+                if (data.usa_volleyball_latest) {
+                    usavContainer.innerHTML = `<p>${data.usa_volleyball_latest}</p>`;
+                }
+            })
+            .catch(err => console.error('Error loading news:', err));
+    </script>
 </body>
 </html>
