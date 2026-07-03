@@ -51,6 +51,8 @@ function Chatbot() {
                     response = `USAV Expert Note: ${kb.rules_and_regulations.usa_volleyball.expert_note}`;
                 } else if (q.includes('srva')) {
                     response = `SRVA Expert Note: ${kb.rules_and_regulations.srva.expert_note}`;
+                } else if (q.includes('when') || q.includes('offer')) {
+                    response = kb.faq?.find(f => f.question.toLowerCase().includes('offer'))?.answer || response;
                 } else if (q.includes('news') || q.includes('update')) {
                     if (kb.news && kb.news[0]) {
                         response = `Latest News: ${kb.news[0].title} (${kb.news[0].date}). ${kb.news[0].summary}`;

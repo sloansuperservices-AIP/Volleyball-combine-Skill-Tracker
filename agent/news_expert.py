@@ -65,10 +65,16 @@ def pull_srva_updates():
     return updates
 
 def get_social_placeholders():
-    """Placeholders for Instagram/Facebook integration."""
+    """
+    Placeholders for Instagram/Facebook integration.
+    Actual implementation would use:
+    - Facebook Graph API (for FB)
+    - Instagram Graph API or unofficial scrapers like instaloader (for IG)
+    Requires developer credentials/tokens.
+    """
     return {
-        "instagram": "Latest from @midtnvbc: 'Our 2026-27 season prep is in full swing at Hooptown! #MidTNVBC'",
-        "facebook": "Recent Post: 'Join us for our upcoming parent info session about tryout requirements and club programs.'"
+        "instagram": "Latest from @midtnvbc: 'Summer camps are here! From Fun with Fundamentals to Tryout Tune Ups, we have something for everyone. #MidTNVBC #VolleyballCamps'",
+        "facebook": "Recent Post: '2026-2027 Tryouts are just around the corner! July 11-12 for 13s-18s and Sept 20 for 12s. Register early to save on fees!'"
     }
 
 def update_knowledge_base():
@@ -121,11 +127,11 @@ def update_knowledge_base():
     # Update Expert Rules (Researched)
     kb['rules_and_regulations'] = {
         "usa_volleyball": {
-            "expert_note": "2025-2027 Rule Highlights: Jewelry allowed if small/snug; re-serve allowed for tossing error (once per turn); Libero can be team captain; Coaches can stand/walk in free zone to attack line extension.",
+            "expert_note": "2023-2025 USAV DCR Highlights: Rule 5.3.1 - One assistant coach may stand to give instructions within the free zone (extension of attack line to warm-up area). Rule 12.4.4 - For 14U and under, one service tossing error (catch or drop) is allowed per service turn, resulting in a re-serve. Rule 4.3.3.1a - Uniform numbers must be centered and clearly visible.",
             "link": "https://usavolleyball.org/resources-for-officials/rulebooks-and-interpretations/"
         },
         "srva": {
-            "expert_note": "SRVA Policies: All participants must have valid USAV membership before tryouts. Offers accepted in SportsEngine are binding for the season. Max tryout fee $75.",
+            "expert_note": "SRVA Policies: Tryout fee is capped at $75. Participants must have a valid USAV membership via SRVA before participating in tryouts. Offers accepted in SportsEngine are binding for the season.",
             "link": "https://www.srva.org"
         }
     }
@@ -134,15 +140,19 @@ def update_knowledge_base():
     kb['faq'] = [
         {
             "question": "Where do I sign in for tryouts?",
-            "answer": "Check-in is at the front desk of Hooptown (6910 Stroop Ln, Smyrna). Please arrive 30 minutes early."
+            "answer": "Check-in is at the front desk of Hooptown (6910 Stroop Ln, Smyrna). Doors open 30 minutes prior to your scheduled tryout time."
         },
         {
             "question": "What is the cost?",
-            "answer": "Tryout fees: $65 (Early), $70 (Regular), $75 (Late/Walk-up)."
+            "answer": "Tryout fees: $65 (Early), $70 (Regular), $75 (Late/Walk-up). 13s-18s fee increases June 15 and July 4. 12s fee increases Aug 20 and Sept 13."
         },
         {
             "question": "What do I need to be ready for?",
-            "answer": "Bring water, knee pads, and court shoes. Ensure SRVA membership and medical forms are complete."
+            "answer": "Athletes should bring water, knee pads, and appropriate court shoes. You must have your USAV membership via SRVA and online registration completed."
+        },
+        {
+            "question": "When will we know about team offers?",
+            "answer": "Initial offers are typically made within 24-48 hours after the conclusion of tryouts for your age group via email/SportsEngine."
         }
     ]
 
