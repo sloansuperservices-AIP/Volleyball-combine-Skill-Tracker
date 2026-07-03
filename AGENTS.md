@@ -9,10 +9,10 @@
   - **Knowledge Agent**: `agent/news_expert.py` (Python) scrapes SRVA and USAV sites to update the local knowledge base.
 
 ## Development Pipeline (The Tandem)
-This project is maintained through a collaborative loop between three primary entities:
-1. **GitHub**: The source of truth for code and version control.
-2. **Google AI Studio**: Used for high-level architectural planning, logic prototyping, and complex problem-solving.
-3. **Jules AI (Coding Agent)**: The primary implementation engine that executes code changes, runs tests, and ensures repository health.
+This project is maintained through a collaborative loop between three primary entities working in tandem:
+1. **GitHub**: The source of truth for code, version control, and repository management.
+2. **Google AI Studio**: Used for high-level strategic guidance, architectural planning, requirements analysis, and logic prototyping.
+3. **Jules AI (Coding Agent)**: The primary implementation and refinement engine. Jules executes code changes, performs bug fixes, ensures repository health, and verifies all features within the sandbox environment.
 
 ## Core Features
 - **Role-Based Access**:
