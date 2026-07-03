@@ -1,14 +1,33 @@
-127.0.0.1 - - [02/Jul/2026 00:43:44] "GET /index.html HTTP/1.1" 200 -
-127.0.0.1 - - [02/Jul/2026 00:43:44] "GET /chatbot.js HTTP/1.1" 200 -
-127.0.0.1 - - [02/Jul/2026 00:43:44] "GET /volley_kb.json HTTP/1.1" 200 -
-127.0.0.1 - - [02/Jul/2026 00:45:43] "GET /index.html HTTP/1.1" 200 -
-127.0.0.1 - - [02/Jul/2026 00:45:43] "GET /chatbot.js HTTP/1.1" 200 -
-127.0.0.1 - - [02/Jul/2026 00:45:43] "GET /volley_kb.json HTTP/1.1" 200 -
-127.0.0.1 - - [02/Jul/2026 00:46:56] "GET /index.html HTTP/1.1" 200 -
-127.0.0.1 - - [02/Jul/2026 00:46:56] "GET /chatbot.js HTTP/1.1" 200 -
-127.0.0.1 - - [02/Jul/2026 00:46:57] "GET /volley_kb.json HTTP/1.1" 200 -
-127.0.0.1 - - [02/Jul/2026 00:47:50] "GET /index.html HTTP/1.1" 200 -
-127.0.0.1 - - [02/Jul/2026 00:47:50] "GET /chatbot.js HTTP/1.1" 200 -
-127.0.0.1 - - [02/Jul/2026 00:47:50] "GET /volley_kb.json HTTP/1.1" 200 -
-127.0.0.1 - - [02/Jul/2026 00:47:54] "GET /tryouts/index.html HTTP/1.1" 200 -
-127.0.0.1 - - [02/Jul/2026 00:47:54] "GET /chatbot.js HTTP/1.1" 304 -
+127.0.0.1 - - [02/Jul/2026 14:17:24] "GET /tryouts/ HTTP/1.1" 200 -
+127.0.0.1 - - [02/Jul/2026 14:17:24] "GET /chatbot.js HTTP/1.1" 200 -
+127.0.0.1 - - [02/Jul/2026 14:17:25] code 404, message File not found
+127.0.0.1 - - [02/Jul/2026 14:17:25] "GET /tryouts/knowledge_base.json HTTP/1.1" 404 -
+127.0.0.1 - - [02/Jul/2026 14:19:59] "GET /tryouts/ HTTP/1.1" 200 -
+127.0.0.1 - - [02/Jul/2026 14:19:59] "GET /chatbot.js HTTP/1.1" 200 -
+127.0.0.1 - - [02/Jul/2026 14:19:59] code 404, message File not found
+127.0.0.1 - - [02/Jul/2026 14:19:59] "GET /tryouts/knowledge_base.json HTTP/1.1" 404 -
+127.0.0.1 - - [02/Jul/2026 14:20:41] "GET /tryouts/ HTTP/1.1" 200 -
+127.0.0.1 - - [02/Jul/2026 14:21:12] "GET /tryouts/ HTTP/1.1" 200 -
+127.0.0.1 - - [02/Jul/2026 14:21:37] "GET /tryouts/ HTTP/1.1" 200 -
+127.0.0.1 - - [02/Jul/2026 14:21:37] "GET /chatbot.js HTTP/1.1" 200 -
+127.0.0.1 - - [02/Jul/2026 14:21:37] code 404, message File not found
+127.0.0.1 - - [02/Jul/2026 14:21:37] "GET /tryouts/knowledge_base.json HTTP/1.1" 404 -
+127.0.0.1 - - [02/Jul/2026 14:25:22] "GET /tryouts/ HTTP/1.1" 200 -
+127.0.0.1 - - [02/Jul/2026 14:25:22] "GET /chatbot.js HTTP/1.1" 200 -
+127.0.0.1 - - [02/Jul/2026 14:25:23] "GET /volley_kb.json HTTP/1.1" 200 -
+127.0.0.1 - - [03/Jul/2026 08:47:03] "GET /tryouts/ HTTP/1.1" 200 -
+127.0.0.1 - - [03/Jul/2026 08:47:03] "GET /chatbot.js HTTP/1.1" 200 -
+127.0.0.1 - - [03/Jul/2026 08:47:03] "GET /volley_kb.json HTTP/1.1" 200 -
+127.0.0.1 - - [03/Jul/2026 08:47:36] "GET /tryouts/ HTTP/1.1" 200 -
+127.0.0.1 - - [03/Jul/2026 08:47:36] "GET /chatbot.js HTTP/1.1" 200 -
+127.0.0.1 - - [03/Jul/2026 08:47:36] "GET /volley_kb.json HTTP/1.1" 200 -
+127.0.0.1 - - [03/Jul/2026 08:49:27] "GET /tryouts/ HTTP/1.1" 200 -
+127.0.0.1 - - [03/Jul/2026 08:49:27] "GET /chatbot.js HTTP/1.1" 200 -
+127.0.0.1 - - [03/Jul/2026 08:49:27] "GET /volley_kb.json HTTP/1.1" 200 -
+127.0.0.1 - - [03/Jul/2026 08:49:51] "GET /tryouts/ HTTP/1.1" 200 -
+127.0.0.1 - - [03/Jul/2026 08:51:10] "GET /tryouts/ HTTP/1.1" 200 -
+127.0.0.1 - - [03/Jul/2026 08:51:10] "GET /chatbot.js HTTP/1.1" 200 -
+127.0.0.1 - - [03/Jul/2026 08:51:11] "GET /volley_kb.json HTTP/1.1" 200 -
+127.0.0.1 - - [03/Jul/2026 08:57:02] "GET /tryouts/ HTTP/1.1" 200 -
+127.0.0.1 - - [03/Jul/2026 08:57:02] "GET /chatbot.js HTTP/1.1" 200 -
+127.0.0.1 - - [03/Jul/2026 08:57:02] "GET /volley_kb.json HTTP/1.1" 200 -
