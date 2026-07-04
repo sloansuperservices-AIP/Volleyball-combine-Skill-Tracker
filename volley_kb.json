@@ -13,6 +13,16 @@
   },
   "news": [
     {
+      "title": "Championship Bound: USAV Brings 2027 Boys Junior National Championship to Anaheim",
+      "date": "2026-07-04",
+      "summary": "Source: USA Volleyball. Link: https://usavolleyball.org/story/championship-bound-usav-brings-2027-boys-junior-national-championship-to-anaheim/"
+    },
+    {
+      "title": "2026 Women\u2019s VNL Week Three Roster Announced",
+      "date": "2026-07-04",
+      "summary": "Source: USA Volleyball. Link: https://usavolleyball.org/story/2026-womens-vnl-week-three-roster-announced/"
+    },
+    {
       "title": "U.S. Men Fall in Five Sets in Showdown with Undefeated Japan at 2026 VNL",
       "date": "2026-07-02",
       "summary": "Source: USA Volleyball. Link: https://usavolleyball.org/story/u-s-men-fall-in-five-sets-in-showdown-with-undefeated-japan-at-2026-vnl/"
@@ -83,11 +93,13 @@
   ],
   "rules_and_regulations": {
     "usa_volleyball": {
-      "expert_note": "2025-2027 Rule Highlights: Jewelry allowed if small/snug; re-serve allowed for tossing error (once per turn); Libero can be team captain; Coaches can stand/walk in free zone to attack line extension.",
+      "expert_note": "2025-2027 USAV Rule Highlights: Jewelry (small/snug) is permitted. One re-serve per service turn is allowed after a tossing error. Libero may now be the team captain. Coaches are allowed to stand/walk in the free zone up to the attack line extension.",
+      "age_definitions": "USAV Age Chart 2025-2026: 18s (Born on/after July 1, 2007), 17s (2008), 16s (2009), 15s (2010), 14s (2011), 13s (2012), 12s (2013).",
       "link": "https://usavolleyball.org/resources-for-officials/rulebooks-and-interpretations/"
     },
     "srva": {
-      "expert_note": "SRVA Policies: All participants must have valid USAV membership before tryouts. Offers accepted in SportsEngine are binding for the season. Max tryout fee $75.",
+      "expert_note": "SRVA 2025-26 Registration: A $10 'Tryout Membership' is required prior to participation. This can be upgraded to a full membership after commitment. All players must have a valid membership and medical release form present at check-in. Offers accepted in SportsEngine are binding for the entire season.",
+      "tryout_membership_link": "https://www.srva.org/page/show/657750-player-memberships",
       "link": "https://www.srva.org"
     }
   },
@@ -106,9 +118,17 @@
     }
   ],
   "social_updates": {
-    "instagram": "Latest from @midtnvbc: 'Our 2026-27 season prep is in full swing at Hooptown! #MidTNVBC'",
-    "facebook": "Recent Post: 'Join us for our upcoming parent info session about tryout requirements and club programs.'"
+    "instagram": {
+      "handle": "@midtnvbc",
+      "latest_post": "Big things coming for the 2026-27 season! Tryout registration is officially OPEN. Check the link in bio to secure your spot at Hooptown!",
+      "link": "https://www.instagram.com/midtnvbc/"
+    },
+    "facebook": {
+      "page": "Mid TN VBC",
+      "latest_post": "MIDTN Volleyball Club, Murfreesboro. 2,748 likes \u00b7 369 talking about this \u00b7 623 were here. Our goal is to empower every player to develop the confidence and skills needed to reach their full potential!\ud83c\udfd0",
+      "link": "https://www.facebook.com/midtnvbc"
+    }
   },
   "usa_volleyball_latest": "Check usavolleyball.org for the latest updates.",
-  "last_agent_run": "2026-07-02 15:42:52"
+  "last_agent_run": "2026-07-04 14:05:54"
 }
