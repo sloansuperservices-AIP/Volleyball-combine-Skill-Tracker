@@ -13,6 +13,21 @@
   },
   "news": [
     {
+      "title": "Championship Bound: USAV Brings 2027 Boys Junior National Championship to Anaheim",
+      "date": "2026-07-05",
+      "summary": "Source: USA Volleyball. Link: https://usavolleyball.org/story/championship-bound-usav-brings-2027-boys-junior-national-championship-to-anaheim/"
+    },
+    {
+      "title": "2026 Women\u2019s VNL Week Three Roster Announced",
+      "date": "2026-07-05",
+      "summary": "Source: USA Volleyball. Link: https://usavolleyball.org/story/2026-womens-vnl-week-three-roster-announced/"
+    },
+    {
+      "title": "USA Volleyball Announces 2026 Women\u2019s U21 Roster for Pan American Cup",
+      "date": "2026-07-05",
+      "summary": "Source: USA Volleyball. Link: https://usavolleyball.org/story/usa-volleyball-announces-2026-womens-u21-roster-for-pan-american-cup/"
+    },
+    {
       "title": "U.S. Men Fall in Five Sets in Showdown with Undefeated Japan at 2026 VNL",
       "date": "2026-07-02",
       "summary": "Source: USA Volleyball. Link: https://usavolleyball.org/story/u-s-men-fall-in-five-sets-in-showdown-with-undefeated-japan-at-2026-vnl/"
@@ -83,11 +98,11 @@
   ],
   "rules_and_regulations": {
     "usa_volleyball": {
-      "expert_note": "2025-2027 Rule Highlights: Jewelry allowed if small/snug; re-serve allowed for tossing error (once per turn); Libero can be team captain; Coaches can stand/walk in free zone to attack line extension.",
+      "expert_note": "2024-2025 Rule Highlights: Libero can now be the team captain. Jewelry is permitted if it is small and not a safety hazard (discretion of official). One re-serve is allowed per term of service if the ball is tossed and then caught or allowed to drop. Coaches may stand or walk in the free zone in front of their team bench, but not past the attack line extension.",
       "link": "https://usavolleyball.org/resources-for-officials/rulebooks-and-interpretations/"
     },
     "srva": {
-      "expert_note": "SRVA Policies: All participants must have valid USAV membership before tryouts. Offers accepted in SportsEngine are binding for the season. Max tryout fee $75.",
+      "expert_note": "SRVA 2024-25 Policies: All participants (players/coaches) must have a valid USA Volleyball membership through SRVA before attending any tryout. Club offers must be sent and accepted via SportsEngine. A player's acceptance of an offer is binding for the entire season. The maximum tryout fee allowed by SRVA is $75.",
       "link": "https://www.srva.org"
     }
   },
@@ -110,5 +125,5 @@
     "facebook": "Recent Post: 'Join us for our upcoming parent info session about tryout requirements and club programs.'"
   },
   "usa_volleyball_latest": "Check usavolleyball.org for the latest updates.",
-  "last_agent_run": "2026-07-02 15:42:52"
+  "last_agent_run": "2026-07-05 13:50:48"
 }
