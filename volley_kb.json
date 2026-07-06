@@ -13,6 +13,26 @@
   },
   "news": [
     {
+      "title": "Championship Bound: USAV Brings 2027 Boys Junior National Championship to Anaheim",
+      "date": "2026-07-06",
+      "summary": "Source: USA Volleyball. Link: https://usavolleyball.org/story/championship-bound-usav-brings-2027-boys-junior-national-championship-to-anaheim/"
+    },
+    {
+      "title": "2026 Women\u2019s VNL Week Three Roster Announced",
+      "date": "2026-07-06",
+      "summary": "Source: USA Volleyball. Link: https://usavolleyball.org/story/2026-womens-vnl-week-three-roster-announced/"
+    },
+    {
+      "title": "USA Volleyball Announces 2026 Women\u2019s U21 Roster for Pan American Cup",
+      "date": "2026-07-06",
+      "summary": "Source: USA Volleyball. Link: https://usavolleyball.org/story/usa-volleyball-announces-2026-womens-u21-roster-for-pan-american-cup/"
+    },
+    {
+      "title": "2026 USA Volleyball Boys Junior National Championship presented by Credit Union 1",
+      "date": "2026-07-06",
+      "summary": "Source: USA Volleyball. Link: https://usavolleyball.org/event/2026-usa-volleyball-boys-junior-national-championship/"
+    },
+    {
       "title": "U.S. Men Fall in Five Sets in Showdown with Undefeated Japan at 2026 VNL",
       "date": "2026-07-02",
       "summary": "Source: USA Volleyball. Link: https://usavolleyball.org/story/u-s-men-fall-in-five-sets-in-showdown-with-undefeated-japan-at-2026-vnl/"
@@ -83,13 +103,18 @@
   ],
   "rules_and_regulations": {
     "usa_volleyball": {
-      "expert_note": "2025-2027 Rule Highlights: Jewelry allowed if small/snug; re-serve allowed for tossing error (once per turn); Libero can be team captain; Coaches can stand/walk in free zone to attack line extension.",
+      "expert_note": "2025-2027 Rule Highlights: Jewelry (studs/small hoops) allowed; re-serve allowed for tossing error (once per turn); Libero can be team captain; Coaches can stand/walk in free zone to attack line extension. Screening is strictly monitored\u2014players must not hide the server or path of the ball.",
       "link": "https://usavolleyball.org/resources-for-officials/rulebooks-and-interpretations/"
     },
     "srva": {
-      "expert_note": "SRVA Policies: All participants must have valid USAV membership before tryouts. Offers accepted in SportsEngine are binding for the season. Max tryout fee $75.",
+      "expert_note": "SRVA Policies: Valid USAV membership (Tryout or Full) required before stepping on court. Offers accepted via SportsEngine are binding. Max tryout fee $75. Athletes must bring a printed and signed USAV Medical Release form to tryouts.",
       "link": "https://www.srva.org"
-    }
+    },
+    "highlights": [
+      "Libero can now officially serve in one position in the rotation (USAV/SRVA specific).",
+      "Uniform numbers must be clearly contrasting and centered (front and back).",
+      "Sanitized 'Medical Release' forms are required for every tournament."
+    ]
   },
   "faq": [
     {
@@ -106,9 +131,9 @@
     }
   ],
   "social_updates": {
-    "instagram": "Latest from @midtnvbc: 'Our 2026-27 season prep is in full swing at Hooptown! #MidTNVBC'",
-    "facebook": "Recent Post: 'Join us for our upcoming parent info session about tryout requirements and club programs.'"
+    "instagram": "Check @midtnvbc on Instagram for latest photos and reels from training!",
+    "facebook": "Visit Mid TN VBC on Facebook for community updates and event photos."
   },
   "usa_volleyball_latest": "Check usavolleyball.org for the latest updates.",
-  "last_agent_run": "2026-07-02 15:42:52"
+  "last_agent_run": "2026-07-06 14:26:18"
 }

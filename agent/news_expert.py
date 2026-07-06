@@ -2,6 +2,8 @@ import json
 import datetime
 import os
 import requests
+import time
+import sys
 from bs4 import BeautifulSoup
 
 # Configuration
@@ -64,12 +66,37 @@ def pull_srva_updates():
         print(f"Error pulling SRVA updates: {e}")
     return updates
 
-def get_social_placeholders():
-    """Placeholders for Instagram/Facebook integration."""
-    return {
-        "instagram": "Latest from @midtnvbc: 'Our 2026-27 season prep is in full swing at Hooptown! #MidTNVBC'",
-        "facebook": "Recent Post: 'Join us for our upcoming parent info session about tryout requirements and club programs.'"
+def pull_social_news():
+    """Attempts to pull updates from Facebook and Instagram meta tags."""
+    print("Fetching Social Media news via meta tags...")
+    social = {
+        "instagram": "Check @midtnvbc on Instagram for latest photos and reels from training!",
+        "facebook": "Visit Mid TN VBC on Facebook for community updates and event photos."
     }
+
+    headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'}
+
+    # Instagram
+    try:
+        res = requests.get("https://www.instagram.com/midtnvbc/", headers=headers, timeout=10)
+        if res.status_code == 200:
+            soup = BeautifulSoup(res.text, 'html.parser')
+            meta = soup.find("meta", property="og:description")
+            if meta:
+                social["instagram"] = meta["content"]
+    except: pass
+
+    # Facebook
+    try:
+        res = requests.get("https://www.facebook.com/midtnvbc", headers=headers, timeout=10)
+        if res.status_code == 200:
+            soup = BeautifulSoup(res.text, 'html.parser')
+            meta = soup.find("meta", property="og:description")
+            if meta:
+                social["facebook"] = meta["content"]
+    except: pass
+
+    return social
 
 def update_knowledge_base():
     # Load existing KB to preserve structured data if any
@@ -93,7 +120,7 @@ def update_knowledge_base():
     club_news = pull_club_news()
     usav_news = pull_usav_updates()
     srva_news = pull_srva_updates()
-    social = get_social_placeholders()
+    social = pull_social_news()
 
     # Update News
     all_new_news = []
@@ -118,16 +145,21 @@ def update_knowledge_base():
     # Update Social
     kb['social_updates'] = social
 
-    # Update Expert Rules (Researched)
+    # Update Expert Rules (Researched & Expanded)
     kb['rules_and_regulations'] = {
         "usa_volleyball": {
-            "expert_note": "2025-2027 Rule Highlights: Jewelry allowed if small/snug; re-serve allowed for tossing error (once per turn); Libero can be team captain; Coaches can stand/walk in free zone to attack line extension.",
+            "expert_note": "2025-2027 Rule Highlights: Jewelry (studs/small hoops) allowed; re-serve allowed for tossing error (once per turn); Libero can be team captain; Coaches can stand/walk in free zone to attack line extension. Screening is strictly monitored—players must not hide the server or path of the ball.",
             "link": "https://usavolleyball.org/resources-for-officials/rulebooks-and-interpretations/"
         },
         "srva": {
-            "expert_note": "SRVA Policies: All participants must have valid USAV membership before tryouts. Offers accepted in SportsEngine are binding for the season. Max tryout fee $75.",
+            "expert_note": "SRVA Policies: Valid USAV membership (Tryout or Full) required before stepping on court. Offers accepted via SportsEngine are binding. Max tryout fee $75. Athletes must bring a printed and signed USAV Medical Release form to tryouts.",
             "link": "https://www.srva.org"
-        }
+        },
+        "highlights": [
+            "Libero can now officially serve in one position in the rotation (USAV/SRVA specific).",
+            "Uniform numbers must be clearly contrasting and centered (front and back).",
+            "Sanitized 'Medical Release' forms are required for every tournament."
+        ]
     }
 
     # Update FAQs
@@ -154,5 +186,27 @@ def update_knowledge_base():
 
     print(f"Knowledge base '{KB_FILE}' updated at {kb['last_agent_run']}")
 
+def run_daemon():
+    """Runs the update loop daily at 12:00 PM."""
+    print("Agent starting in DAEMON mode (Daily at 12:00 PM)")
+    while True:
+        now = datetime.datetime.now()
+        target = now.replace(hour=12, minute=0, second=0, microsecond=0)
+
+        if now >= target:
+            target += datetime.timedelta(days=1)
+
+        wait_seconds = (target - now).total_seconds()
+        print(f"Next update scheduled for {target}. Waiting {wait_seconds/3600:.2f} hours...")
+
+        # Sleep until noon
+        time.sleep(wait_seconds)
+
+        print(f"Executing daily update at {datetime.datetime.now()}...")
+        update_knowledge_base()
+
 if __name__ == "__main__":
-    update_knowledge_base()
+    if "--daemon" in sys.argv:
+        run_daemon()
+    else:
+        update_knowledge_base()
