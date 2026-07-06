@@ -71,6 +71,63 @@ def get_social_placeholders():
         "facebook": "Recent Post: 'Join us for our upcoming parent info session about tryout requirements and club programs.'"
     }
 
+def crawl_sitemap_and_index():
+    print("Crawling Mid TN sitemap...")
+    docs = []
+    keywords = [
+        "tryout", "schedule", "cost", "price", "fee", "location", "hooptown", 
+        "registration", "age", "division", "team", "coach", "practice", 
+        "medical", "form", "srva", "usav", "rule", "lesson", "recruiting", 
+        "clinic", "camp"
+    ]
+    try:
+        response = requests.get("https://www.midtnvbc.com/sitemap.xml", timeout=10)
+        if response.status_code == 200:
+            soup = BeautifulSoup(response.text, 'html.parser')
+            locs = soup.find_all('loc')
+            urls = [loc.get_text(strip=True) for loc in locs]
+            
+            # Limit page scraping to avoid blocking/rate-limiting
+            for url in urls[:12]:
+                try:
+                    print(f"Scraping: {url}")
+                    p_resp = requests.get(url, timeout=10)
+                    if p_resp.status_code == 200:
+                        p_soup = BeautifulSoup(p_resp.text, 'html.parser')
+                        title_el = p_soup.find('title')
+                        title = title_el.get_text(strip=True) if title_el else url.split('/')[-1]
+                        title = title.split('|')[0].strip()
+                        
+                        # Gather all text content blocks
+                        text_blocks = []
+                        # Look inside standard text containers
+                        containers = p_soup.find_all(['p', 'li', 'h1', 'h2', 'h3', 'h4', 'div'])
+                        for c in containers:
+                            # Avoid large generic containers
+                            if c.name == 'div' and (len(c.find_all(['div', 'p', 'table'])) > 0):
+                                continue
+                            txt = c.get_text(strip=True)
+                            if len(txt) > 20 and len(txt) < 800:
+                                txt_lower = txt.lower()
+                                # Check if it matches key terms
+                                if any(kw in txt_lower for kw in keywords):
+                                    if txt not in text_blocks:
+                                        text_blocks.append(txt)
+                        
+                        if text_blocks:
+                            content = "\n".join(text_blocks)
+                            docs.append({
+                                "name": title,
+                                "url": url,
+                                "content": content
+                            })
+                            print(f"Indexed {len(text_blocks)} blocks from '{title}'")
+                except Exception as e:
+                    print(f"Error scraping {url}: {e}")
+    except Exception as e:
+        print(f"Error reading sitemap: {e}")
+    return docs
+
 def update_knowledge_base():
     # Load existing KB to preserve structured data if any
     if os.path.exists(KB_FILE):
@@ -94,6 +151,9 @@ def update_knowledge_base():
     usav_news = pull_usav_updates()
     srva_news = pull_srva_updates()
     social = get_social_placeholders()
+    docs = crawl_sitemap_and_index()
+    if docs:
+        kb['active_documents'] = docs
 
     # Update News
     all_new_news = []
