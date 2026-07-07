@@ -71,10 +71,19 @@ tr:hover td{background:#1a1d24;cursor:pointer}
 <body>
 <div id="app"></div>
 <div id="chatbot-root" style="position:fixed;bottom:20px;left:20px;z-index:9999"></div>
+<script type="importmap">
+{
+  "imports": {
+    "preact": "https://cdn.jsdelivr.net/npm/preact@10.24.3/dist/preact.module.js",
+    "preact/hooks": "https://cdn.jsdelivr.net/npm/preact@10.24.3/hooks/dist/hooks.module.js",
+    "htm": "https://cdn.jsdelivr.net/npm/htm@3.1.1/dist/htm.module.js"
+  }
+}
+</script>
 <script type="module">
-import{h,render,Fragment}from'https://esm.sh/preact@10';
-import{useState,useEffect,useMemo,useRef,useCallback}from'https://esm.sh/preact@10/hooks';
-import htm from'https://esm.sh/htm@3';
+import{h,render,Fragment}from'preact';
+import{useState,useEffect,useMemo,useRef,useCallback}from'preact/hooks';
+import htm from'htm';
 const html=htm.bind(h);
 
 // ── INLINE CHATBOT ──────────────────────────────────────────────────
