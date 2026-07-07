@@ -86,6 +86,34 @@ function Chatbot() {
 
             if (userQuery.includes('where am i') || userQuery.includes('page') || userQuery.includes('current section')) {
                 response = `You are currently on the ${pageContext}. I can help you with questions specific to this area!`;
+                // Specific Query Handling
+                if (q.includes('cost') || q.includes('price') || q.includes('how much')) {
+                    response = kb.faq?.find(f => f.question.toLowerCase().includes('cost'))?.answer || response;
+                } else if (q.includes('sign in') || q.includes('check in') || q.includes('register')) {
+                    response = kb.faq?.find(f => f.question.toLowerCase().includes('sign in'))?.answer || response;
+                } else if (q.includes('bring') || q.includes('ready') || q.includes('requirement')) {
+                    response = kb.faq?.find(f => f.question.toLowerCase().includes('ready'))?.answer || response;
+                } else if (q.includes('sponsor') || q.includes('craig') || q.includes('shane')) {
+                    response = kb.faq?.find(f => f.question.toLowerCase().includes('sponsor'))?.answer || response;
+                } else if (q.includes('rule') || q.includes('regulation') || q.includes('uniform')) {
+                    response = `USAV Expert Note: ${kb.rules_and_regulations.usa_volleyball.expert_note}`;
+                } else if (q.includes('srva')) {
+                    response = `SRVA Expert Note: ${kb.rules_and_regulations.srva.expert_note}`;
+                } else if (q.includes('news') || q.includes('update')) {
+                    if (kb.news && kb.news[0]) {
+                        response = `Latest News: ${kb.news[0].title} (${kb.news[0].date}). ${kb.news[0].summary}`;
+                    }
+                } else if (q.includes('social') || q.includes('instagram') || q.includes('facebook')) {
+                    response = `Social Media Updates: (IG) ${kb.social_updates?.instagram} (FB) ${kb.social_updates?.facebook}`;
+                } else if (q.includes('where') || q.includes('location') || q.includes('facility') || q.includes('hooptown') || q.includes('sportscom')) {
+                    response = `We train at Hooptown (6910 Stroop Ln, Smyrna) and Sportscom (2310 Memorial Blvd, Murfreesboro) for beach programs.`;
+                } else if (q.includes('program') || q.includes('tots') || q.includes('jrs') || q.includes('academy')) {
+                    response = `We offer Volley Tots (Ages 4-8), Volley Jrs (Ages 9-13), and League/Academy programs combining training and match play.`;
+                }
+            }
+
+            if (q.includes('where am i') || q.includes('page') || q.includes('current section')) {
+                response = `You are currently on the ${pageContext}. ${pageContext === 'Tryout Manager' ? 'This page is for coaches and staff to manage athlete check-ins and evaluations.' : 'This is our main club hub for news, programs, and general info.'}`;
             }
 
             setMessages([...newMessages, { role: 'bot', text: response }]);
