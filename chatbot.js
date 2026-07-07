@@ -33,13 +33,59 @@ function Chatbot() {
 
         const newMessages = [...messages, { role: 'user', text: input }];
         setMessages(newMessages);
+        const userQuery = input.toLowerCase();
         setInput('');
 
         setTimeout(() => {
             let response = "I'm sorry, I don't have that specific information. Please check midtnvbc.com or email info@midtnvbc.com for more details.";
-            const q = input.toLowerCase();
 
             if (kb) {
+                // 1. Check FAQs first (Source of truth for direct club questions)
+                const faqMatch = kb.faq?.find(f => userQuery.includes(f.question.toLowerCase()) ||
+                                                  (userQuery.includes('cost') && f.question.toLowerCase().includes('cost')) ||
+                                                  (userQuery.includes('sign in') && f.question.toLowerCase().includes('sign in')) ||
+                                                  (userQuery.includes('ready') && f.question.toLowerCase().includes('ready')));
+
+                if (faqMatch) {
+                    response = faqMatch.answer;
+                }
+                // 2. Specific Keyword Handlers
+                else if (userQuery.includes('offer') || userQuery.includes('when will we know')) {
+                    response = "Initial offers are typically made within 24-48 hours after the conclusion of tryouts for your age group via email/SportsEngine.";
+                }
+                else if (userQuery.includes('rule') || userQuery.includes('regulation') || userQuery.includes('jewelry') || userQuery.includes('captain')) {
+                    response = `USAV Expert Note: ${kb.rules_and_regulations?.usa_volleyball?.expert_note || "Please check the USAV rulebook."}`;
+                }
+                else if (userQuery.includes('srva') || userQuery.includes('membership')) {
+                    response = `SRVA Expert Note: ${kb.rules_and_regulations?.srva?.expert_note || "All participants must have a valid SRVA/USAV membership."}`;
+                }
+                else if (userQuery.includes('news') || userQuery.includes('update')) {
+                    if (kb.news && kb.news.length > 0) {
+                        const latest = kb.news[0];
+                        response = `Latest Update (${latest.date}): ${latest.title}. ${latest.summary}`;
+                    }
+                }
+                else if (userQuery.includes('social') || userQuery.includes('instagram') || userQuery.includes('facebook')) {
+                    response = `Social Media: (IG) ${kb.social_updates?.instagram || "@midtnvbc"} (FB) ${kb.social_updates?.facebook || "Mid TN VBC"}`;
+                }
+                else if (userQuery.includes('where') || userQuery.includes('location') || userQuery.includes('facility') || userQuery.includes('hooptown')) {
+                    response = `We are based at Hooptown in Smyrna (6910 Stroop Ln) and offer beach programs at Sportscom in Murfreesboro.`;
+                }
+                else if (userQuery.includes('sponsorship') || userQuery.includes('sponsor')) {
+                    response = "Our official club sponsors are Cerina Craig (Real Estate) and Shane Electric. We thank them for their support!";
+                }
+
+                // 3. Fallback to searching news/rules titles if no direct match
+                if (response.startsWith("I'm sorry")) {
+                    const newsMatch = kb.news?.find(n => userQuery.split(' ').some(word => word.length > 3 && n.title.toLowerCase().includes(word)));
+                    if (newsMatch) {
+                        response = `Found in News: ${newsMatch.title} - ${newsMatch.summary}`;
+                    }
+                }
+            }
+
+            if (userQuery.includes('where am i') || userQuery.includes('page') || userQuery.includes('current section')) {
+                response = `You are currently on the ${pageContext}. I can help you with questions specific to this area!`;
                 // Specific Query Handling
                 if (q.includes('cost') || q.includes('price') || q.includes('how much')) {
                     response = kb.faq?.find(f => f.question.toLowerCase().includes('cost'))?.answer || response;
