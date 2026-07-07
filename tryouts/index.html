@@ -159,6 +159,12 @@ function classifyPos(p){
   }
   return 'unsorted';
 }
+function getAthleteCategories(a) {
+  const cats = new Set();
+  cats.add(classifyPos(a.primaryPos));
+  if (a.altPos && a.altPos !== 'N/A' && a.altPos !== 'none') cats.add(classifyPos(a.altPos));
+  return Array.from(cats);
+}
 function divAge(d){const m=(d||'').match(/(\d+)/);return m?m[1]:'';}
 function sAvg(metrics,key){
   const v=((metrics||{})[key]||[]).filter(x=>x!==''&&x!==null&&!isNaN(Number(x))).map(Number);
@@ -186,6 +192,7 @@ function initAthletes(raw){
     to:a.to||String(toN++),
     ageGroup:divAge(a.division),
     posCategory:classifyPos(a.primaryPos),
+    posCategories:getAthleteCategories(a),
     status:a.status||'pending',
     teamAssignment:a.teamAssignment||null,
     teamLocked:a.teamLocked||false,
@@ -1048,6 +1055,7 @@ function StaffDashboard({athletes, setAthletes, onArrive, onAddWalkup, onMetric,
 function AthleteModal({athlete,onClose,onChange,onHide,onUnhide,onEmail}){
   if(!athlete) return null;
   const locked = athlete.status === 'accepted';
+  const locked = athlete.teamLocked || athlete.status === 'accepted';
   const sc = totalScore(athlete.metrics, athlete.drillScore);
   const [ef,setEf]=useState(null);
   const [ev,setEv]=useState('');
@@ -1310,8 +1318,8 @@ function PCard({athlete,onClick,compact,showScore,teamKey}){
       <span style=${{fontWeight:600,fontSize:compact?12:13,flex:1,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>${athlete.first} ${athlete.last}</span>
       <${Badge} c="#78909c" sm>${posAbbr(athlete.primaryPos)}<//>
       ${athlete.altPos&&athlete.altPos!==athlete.primaryPos&&html`<${Badge} c="#3a3f47" sm>${posAbbr(athlete.altPos)}<//>`}
-      ${athlete.wontAccept&&html`<span title=${'RESTRICTION: '+athlete.wontAccept} style=${{fontSize:16,cursor:'help',filter:'drop-shadow(0 0 2px #ffa726)'}}>⚠️</span>`}
-      ${athlete.notes&&html`<span title=${'NOTE: '+athlete.notes} style=${{fontSize:16,cursor:'help',filter:'drop-shadow(0 0 2px #4fc3f7)'}}>📝</span>`}
+      ${athlete.wontAccept&&html`<span title=${'WON\'T ACCEPT / RESTRICTION: '+athlete.wontAccept} style=${{fontSize:16,cursor:'help',filter:'drop-shadow(0 0 2px #ffa726)'}}>⚠️</span>`}
+      ${athlete.notes&&html`<span title=${'TRYOUT NOTES: '+athlete.notes} style=${{fontSize:16,cursor:'help',filter:'drop-shadow(0 0 2px #4fc3f7)'}}>📝</span>`}
       ${showScore&&sc&&html`<${Badge} c=${scoreColor(sc)} sm>${sc}<//>`}
       <${SBadge} status=${athlete.status}/>
     </div>`;
@@ -1322,7 +1330,6 @@ function HeadCoach({athletes,setAthletes,onLogout}){
   const [view,setView]=useState('allreg');
   const [age,setAge]=useState('12');
   const [selAth,setSelAth]=useState(null);
-  const [widePool,setWidePool]=useState(false);
   const [emailAth,setEmailAth]=useState(null);
   const [emailTeam,setEmailTeam]=useState('');
   const [hideAth,setHideAth]=useState(null);
@@ -1427,6 +1434,7 @@ function HeadCoach({athletes,setAthletes,onLogout}){
     setAthletes(p=>p.map(a=>{
       if(a.id!==id) return a;
       let next={...a,...updates};
+      if(updates.primaryPos || updates.altPos) next.posCategories = getAthleteCategories(next);
       if(updates.status==='accepted') next.teamLocked=true;
       else if(updates.status && a.status==='accepted') next.teamLocked=false;
       return next;
@@ -1434,6 +1442,7 @@ function HeadCoach({athletes,setAthletes,onLogout}){
     setSelAth(p=>{
       if(p?.id!==id) return p;
       let next={...p,...updates};
+      if(updates.primaryPos || updates.altPos) next.posCategories = getAthleteCategories(next);
       if(updates.status==='accepted') next.teamLocked=true;
       else if(updates.status && p.status==='accepted') next.teamLocked=false;
       return next;
@@ -1568,7 +1577,9 @@ function HeadCoach({athletes,setAthletes,onLogout}){
   const depthPool=useMemo(()=>{
     const pool=athletes.filter(a=>a.ageGroup===age&&!a.hidden);
     const g={setter:[],middle:[],outside:[],defense:[],unsorted:[]};
-    pool.forEach(a=>(g[a.posCategory]||g.unsorted).push(a));
+    pool.forEach(a=>{
+      (a.posCategories||[a.posCategory]).forEach(c => (g[c]||g.unsorted).push(a));
+    });
     Object.keys(g).forEach(k=>g[k].sort((a,b)=>(Number(totalScore(b.metrics, b.drillScore))||0)-(Number(totalScore(a.metrics, a.drillScore))||0)));
     return g;
   },[athletes,age]);
@@ -1587,13 +1598,18 @@ function HeadCoach({athletes,setAthletes,onLogout}){
   const [poolSort,setPoolSort]=useState('pos');
   const [showPool,setShowPool]=useState(true);
   const [dragOver,setDragOver]=useState(null);
-  const [showAllPool,setShowAllPool]=useState(false);
+  const [showAllPool,setShowAllPool]=useState(true);
   const ageAths=athletes.filter(a=>a.ageGroup===age&&!a.hidden);
   const pool=useMemo(()=>{
     let l=showAllPool ? [...ageAths] : ageAths.filter(a=>!a.teamAssignment);
     if(poolSort==='score') l.sort((a,b)=>(Number(totalScore(b.metrics, b.drillScore))||0)-(Number(totalScore(a.metrics, a.drillScore))||0));
     else if(poolSort==='name') l.sort((a,b)=>a.last.localeCompare(b.last));
     else if(poolSort==='pos'){
+    if(poolSort==='score') {
+      l.sort((a,b)=>(Number(totalScore(b.metrics, b.drillScore))||0)-(Number(totalScore(a.metrics, a.drillScore))||0));
+    } else if(poolSort==='name') {
+      l.sort((a,b)=>a.last.localeCompare(b.last));
+    } else if(poolSort==='pos') {
       const order = {setter:1, middle:2, outside:3, defense:4, unsorted:5};
       l.sort((a,b)=>{
         if(a.posCategory !== b.posCategory) return (order[a.posCategory]||99) - (order[b.posCategory]||99);
@@ -1677,7 +1693,7 @@ function HeadCoach({athletes,setAthletes,onLogout}){
               </div>`}
             <div style=${{overflowX:'auto',maxHeight:'calc(100vh - 280px)'}}>
               <table>
-                <thead><tr>${['TO#','Name','Div','Primary','Alt','Coach','Score','Status','Arrived','Notes','Edit','Phone','Email'].map(h=>html`<th key=${h}>${h}</th>`)}</tr></thead>
+                <thead><tr>${['TO#','Name','Div','Primary','Alt','Coach','Drill','Score','Status','Arrived','Notes','Edit','Phone','Email'].map(h=>html`<th key=${h}>${h}</th>`)}</tr></thead>
                 <tbody>
                   ${regList.map(a=>html`
                     <tr key=${a.id}>
@@ -1687,11 +1703,18 @@ function HeadCoach({athletes,setAthletes,onLogout}){
                       <td><${Badge} c="#4fc3f7" sm>${posAbbr(a.primaryPos)}<//></td>
                       <td><${Badge} c="#546e7a" sm>${posAbbr(a.altPos)}<//></td>
                       <td>${a.coachPos&&html`<${Badge} c="#ffa726" sm>${a.coachPos}<//>`}</td>
+                      <td>
+                        <input type="number" min="0" max="10" step="0.5" value=${a.drillScore||''} onClick=${e=>e.stopPropagation()}
+                          onInput=${e=>upd(a.id,{drillScore:e.target.value})}
+                          style=${{width:45,padding:'2px 4px',background:'#12151c',border:'1px solid #f0a50088',borderRadius:4,color:'#e8eaed',fontSize:12,textAlign:'center',fontWeight:700}}/>
+                      </td>
                       <td style=${{fontFamily:'monospace',fontWeight:700,color:totalScore(a.metrics, a.drillScore)?scoreColor(totalScore(a.metrics, a.drillScore)):'#444'}}>${totalScore(a.metrics, a.drillScore)||'—'}</td>
                       <td onClick=${()=>setSelAth(a)}><${SBadge} status=${a.status}/></td>
                       <td>${a.arrived?html`<${Badge} c="#26c6da" sm>✓<//>`
                         :html`<${Btn} sm onClick=${e=>{e.stopPropagation();doArrive(a);}} color="#26c6da" outline>Check In<//>`}</td>
                       <td onClick=${()=>setSelAth(a)}>${a.notes&&html`<span title=${a.notes}>📝</span>`}${a.wontAccept&&html`<span title=${a.wontAccept} style=${{marginLeft:4}}>⚠️</span>`}</td>
+                        :html`<${Btn} sm onClick=${e=>{e.stopPropagation();doArrive(a.id);}} color="#26c6da" outline>Check In<//>`}</td>
+                      <td onClick=${()=>setSelAth(a)}>${a.notes&&html`<span title=${'NOTES: ' + a.notes}>📝</span>`}${a.wontAccept&&html`<span title=${'RESTRICTIONS: ' + a.wontAccept} style=${{marginLeft:4}}>⚠️</span>`}</td>
                       <td onClick=${()=>setSelAth(a)} style=${{fontSize:14,textAlign:'center'}}>✏️</td>
                       <td onClick=${()=>setSelAth(a)} style=${{color:'#78909c',whiteSpace:'nowrap',fontSize:11}}>${a.phone}</td>
                       <td style=${{color:'#78909c',maxWidth:140,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap',fontSize:11}}>${a.email}</td>
@@ -1720,8 +1743,8 @@ function HeadCoach({athletes,setAthletes,onLogout}){
                           <span style=${{flex:1,fontSize:12,fontWeight:600}}>${a.first} ${a.last}</span>
                           <span style=${{fontSize:10,color:'#4fc3f7',background:'rgba(79,195,247,0.1)',padding:'1px 4px',borderRadius:4,marginRight:4,border:'1px solid rgba(79,195,247,0.2)'}}>Sec: ${posAbbr(a.altPos)}</span>
                           ${totalScore(a.metrics, a.drillScore)&&html`<${Badge} c=${scoreColor(totalScore(a.metrics, a.drillScore))} sm>${totalScore(a.metrics, a.drillScore)}<//>`}
-                          ${a.wontAccept&&html`<span title=${a.wontAccept}>⚠️</span>`}
-                          ${a.notes&&html`<span title=${a.notes}>📝</span>`}
+                          ${a.wontAccept&&html`<span title=${'WON\'T ACCEPT: ' + a.wontAccept}>⚠️</span>`}
+                          ${a.notes&&html`<span title=${'NOTES: ' + a.notes}>📝</span>`}
                         </div>`)}
                       ${list.length===0&&html`<div style=${{padding:20,textAlign:'center',color:'#333',fontSize:12}}>None</div>`}
                     </div>
@@ -1755,7 +1778,11 @@ function HeadCoach({athletes,setAthletes,onLogout}){
                           onInput=${e=>{const nv=[...(a.metrics?.[st.key]||st.metrics.map(()=>''))];nv[idx]=e.target.value;updMetric(a.id,st.key,nv);}}
                           style=${{width:50,padding:'2px 4px',background:'#12151c',border:'1px solid #2a2e38',borderRadius:4,color:'#e8eaed',fontSize:12,textAlign:'center'}}/></td>`; }))}
                     ${STATIONS.filter(s=>!s.isCheckin).map(s=>{const av=sAvg(a.metrics,s.key);return html`<td key=${s.key+'a'} style=${{color:'#ffa726',fontWeight:700,fontFamily:'monospace'}}>${av!==null?av.toFixed(1):'—'}</td>`;})}
-                    <td style=${{color:'#f0a500',fontWeight:700,fontFamily:'monospace'}}>${a.drillScore||'—'}</td>
+                    <td style=${{color:'#f0a500',fontWeight:700,fontFamily:'monospace'}}>
+                      <input type="number" min="0" max="10" step="0.5" value=${a.drillScore||''} onClick=${e=>e.stopPropagation()}
+                        onInput=${e=>upd(a.id,{drillScore:e.target.value})}
+                        style=${{width:50,padding:'2px 4px',background:'#12151c',border:'1px solid #f0a50088',borderRadius:4,color:'#e8eaed',fontSize:12,textAlign:'center',fontWeight:700}}/>
+                    </td>
                     <td style=${{fontWeight:800,fontFamily:'monospace',color:sc?scoreColor(sc):'#444'}}>${sc||'—'}</td>
                     <td><${SBadge} status=${a.status}/></td>
                   </tr>`;})}
@@ -1767,6 +1794,7 @@ function HeadCoach({athletes,setAthletes,onLogout}){
           <div style=${{display:'flex',gap:14,alignItems:'flex-start'}}>
             ${showPool&&html`
               <div style=${{width:widePool?480:360,flexShrink:0,background:'#12151c',borderRadius:12,border:'1px solid #1e222b',maxHeight:'calc(100vh-180px)',display:'flex',flexDirection:'column',transition:'width 0.2s'}}>
+              <div style=${{width:widePool?500:320,flexShrink:0,background:'#12151c',borderRadius:12,border:'1px solid #1e222b',maxHeight:'calc(100vh-180px)',display:'flex',flexDirection:'column',transition:'width 0.2s'}}>
                 <div style=${{padding:'10px 14px',borderBottom:'1px solid #1e222b'}}>
                   <div style=${{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:6}}>
                     <div style=${{display:'flex',alignItems:'center',gap:6}}>
@@ -1774,6 +1802,7 @@ function HeadCoach({athletes,setAthletes,onLogout}){
                       <button onClick=${()=>setWidePool(!widePool)} style=${{background:'none',border:'none',color:'#4fc3f7',fontSize:12,cursor:'pointer',padding:0}} title="Toggle Sidebar Width">
                         ${widePool?'« Narrow':'Wide »'}
                       </button>
+                      <button onClick=${()=>setWidePool(!widePool)} style=${{background:'none',border:'1px solid #2a2e38',color:'#78909c',fontSize:10,padding:'1px 5px',borderRadius:4,cursor:'pointer'}}>${widePool?'Narrow':'Wide'}</button>
                     </div>
                     <div style=${{display:'flex',gap:4}}>
                       <button class=${'btn btn-sm '+(showAllPool?'btn-primary':'btn-outline')}
@@ -1791,7 +1820,7 @@ function HeadCoach({athletes,setAthletes,onLogout}){
                   ${poolSort==='pos'
                     ? html`<div>
                         ${[...POS_CATS,{key:'unsorted',label:'Unsorted'}].map(cat => {
-                          const list = pool.filter(a => a.posCategory === cat.key).sort((a,b)=>(Number(totalScore(b.metrics))||0)-(Number(totalScore(a.metrics))||0));
+                          const list = pool.filter(a => (a.posCategories||[a.posCategory]).includes(cat.key));
                           if(list.length === 0) return null;
                           return html`
                             <div key=${cat.key} style=${{marginBottom:12,borderBottom:'1px solid #1e222b',paddingBottom:8}}>
@@ -1803,6 +1832,12 @@ function HeadCoach({athletes,setAthletes,onLogout}){
                                 <div style=${{opacity:a.teamAssignment?.length?0.35:1,pointerEvents:a.teamAssignment?.length?'none':'auto',marginBottom:2,display:'flex',alignItems:'center',gap:4}}>
                                   <span style=${{fontSize:10,color:'#546e7a',width:14,textAlign:'right'}}>${i+1}</span>
                                   <div style=${{flex:1}}><${PCard} athlete=${a} onClick=${setSelAth} compact showScore/></div>
+                              ${list.map((a, idx) => html`
+                                <div style=${{opacity:a.teamAssignment?.length?0.35:1,pointerEvents:a.teamAssignment?.length?'none':'auto',marginBottom:2,display:'flex',alignItems:'center',gap:4}}>
+                                  <span style=${{fontSize:10,color:'#546e7a',width:15,textAlign:'right'}}>${idx+1}</span>
+                                  <div style=${{flex:1}}>
+                                    <${PCard} key=${a.id} athlete=${a} onClick=${setSelAth} compact showScore/>
+                                  </div>
                                 </div>`)}
                             </div>`;
                         })}

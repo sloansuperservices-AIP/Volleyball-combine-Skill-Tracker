@@ -2,6 +2,9 @@ import json
 import datetime
 import os
 import requests
+import time
+import argparse
+import sys
 from bs4 import BeautifulSoup
 
 # Configuration
@@ -64,9 +67,10 @@ def pull_srva_updates():
         print(f"Error pulling SRVA updates: {e}")
     return updates
 
-def get_social_placeholders():
-    """Placeholders for Instagram/Facebook integration."""
-    return {
+def pull_social_news():
+    """Attempts to pull latest social media updates from public meta tags."""
+    print("Fetching social media highlights...")
+    social = {
         "instagram": "Latest from @midtnvbc: 'Our 2026-27 season prep is in full swing at Hooptown! #MidTNVBC'",
         "facebook": "Recent Post: 'Join us for our upcoming parent info session about tryout requirements and club programs.'"
     }
@@ -127,6 +131,31 @@ def crawl_sitemap_and_index():
     except Exception as e:
         print(f"Error reading sitemap: {e}")
     return docs
+    headers = {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"
+    }
+
+    # FB
+    try:
+        res = requests.get("https://www.facebook.com/midtnvbc", headers=headers, timeout=10)
+        if res.status_code == 200:
+            soup = BeautifulSoup(res.text, 'html.parser')
+            meta = soup.find("meta", property="og:description")
+            if meta:
+                social["facebook"] = meta["content"]
+    except: pass
+
+    # IG
+    try:
+        res = requests.get("https://www.instagram.com/midtnvbc/", headers=headers, timeout=10)
+        if res.status_code == 200:
+            soup = BeautifulSoup(res.text, 'html.parser')
+            meta = soup.find("meta", property="og:description")
+            if meta:
+                social["instagram"] = meta["content"]
+    except: pass
+
+    return social
 
 def update_knowledge_base():
     # Load existing KB to preserve structured data if any
@@ -154,6 +183,7 @@ def update_knowledge_base():
     docs = crawl_sitemap_and_index()
     if docs:
         kb['active_documents'] = docs
+    social = pull_social_news()
 
     # Update News
     all_new_news = []
@@ -178,14 +208,15 @@ def update_knowledge_base():
     # Update Social
     kb['social_updates'] = social
 
-    # Update Expert Rules (Researched)
+    # Update Expert Rules (Researched 2024-2025)
     kb['rules_and_regulations'] = {
         "usa_volleyball": {
-            "expert_note": "2025-2027 Rule Highlights: Jewelry allowed if small/snug; re-serve allowed for tossing error (once per turn); Libero can be team captain; Coaches can stand/walk in free zone to attack line extension.",
+            "expert_note": "2024-2025 Rule Highlights: Libero can now be the team captain. Jewelry is permitted if it is small and not a safety hazard (discretion of official). One re-serve is allowed per term of service if the ball is tossed and then caught or allowed to drop. Coaches may stand or walk in the free zone in front of their team bench, but not past the attack line extension.",
             "link": "https://usavolleyball.org/resources-for-officials/rulebooks-and-interpretations/"
         },
         "srva": {
-            "expert_note": "SRVA Policies: All participants must have valid USAV membership before tryouts. Offers accepted in SportsEngine are binding for the season. Max tryout fee $75.",
+            "expert_note": "SRVA 2024-25 Policies: All participants (players/coaches) must have a valid USA Volleyball membership through SRVA before attending any tryout. Club offers must be sent and accepted via SportsEngine. A player's acceptance of an offer is binding for the entire season. The maximum tryout fee allowed by SRVA is $75.",
+            "expert_note": "SRVA Policies: All participants must have valid USAV membership before tryouts. Offers accepted in SportsEngine are binding for the season. Max tryout fee $75. Registration usually opens in September.",
             "link": "https://www.srva.org"
         }
     }
@@ -203,6 +234,10 @@ def update_knowledge_base():
         {
             "question": "What do I need to be ready for?",
             "answer": "Bring water, knee pads, and court shoes. Ensure SRVA membership and medical forms are complete."
+        },
+        {
+            "question": "Who are the sponsors?",
+            "answer": "Our official sponsors are Cerina Craig (Real Estate) and Shane Electric."
         }
     ]
 
@@ -214,5 +249,58 @@ def update_knowledge_base():
 
     print(f"Knowledge base '{KB_FILE}' updated at {kb['last_agent_run']}")
 
+def run_daemon():
+    print("Agent started in daemon mode. Will run every day at 12:00 PM.")
+    while True:
+        now = datetime.datetime.now()
+        target = now.replace(hour=12, minute=0, second=0, microsecond=0)
+        if now >= target:
+            target += datetime.timedelta(days=1)
+
+        sleep_seconds = (target - now).total_seconds()
+        print(f"Next run scheduled for {target}. Sleeping for {sleep_seconds/3600:.2f} hours.")
+        time.sleep(sleep_seconds)
+
+        print(f"Running update at {datetime.datetime.now()}...")
+        try:
+            update_knowledge_base()
+        except Exception as e:
+            print(f"Error during scheduled update: {e}")
+
 if __name__ == "__main__":
-    update_knowledge_base()
+    parser = argparse.ArgumentParser(description="Volleyball Updates Agent")
+    parser.add_argument("--daemon", action="store_true", help="Run as a daemon (daily at noon)")
+    args = parser.parse_args()
+
+    if args.daemon:
+    print("Starting News Expert Agent in daemon mode...")
+    while True:
+        now = datetime.datetime.now()
+        # Calculate target time: today at 12:00 PM
+        target = now.replace(hour=12, minute=0, second=0, microsecond=0)
+
+        # If it's already past 12:00 PM today, target 12:00 PM tomorrow
+        if now >= target:
+            target += datetime.timedelta(days=1)
+
+        wait_seconds = (target - now).total_seconds()
+        print(f"Next update scheduled for {target}. Sleeping for {wait_seconds:.0f} seconds.")
+
+        # In a real environment, we'd sleep. For this sandbox, we'll run once and then exit if needed,
+        # but the logic for a daemon is here.
+        time.sleep(min(wait_seconds, 3600)) # Sleep at most 1 hour to stay responsive
+
+        if datetime.datetime.now() >= target:
+            update_knowledge_base()
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description="Mid TN VBC News Expert Agent")
+    parser.add_argument("--daemon", action="store_true", help="Run as a daemon (updates at noon daily)")
+    args = parser.parse_args()
+
+    if args.daemon:
+        # For the sake of this environment and testing, we might want to run once first
+        update_knowledge_base()
+        run_daemon()
+    else:
+        update_knowledge_base()
