@@ -140,13 +140,39 @@ function Chatbot() {
             } catch(err) {}
         }
         if (response === fallbackText && kb) {
-            if (q.includes('cost')||q.includes('price')||q.includes('how much')) response = kb.faq?.find(f=>f.question.toLowerCase().includes('cost'))?.answer||response;
-            else if (q.includes('sign in')||q.includes('check in')||q.includes('register')) response = kb.faq?.find(f=>f.question.toLowerCase().includes('sign in'))?.answer||response;
-            else if (q.includes('bring')||q.includes('ready')||q.includes('requirement')) response = kb.faq?.find(f=>f.question.toLowerCase().includes('ready'))?.answer||response;
-            else if (q.includes('rule')||q.includes('regulation')) response = `USAV Expert Note: ${kb.rules_and_regulations?.usa_volleyball?.expert_note||''}`;
-            else if (q.includes('srva')) response = `SRVA Expert Note: ${kb.rules_and_regulations?.srva?.expert_note||''}`;
-            else if (q.includes('news')||q.includes('update')) { if(kb.news?.[0]) response = `Latest: ${kb.news[0].title} (${kb.news[0].date}).`; }
-            else if (q.includes('where')||q.includes('location')||q.includes('facility')) response = `We are at Hooptown in Smyrna, TN (6910 Stroop Ln).`;
+            const tryoutFaq = (kw) => kb.faq?.find(f=>f.question.toLowerCase().includes(kw))?.answer;
+            if (q.includes('when')||q.includes('date')||q.includes('schedule')) {
+                response = tryoutFaq('when are tryouts') || tryoutFaq('date') || `Tryout dates are set by SRVA. Check midtnvbc.com/page/show/6657701-tryouts for the official schedule, or email info@midtnvbc.com.`;
+            } else if (q.includes('cost')||q.includes('price')||q.includes('how much')||q.includes('fee')) {
+                response = tryoutFaq('cost') || `Tryout fees: $65 (Early), $70 (Regular), $75 (Late/Walk-up).`;
+            } else if (q.includes('sign in')||q.includes('check in')||q.includes('check-in')) {
+                response = tryoutFaq('sign in') || `Check-in at Hooptown front desk (6910 Stroop Ln, Smyrna). Arrive 30 min early.`;
+            } else if (q.includes('register')||q.includes('sign up')||q.includes('sign-up')) {
+                response = tryoutFaq('register') || `Register at midtnvbc.com/page/show/6657701-tryouts. You'll need an SRVA membership from srva.org first.`;
+            } else if (q.includes('walk up')||q.includes('walkup')||q.includes('walk-up')) {
+                response = tryoutFaq('walk up') || `Yes, walk-ups are welcome! The walk-up fee is $75. Bring your SRVA membership and completed forms.`;
+            } else if (q.includes('bring')||q.includes('need')||q.includes('ready')||q.includes('prepare')) {
+                response = tryoutFaq('bring') || tryoutFaq('forms') || `Bring: court shoes, knee pads, water, and your SRVA membership + medical forms.`;
+            } else if (q.includes('form')||q.includes('document')||q.includes('paper')||q.includes('member')) {
+                response = tryoutFaq('forms') || `You need: (1) SRVA Tryout Membership (srva.org), (2) Medical Release Form, (3) Notarized USAV Medical Form.`;
+            } else if (q.includes('makeup')||q.includes('make up')||q.includes('missed')) {
+                response = tryoutFaq('missed') || `Makeup tryout dates are available! Visit midtnvbc.com/page/show/6657701-tryouts for details.`;
+            } else if (q.includes('where')||q.includes('location')||q.includes('address')||q.includes('facility')||q.includes('hooptown')) {
+                response = tryoutFaq('located') || tryoutFaq('sign in') || `Tryouts at Hooptown Sportsplex, 6910 Stroop Ln, Smyrna TN. Blue Building — look for MIDTN Volleyball signs.`;
+            } else if (q.includes('age')||q.includes('division')||q.includes('12u')||q.includes('14u')||q.includes('16u')) {
+                response = tryoutFaq('age') || `Mid TN VBC has teams for ages 12–18: 12U, 13U, 14U, 15U, 16U, 17U, 18U divisions.`;
+            } else if (q.includes('srva')) {
+                response = tryoutFaq('srva') || `SRVA Expert Note: ${kb.rules_and_regulations?.srva?.expert_note||''}`;
+            } else if (q.includes('rule')||q.includes('regulation')) {
+                response = `USAV Expert Note: ${kb.rules_and_regulations?.usa_volleyball?.expert_note||''}`;
+            } else if (q.includes('news')||q.includes('update')) {
+                if(kb.news?.[0]) response = `Latest: ${kb.news[0].title} (${kb.news[0].date}).`;
+            } else if (q.includes('accept')||q.includes('offer')||q.includes('made the team')) {
+                response = tryoutFaq('after') || `Offers come through SportsEngine and are binding once accepted. The season runs November–April.`;
+            } else if (q.includes('season')||q.includes('tuition')||q.includes('commitment')) {
+                response = tryoutFaq('season cost') || `Season costs vary by team level. Budget for tuition, travel, hotels, uniforms, and equipment. Ask your team coach for a breakdown.`;
+            }
+
             if (response === fallbackText && kb.faq) {
                 let bestFaq=null,bestScore=0;
                 for (const faq of kb.faq) {

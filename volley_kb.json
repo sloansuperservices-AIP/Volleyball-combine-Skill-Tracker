@@ -15,13 +15,11 @@
     {
       "title": "Championship Bound: USAV Brings 2027 Boys Junior National Championship to Anaheim",
       "date": "2026-07-05",
-      "date": "2026-07-07",
       "summary": "Source: USA Volleyball. Link: https://usavolleyball.org/story/championship-bound-usav-brings-2027-boys-junior-national-championship-to-anaheim/"
     },
     {
       "title": "2026 Women\u2019s VNL Week Three Roster Announced",
       "date": "2026-07-05",
-      "date": "2026-07-07",
       "summary": "Source: USA Volleyball. Link: https://usavolleyball.org/story/2026-womens-vnl-week-three-roster-announced/"
     },
     {
@@ -32,12 +30,6 @@
     {
       "title": "2026 USA Volleyball Boys Junior National Championship presented by Credit Union 1",
       "date": "2026-07-05",
-      "date": "2026-07-07",
-      "summary": "Source: USA Volleyball. Link: https://usavolleyball.org/story/usa-volleyball-announces-2026-womens-u21-roster-for-pan-american-cup/"
-    },
-    {
-      "title": "2026 USA Volleyball Boys Junior National Championship presented by Credit Union 1",
-      "date": "2026-07-07",
       "summary": "Source: USA Volleyball. Link: https://usavolleyball.org/event/2026-usa-volleyball-boys-junior-national-championship/"
     },
     {
@@ -87,55 +79,128 @@
     }
   ],
   "tryouts": {
-    "status": "Check the website for 2025-2026 dates",
-    "cost": "TBD (Estimate $65)",
+    "status": "2026-2027 season tryouts are coming up — check midtnvbc.com/page/show/6657701-tryouts for the exact schedule and registration link.",
+    "location": "Hooptown Sportsplex, 6910 Stroop Lane, Smyrna TN (Blue Building — look for MIDTN Volleyball signs). Enter between the two buildings under the porch.",
+    "cost": "$65 Early / $70 Regular / $75 Late or Walk-up",
+    "ages": "Ages 12–18 (12U, 13U, 14U, 15U, 16U, 17U, 18U divisions)",
+    "registration_link": "https://www.midtnvbc.com/page/show/6657701-tryouts",
+    "makeup_tryout_link": "https://www.midtnvbc.com/layout_container/show_layout_tab?layout_container_id=130062153&page_node_id=6657701&tab_element_id=261845",
+    "contact": "Direct any questions to the Mid TN VBC Tryout Staff via midtnvbc.com or email info@midtnvbc.com",
     "requirements": [
-      "SRVA Tryout Membership",
-      "Medical Release Form",
-      "Notarized USAV Medical Form"
+      "Valid SRVA Tryout Membership (purchase at srva.org before arriving)",
+      "Medical Release Form (printed and signed)",
+      "Notarized USAV Medical Form",
+      "Court shoes and knee pads",
+      "Arrive 30 minutes early for check-in"
+    ],
+    "important_notes": [
+      "All SRVA/USAV clubs hold tryouts on the SAME day at the SAME time — you must choose your club in advance.",
+      "Walk-ups are welcome but walk-up fee is $75.",
+      "Offers accepted in SportsEngine are binding for the season.",
+      "Max tryout fee allowed by SRVA is $75.",
+      "Use fall open gyms and training clinics to evaluate the club before tryout day."
     ]
   },
   "programs": [
     {
-      "name": "Elite/Travel",
-      "description": "High-level competitive teams traveling to national qualifiers."
+      "name": "Elite/Travel (Black)",
+      "description": "Highest-level competitive teams traveling to USAV national qualifiers and national championships. Longest season commitment (6-8 months)."
     },
     {
-      "name": "Regional",
-      "description": "Competitive teams playing within the SRVA region."
+      "name": "Regional (Blue/Silver)",
+      "description": "Competitive teams playing within the SRVA region. Great balance of competition and development."
     },
     {
-      "name": "Developmental/Training",
-      "description": "Focus on skill building for younger or newer players."
+      "name": "Developmental/Training (Yellow/White)",
+      "description": "Focus on skill building for younger or newer players. Shorter season, lower cost."
+    },
+    {
+      "name": "Recreational Leagues",
+      "description": "Multi-week sessions at Hooptown Sportsplex with no travel required. Lower cost, focused on fun and fundamentals. Offered quarterly."
+    },
+    {
+      "name": "Private Lessons",
+      "description": "1-hour sessions at Hooptown with experienced staff. Payment required at booking. Available up to 2 weeks in advance. Book at midtnvbc.com."
+    },
+    {
+      "name": "Camps & Clinics",
+      "description": "Tryout Tune-Up clinics, Fun with Fundamentals, All Skills camps, Skills Week. See midtnvbc.com for current schedule."
     }
   ],
   "rules_and_regulations": {
     "usa_volleyball": {
-      "expert_note": "2024-2025 Rule Highlights: Libero can now be the team captain. Jewelry is permitted if it is small and not a safety hazard (discretion of official). One re-serve is allowed per term of service if the ball is tossed and then caught or allowed to drop. Coaches may stand or walk in the free zone in front of their team bench, but not past the attack line extension.",
+      "expert_note": "2025-2027 Rule Highlights: Jewelry allowed if small/snug; re-serve allowed for tossing error (once per turn); Libero can be team captain; Coaches can stand/walk in free zone to attack line extension.",
       "link": "https://usavolleyball.org/resources-for-officials/rulebooks-and-interpretations/"
     },
     "srva": {
-      "expert_note": "SRVA 2024-25 Policies: All participants (players/coaches) must have a valid USA Volleyball membership through SRVA before attending any tryout. Club offers must be sent and accepted via SportsEngine. A player's acceptance of an offer is binding for the entire season. The maximum tryout fee allowed by SRVA is $75.",
-      "expert_note": "SRVA Policies: All participants must have valid USAV membership before tryouts. Offers accepted in SportsEngine are binding for the season. Max tryout fee $75. Registration usually opens in September.",
+      "expert_note": "SRVA Policies: All participants must have valid USAV membership before tryouts. Offers accepted in SportsEngine are binding for the season. Max tryout fee $75. All clubs tryout on the same SRVA-set date.",
       "link": "https://www.srva.org"
     }
   },
   "faq": [
     {
+      "question": "When are tryouts?",
+      "answer": "Mid TN VBC tryouts for the 2026-2027 season are coming up! The exact date is set by SRVA — all clubs in the region try out on the same day. Check midtnvbc.com/page/show/6657701-tryouts for the official schedule, or email info@midtnvbc.com. If you missed the main tryout date, makeup tryout dates are also available."
+    },
+    {
+      "question": "What date are tryouts?",
+      "answer": "Tryout dates are set by SRVA and all regional clubs hold tryouts simultaneously. Visit midtnvbc.com/page/show/6657701-tryouts for the current tryout date and registration link. You can also email the tryout staff at info@midtnvbc.com."
+    },
+    {
+      "question": "Where are tryouts located?",
+      "answer": "Tryouts are held at Hooptown Sportsplex, 6910 Stroop Lane, Smyrna TN. We are in the Blue Building — look for the MIDTN Volleyball signs. Enter between the two buildings under the covered porch area."
+    },
+    {
       "question": "Where do I sign in for tryouts?",
-      "answer": "Check-in is at the front desk of Hooptown (6910 Stroop Ln, Smyrna). Please arrive 30 minutes early."
+      "answer": "Check-in is at the front desk of Hooptown Sportsplex (6910 Stroop Ln, Smyrna TN). Please arrive at least 30 minutes early to complete paperwork and get your number."
     },
     {
-      "question": "What is the cost?",
-      "answer": "Tryout fees: $65 (Early), $70 (Regular), $75 (Late/Walk-up)."
+      "question": "What is the tryout cost?",
+      "answer": "Tryout fees: $65 (Early Registration), $70 (Regular), $75 (Late/Walk-up). The max allowed by SRVA is $75. Walk-ups are welcome on tryout day."
     },
     {
-      "question": "What do I need to be ready for?",
-      "answer": "Bring water, knee pads, and court shoes. Ensure SRVA membership and medical forms are complete."
+      "question": "What do I need to bring to tryouts?",
+      "answer": "Bring: court shoes, knee pads, water bottle, and completed paperwork (SRVA Tryout Membership, Medical Release Form, and Notarized USAV Medical Form). Make sure your SRVA membership is active before you arrive."
     },
     {
-      "question": "Who are the sponsors?",
-      "answer": "Our official sponsors are Cerina Craig (Real Estate) and Shane Electric."
+      "question": "What forms do I need for tryouts?",
+      "answer": "You need: (1) A valid SRVA Tryout Membership — purchase at srva.org before arriving. (2) A signed Medical Release Form. (3) A Notarized USAV Medical Form. Missing any of these may prevent you from participating."
+    },
+    {
+      "question": "Can I walk up to tryouts without registering?",
+      "answer": "Yes! Walk-ups are welcome. The walk-up fee is $75. Just show up at Hooptown Sportsplex on tryout day with your completed forms and SRVA membership."
+    },
+    {
+      "question": "What if I missed the tryout date?",
+      "answer": "Mid TN VBC offers makeup tryout dates! Visit midtnvbc.com/page/show/6657701-tryouts and click 'Make Up Tryout Dates' for the schedule, or email info@midtnvbc.com."
+    },
+    {
+      "question": "What age groups tryout?",
+      "answer": "Mid TN VBC has teams for ages 12–18: 12U, 13U, 14U, 15U, 16U, 17U, and 18U divisions. The club offers Black (Elite), Blue, Silver, Yellow, and White team levels."
+    },
+    {
+      "question": "How do I register for tryouts?",
+      "answer": "Visit midtnvbc.com/page/show/6657701-tryouts and click 'Tryout Registration'. You'll also need an active SRVA membership from srva.org. Early registration ($65) saves you money vs. walk-up ($75)."
+    },
+    {
+      "question": "What happens after I make the team?",
+      "answer": "Offers are made through SportsEngine. Once you accept an offer in SportsEngine, it is binding for the season — so be certain before accepting. The season runs November through April with weekly practices and weekend tournaments."
+    },
+    {
+      "question": "How much does the season cost?",
+      "answer": "Season costs vary by team level (Elite travel teams cost more due to tournaments and travel). Expect to budget for tuition, travel, hotels, meals, uniforms, and equipment. Ask your specific team coach for a full cost breakdown."
+    },
+    {
+      "question": "Who runs tryouts?",
+      "answer": "Tryouts are run by the Mid TN VBC Tryout Staff under Director Rhonda Ross and Assistant Director Jeff Wismer. Questions can be directed to the tryout staff at midtnvbc.com or via email."
+    },
+    {
+      "question": "What is SRVA?",
+      "answer": "SRVA (Southeastern Regional Volleyball Association) is the regional governing body for USAV junior volleyball. All clubs in our region — including Mid TN VBC — must follow SRVA rules. All clubs hold tryouts on the SAME SRVA-set date, so you must choose your club before tryout day."
+    },
+    {
+      "question": "Do I need a USAV membership?",
+      "answer": "Yes. A valid SRVA Tryout Membership (which includes USAV coverage) is required before you can participate in tryouts. Purchase yours at srva.org before arriving on tryout day."
     }
   ],
   "social_updates": {
@@ -206,6 +271,4 @@
       "content": "This website is powered by SportsEngine'sSports Relationship Management(SRM) software, but is owned by and subject to the  MidTN VBC privacy policy.\u00a92026 SportsEngine, LLC.Privacy Policy\nThis website is powered by SportsEngine'sSports Relationship Management(SRM) software, but is owned by and subject to the  MidTN VBC privacy policy.\u00a92026 SportsEngine, LLC."
     }
   ]
-  "last_agent_run": "2026-07-05 13:50:48"
-  "last_agent_run": "2026-07-07 13:46:53"
 }
