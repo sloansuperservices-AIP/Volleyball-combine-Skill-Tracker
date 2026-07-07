@@ -68,6 +68,18 @@ def pull_srva_updates():
     return updates
 
 def pull_social_news():
+    """Attempts to pull updates from Facebook and Instagram meta tags."""
+    print("Fetching Social Media news via meta tags...")
+    social = {
+        "instagram": "Check @midtnvbc on Instagram for latest photos and reels from training!",
+        "facebook": "Visit Mid TN VBC on Facebook for community updates and event photos."
+    }
+
+    headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'}
+
+    # Instagram
+    try:
+        res = requests.get("https://www.instagram.com/midtnvbc/", headers=headers, timeout=10)
     """Attempts to pull latest social media updates from public meta tags."""
     print("Fetching social media highlights...")
     social = {
@@ -142,6 +154,12 @@ def crawl_sitemap_and_index():
             soup = BeautifulSoup(res.text, 'html.parser')
             meta = soup.find("meta", property="og:description")
             if meta:
+                social["instagram"] = meta["content"]
+    except: pass
+
+    # Facebook
+    try:
+        res = requests.get("https://www.facebook.com/midtnvbc", headers=headers, timeout=10)
                 social["facebook"] = meta["content"]
     except: pass
 
@@ -152,6 +170,7 @@ def crawl_sitemap_and_index():
             soup = BeautifulSoup(res.text, 'html.parser')
             meta = soup.find("meta", property="og:description")
             if meta:
+                social["facebook"] = meta["content"]
                 social["instagram"] = meta["content"]
     except: pass
 
@@ -208,6 +227,14 @@ def update_knowledge_base():
     # Update Social
     kb['social_updates'] = social
 
+    # Update Expert Rules (Researched & Expanded)
+    kb['rules_and_regulations'] = {
+        "usa_volleyball": {
+            "expert_note": "2025-2027 Rule Highlights: Jewelry (studs/small hoops) allowed; re-serve allowed for tossing error (once per turn); Libero can be team captain; Coaches can stand/walk in free zone to attack line extension. Screening is strictly monitored—players must not hide the server or path of the ball.",
+            "link": "https://usavolleyball.org/resources-for-officials/rulebooks-and-interpretations/"
+        },
+        "srva": {
+            "expert_note": "SRVA Policies: Valid USAV membership (Tryout or Full) required before stepping on court. Offers accepted via SportsEngine are binding. Max tryout fee $75. Athletes must bring a printed and signed USAV Medical Release form to tryouts.",
     # Update Expert Rules (Researched 2024-2025)
     kb['rules_and_regulations'] = {
         "usa_volleyball": {
@@ -218,7 +245,12 @@ def update_knowledge_base():
             "expert_note": "SRVA 2024-25 Policies: All participants (players/coaches) must have a valid USA Volleyball membership through SRVA before attending any tryout. Club offers must be sent and accepted via SportsEngine. A player's acceptance of an offer is binding for the entire season. The maximum tryout fee allowed by SRVA is $75.",
             "expert_note": "SRVA Policies: All participants must have valid USAV membership before tryouts. Offers accepted in SportsEngine are binding for the season. Max tryout fee $75. Registration usually opens in September.",
             "link": "https://www.srva.org"
-        }
+        },
+        "highlights": [
+            "Libero can now officially serve in one position in the rotation (USAV/SRVA specific).",
+            "Uniform numbers must be clearly contrasting and centered (front and back).",
+            "Sanitized 'Medical Release' forms are required for every tournament."
+        ]
     }
 
     # Update FAQs
@@ -250,6 +282,12 @@ def update_knowledge_base():
     print(f"Knowledge base '{KB_FILE}' updated at {kb['last_agent_run']}")
 
 def run_daemon():
+    """Runs the update loop daily at 12:00 PM."""
+    print("Agent starting in DAEMON mode (Daily at 12:00 PM)")
+    while True:
+        now = datetime.datetime.now()
+        target = now.replace(hour=12, minute=0, second=0, microsecond=0)
+
     print("Agent started in daemon mode. Will run every day at 12:00 PM.")
     while True:
         now = datetime.datetime.now()
@@ -284,6 +322,16 @@ if __name__ == "__main__":
             target += datetime.timedelta(days=1)
 
         wait_seconds = (target - now).total_seconds()
+        print(f"Next update scheduled for {target}. Waiting {wait_seconds/3600:.2f} hours...")
+
+        # Sleep until noon
+        time.sleep(wait_seconds)
+
+        print(f"Executing daily update at {datetime.datetime.now()}...")
+        update_knowledge_base()
+
+if __name__ == "__main__":
+    if "--daemon" in sys.argv:
         print(f"Next update scheduled for {target}. Sleeping for {wait_seconds:.0f} seconds.")
 
         # In a real environment, we'd sleep. For this sandbox, we'll run once and then exit if needed,
