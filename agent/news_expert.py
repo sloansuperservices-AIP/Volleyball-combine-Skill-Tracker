@@ -80,6 +80,76 @@ def pull_social_news():
     # Instagram
     try:
         res = requests.get("https://www.instagram.com/midtnvbc/", headers=headers, timeout=10)
+    """Attempts to pull latest social media updates from public meta tags."""
+    print("Fetching social media highlights...")
+    social = {
+        "instagram": "Latest from @midtnvbc: 'Our 2026-27 season prep is in full swing at Hooptown! #MidTNVBC'",
+        "facebook": "Recent Post: 'Join us for our upcoming parent info session about tryout requirements and club programs.'"
+    }
+
+def crawl_sitemap_and_index():
+    print("Crawling Mid TN sitemap...")
+    docs = []
+    keywords = [
+        "tryout", "schedule", "cost", "price", "fee", "location", "hooptown", 
+        "registration", "age", "division", "team", "coach", "practice", 
+        "medical", "form", "srva", "usav", "rule", "lesson", "recruiting", 
+        "clinic", "camp"
+    ]
+    try:
+        response = requests.get("https://www.midtnvbc.com/sitemap.xml", timeout=10)
+        if response.status_code == 200:
+            soup = BeautifulSoup(response.text, 'html.parser')
+            locs = soup.find_all('loc')
+            urls = [loc.get_text(strip=True) for loc in locs]
+            
+            # Limit page scraping to avoid blocking/rate-limiting
+            for url in urls[:12]:
+                try:
+                    print(f"Scraping: {url}")
+                    p_resp = requests.get(url, timeout=10)
+                    if p_resp.status_code == 200:
+                        p_soup = BeautifulSoup(p_resp.text, 'html.parser')
+                        title_el = p_soup.find('title')
+                        title = title_el.get_text(strip=True) if title_el else url.split('/')[-1]
+                        title = title.split('|')[0].strip()
+                        
+                        # Gather all text content blocks
+                        text_blocks = []
+                        # Look inside standard text containers
+                        containers = p_soup.find_all(['p', 'li', 'h1', 'h2', 'h3', 'h4', 'div'])
+                        for c in containers:
+                            # Avoid large generic containers
+                            if c.name == 'div' and (len(c.find_all(['div', 'p', 'table'])) > 0):
+                                continue
+                            txt = c.get_text(strip=True)
+                            if len(txt) > 20 and len(txt) < 800:
+                                txt_lower = txt.lower()
+                                # Check if it matches key terms
+                                if any(kw in txt_lower for kw in keywords):
+                                    if txt not in text_blocks:
+                                        text_blocks.append(txt)
+                        
+                        if text_blocks:
+                            content = "\n".join(text_blocks)
+                            docs.append({
+                                "name": title,
+                                "url": url,
+                                "content": content
+                            })
+                            print(f"Indexed {len(text_blocks)} blocks from '{title}'")
+                except Exception as e:
+                    print(f"Error scraping {url}: {e}")
+    except Exception as e:
+        print(f"Error reading sitemap: {e}")
+    return docs
+    headers = {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"
+    }
+
+    # FB
+    try:
+        res = requests.get("https://www.facebook.com/midtnvbc", headers=headers, timeout=10)
         if res.status_code == 200:
             soup = BeautifulSoup(res.text, 'html.parser')
             meta = soup.find("meta", property="og:description")
@@ -90,11 +160,18 @@ def pull_social_news():
     # Facebook
     try:
         res = requests.get("https://www.facebook.com/midtnvbc", headers=headers, timeout=10)
+                social["facebook"] = meta["content"]
+    except: pass
+
+    # IG
+    try:
+        res = requests.get("https://www.instagram.com/midtnvbc/", headers=headers, timeout=10)
         if res.status_code == 200:
             soup = BeautifulSoup(res.text, 'html.parser')
             meta = soup.find("meta", property="og:description")
             if meta:
                 social["facebook"] = meta["content"]
+                social["instagram"] = meta["content"]
     except: pass
 
     return social
@@ -121,6 +198,10 @@ def update_knowledge_base():
     club_news = pull_club_news()
     usav_news = pull_usav_updates()
     srva_news = pull_srva_updates()
+    social = get_social_placeholders()
+    docs = crawl_sitemap_and_index()
+    if docs:
+        kb['active_documents'] = docs
     social = pull_social_news()
 
     # Update News
@@ -154,6 +235,14 @@ def update_knowledge_base():
         },
         "srva": {
             "expert_note": "SRVA Policies: Valid USAV membership (Tryout or Full) required before stepping on court. Offers accepted via SportsEngine are binding. Max tryout fee $75. Athletes must bring a printed and signed USAV Medical Release form to tryouts.",
+    # Update Expert Rules (Researched 2024-2025)
+    kb['rules_and_regulations'] = {
+        "usa_volleyball": {
+            "expert_note": "2024-2025 Rule Highlights: Libero can now be the team captain. Jewelry is permitted if it is small and not a safety hazard (discretion of official). One re-serve is allowed per term of service if the ball is tossed and then caught or allowed to drop. Coaches may stand or walk in the free zone in front of their team bench, but not past the attack line extension.",
+            "link": "https://usavolleyball.org/resources-for-officials/rulebooks-and-interpretations/"
+        },
+        "srva": {
+            "expert_note": "SRVA 2024-25 Policies: All participants (players/coaches) must have a valid USA Volleyball membership through SRVA before attending any tryout. Club offers must be sent and accepted via SportsEngine. A player's acceptance of an offer is binding for the entire season. The maximum tryout fee allowed by SRVA is $75.",
             "expert_note": "SRVA Policies: All participants must have valid USAV membership before tryouts. Offers accepted in SportsEngine are binding for the season. Max tryout fee $75. Registration usually opens in September.",
             "link": "https://www.srva.org"
         },
@@ -199,6 +288,29 @@ def run_daemon():
         now = datetime.datetime.now()
         target = now.replace(hour=12, minute=0, second=0, microsecond=0)
 
+    print("Agent started in daemon mode. Will run every day at 12:00 PM.")
+    while True:
+        now = datetime.datetime.now()
+        target = now.replace(hour=12, minute=0, second=0, microsecond=0)
+        if now >= target:
+            target += datetime.timedelta(days=1)
+
+        sleep_seconds = (target - now).total_seconds()
+        print(f"Next run scheduled for {target}. Sleeping for {sleep_seconds/3600:.2f} hours.")
+        time.sleep(sleep_seconds)
+
+        print(f"Running update at {datetime.datetime.now()}...")
+        try:
+            update_knowledge_base()
+        except Exception as e:
+            print(f"Error during scheduled update: {e}")
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description="Volleyball Updates Agent")
+    parser.add_argument("--daemon", action="store_true", help="Run as a daemon (daily at noon)")
+    args = parser.parse_args()
+
+    if args.daemon:
     print("Starting News Expert Agent in daemon mode...")
     while True:
         now = datetime.datetime.now()
