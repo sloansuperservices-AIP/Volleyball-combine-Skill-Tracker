@@ -70,13 +70,148 @@ tr:hover td{background:#1a1d24;cursor:pointer}
 </head>
 <body>
 <div id="app"></div>
-<div id="chatbot-root"></div>
-<script src="../chatbot.js" type="module"></script>
+<div id="chatbot-root" style="position:fixed;bottom:20px;left:20px;z-index:9999"></div>
 <script type="module">
 import{h,render,Fragment}from'https://esm.sh/preact@10';
 import{useState,useEffect,useMemo,useRef,useCallback}from'https://esm.sh/preact@10/hooks';
 import htm from'https://esm.sh/htm@3';
 const html=htm.bind(h);
+
+// ── INLINE CHATBOT ──────────────────────────────────────────────────
+function Chatbot() {
+    const [isOpen, setIsOpen] = useState(false);
+    const [messages, setMessages] = useState([
+        { role: 'bot', text: "Hi! I'm Volley AI. I'm an expert on USA Volleyball, SRVA, and Mid TN VBC. How can I help you today?" }
+    ]);
+    const [input, setInput] = useState('');
+    const [kb, setKb] = useState(null);
+    const [isTyping, setIsTyping] = useState(false);
+
+    useEffect(() => {
+        const loadKb = () => {
+            try {
+                const override = localStorage.getItem('midtn_kb_override');
+                if (override) { setKb(JSON.parse(override)); return; }
+            } catch (e) {}
+            fetch('../volley_kb.json').then(r => r.json()).then(d => setKb(d)).catch(() => {});
+        };
+        loadKb();
+        const handleStorage = (e) => { if (e.key === 'midtn_kb_override') loadKb(); };
+        window.addEventListener('storage', handleStorage);
+        return () => window.removeEventListener('storage', handleStorage);
+    }, []);
+
+    const handleSend = async () => {
+        if (!input.trim()) return;
+        const userQuery = input.trim();
+        setMessages(prev => [...prev, { role: 'user', text: userQuery }]);
+        setInput('');
+        setIsTyping(true);
+        const fallbackText = "I'm sorry, I don't have that specific information. Please check midtnvbc.com or email info@midtnvbc.com for more details.";
+        let response = fallbackText;
+        const q = userQuery.toLowerCase();
+        const stopWords = new Set(['what','where','when','how','who','why','does','have','with','about','from','your','this','that','they','them','their']);
+        let settings = { provider: 'rag', apiKey: '', modelName: '' };
+        try { const raw = localStorage.getItem('midtn_chatbot_settings'); if (raw) settings = JSON.parse(raw); } catch(e) {}
+        const useApi = settings.apiKey && (settings.provider === 'gemini' || settings.provider === 'openai');
+        if (useApi && kb) {
+            try {
+                let sp = "You are Volley AI, an expert chatbot for Mid TN VBC, USAV, and SRVA. Use this context:\n\n";
+                if (kb.club_info) sp += `Club: ${kb.club_info.name}, ${kb.club_info.facility}, Director: ${kb.club_info.director}\n`;
+                if (kb.rules_and_regulations) { sp += `USAV: ${kb.rules_and_regulations.usa_volleyball?.expert_note}\nSRVA: ${kb.rules_and_regulations.srva?.expert_note}\n`; }
+                if (kb.faq) kb.faq.forEach(f => { sp += `Q: ${f.question}\nA: ${f.answer}\n`; });
+                if (kb.active_documents) kb.active_documents.forEach(d => { sp += `Page "${d.name}": ${d.content.substring(0,800)}\n`; });
+                sp += '\nIf you cannot answer from the context, say: "' + fallbackText + '"';
+                if (settings.provider === 'gemini') {
+                    const model = settings.modelName || 'gemini-1.5-flash';
+                    const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${settings.apiKey}`, {
+                        method:'POST', headers:{'Content-Type':'application/json'},
+                        body: JSON.stringify({ contents: [{ role:'user', parts:[{ text: sp + '\n\nUser: ' + userQuery }] }] })
+                    });
+                    if (res.ok) { const d = await res.json(); const t = d.candidates?.[0]?.content?.parts?.[0]?.text; if(t) response = t.trim(); }
+                } else if (settings.provider === 'openai') {
+                    const model = settings.modelName || 'gpt-4o-mini';
+                    const res = await fetch('https://api.openai.com/v1/chat/completions', {
+                        method:'POST', headers:{'Content-Type':'application/json','Authorization':`Bearer ${settings.apiKey}`},
+                        body: JSON.stringify({ model, messages: [{role:'system',content:sp},{role:'user',content:userQuery}] })
+                    });
+                    if (res.ok) { const d = await res.json(); const t = d.choices?.[0]?.message?.content; if(t) response = t.trim(); }
+                }
+            } catch(err) {}
+        }
+        if (response === fallbackText && kb) {
+            if (q.includes('cost')||q.includes('price')||q.includes('how much')) response = kb.faq?.find(f=>f.question.toLowerCase().includes('cost'))?.answer||response;
+            else if (q.includes('sign in')||q.includes('check in')||q.includes('register')) response = kb.faq?.find(f=>f.question.toLowerCase().includes('sign in'))?.answer||response;
+            else if (q.includes('bring')||q.includes('ready')||q.includes('requirement')) response = kb.faq?.find(f=>f.question.toLowerCase().includes('ready'))?.answer||response;
+            else if (q.includes('rule')||q.includes('regulation')) response = `USAV Expert Note: ${kb.rules_and_regulations?.usa_volleyball?.expert_note||''}`;
+            else if (q.includes('srva')) response = `SRVA Expert Note: ${kb.rules_and_regulations?.srva?.expert_note||''}`;
+            else if (q.includes('news')||q.includes('update')) { if(kb.news?.[0]) response = `Latest: ${kb.news[0].title} (${kb.news[0].date}).`; }
+            else if (q.includes('where')||q.includes('location')||q.includes('facility')) response = `We are at Hooptown in Smyrna, TN (6910 Stroop Ln).`;
+            if (response === fallbackText && kb.faq) {
+                let bestFaq=null,bestScore=0;
+                for (const faq of kb.faq) {
+                    const faqQ=faq.question.toLowerCase();
+                    if(faqQ.includes(q)||q.includes(faqQ)){response=faq.answer;break;}
+                    const words=q.split(/[^a-zA-Z0-9]/).map(w=>w.trim()).filter(w=>w.length>3&&!stopWords.has(w));
+                    let score=0; for(const w of words) if(faqQ.includes(w)) score++;
+                    if(score>bestScore){bestScore=score;bestFaq=faq;}
+                }
+                if(response===fallbackText&&bestFaq&&bestScore>=1) response=bestFaq.answer;
+            }
+            if (response === fallbackText && kb.active_documents) {
+                let bestMatch=null,bestScore=0;
+                const kws=q.split(/[^a-zA-Z0-9]/).map(w=>w.trim()).filter(w=>w.length>3&&!stopWords.has(w));
+                if(kws.length>0) {
+                    for(const doc of kb.active_documents) {
+                        for(const passage of doc.content.split(/[.\n]+/)) {
+                            const p=passage.trim(); if(p.length<20) continue;
+                            const pl=p.toLowerCase(); let score=0;
+                            for(const kw of kws) if(pl.includes(kw)) score++;
+                            if(score>bestScore){bestScore=score;bestMatch={text:p,docName:doc.name,url:doc.url};}
+                        }
+                    }
+                }
+                if(bestMatch&&bestScore>=Math.min(2,kws.length)) response=`From "${bestMatch.docName}": "${bestMatch.text}." Visit: ${bestMatch.url}`;
+            }
+        }
+        if (response === fallbackText) {
+            try {
+                const key='midtn_unanswered_questions';
+                const current=JSON.parse(localStorage.getItem(key)||'[]');
+                if(!current.some(item=>item.question.toLowerCase()===q.trim().toLowerCase())) {
+                    current.push({id:`q-${Date.now()}-${Math.random().toString(36).substr(2,4)}`,question:userQuery,timestamp:new Date().toISOString()});
+                    localStorage.setItem(key,JSON.stringify(current));
+                    window.dispatchEvent(new StorageEvent('storage',{key,newValue:JSON.stringify(current)}));
+                }
+            } catch(e) {}
+        }
+        setMessages(prev => [...prev, { role: 'bot', text: response }]);
+        setIsTyping(false);
+    };
+
+    return html`
+        <div style=${{fontFamily:'Inter,sans-serif'}}>
+            ${!isOpen && html`<button onClick=${()=>setIsOpen(true)} id="volley-ai-trigger" style=${{width:'60px',height:'60px',borderRadius:'50%',backgroundColor:'#f0a500',border:'none',color:'#000',fontSize:'24px',cursor:'pointer',boxShadow:'0 4px 12px rgba(0,0,0,0.3)',display:'flex',alignItems:'center',justifyContent:'center'}}>🏐</button>`}
+            ${isOpen && html`
+                <div id="chatbot-window" style=${{width:'340px',height:'440px',backgroundColor:'#1a1d24',border:'1px solid #2a2e38',borderRadius:'12px',display:'flex',flexDirection:'column',overflow:'hidden',boxShadow:'0 8px 24px rgba(0,0,0,0.5)'}}>
+                    <div style=${{padding:'12px 16px',backgroundColor:'#f0a500',color:'#000',fontWeight:'bold',display:'flex',justifyContent:'space-between',alignItems:'center'}}>
+                        <span>Volley AI Expert</span>
+                        <button onClick=${()=>setIsOpen(false)} style=${{background:'none',border:'none',color:'#000',fontSize:'20px',cursor:'pointer'}}>×</button>
+                    </div>
+                    <div style=${{flex:1,padding:'12px',overflowY:'auto',display:'flex',flexDirection:'column',gap:'8px'}}>
+                        ${messages.map(m=>html`<div style=${{alignSelf:m.role==='user'?'flex-end':'flex-start',backgroundColor:m.role==='user'?'#f0a500':'#2a2e38',color:m.role==='user'?'#000':'#e8eaed',padding:'8px 12px',borderRadius:'8px',maxWidth:'80%',fontSize:'13px'}}>${m.text}</div>`)}
+                        ${isTyping&&html`<div style=${{alignSelf:'flex-start',backgroundColor:'#2a2e38',color:'#78909c',padding:'8px 12px',borderRadius:'8px',fontSize:'13px',fontStyle:'italic'}}>Typing...</div>`}
+                    </div>
+                    <div style=${{padding:'10px',borderTop:'1px solid #2a2e38',display:'flex',gap:'8px'}}>
+                        <input value=${input} onInput=${e=>setInput(e.target.value)} onKeyDown=${e=>e.key==='Enter'&&handleSend()} placeholder="Ask about tryouts, rules..." style=${{flex:1,backgroundColor:'#12151c',border:'1px solid #2a2e38',color:'#fff',padding:'7px',borderRadius:'6px',fontSize:'13px'}} />
+                        <button onClick=${handleSend} style=${{backgroundColor:'#f0a500',border:'none',padding:'7px 12px',borderRadius:'6px',cursor:'pointer',fontWeight:700}}>Send</button>
+                    </div>
+                </div>
+            `}
+        </div>`;
+}
+render(html`<${Chatbot}/>`, document.getElementById('chatbot-root'));
+// ── END CHATBOT ─────────────────────────────────────────────────────
 
 // ── CONSTANTS ──────────────────────────────────────────────────────
 const LOCAL_KEY='midtn_tryout_v2';
