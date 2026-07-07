@@ -3,6 +3,7 @@ import datetime
 import os
 import requests
 import time
+import argparse
 import sys
 from bs4 import BeautifulSoup
 
@@ -153,6 +154,7 @@ def update_knowledge_base():
         },
         "srva": {
             "expert_note": "SRVA Policies: Valid USAV membership (Tryout or Full) required before stepping on court. Offers accepted via SportsEngine are binding. Max tryout fee $75. Athletes must bring a printed and signed USAV Medical Release form to tryouts.",
+            "expert_note": "SRVA Policies: All participants must have valid USAV membership before tryouts. Offers accepted in SportsEngine are binding for the season. Max tryout fee $75. Registration usually opens in September.",
             "link": "https://www.srva.org"
         },
         "highlights": [
@@ -175,6 +177,10 @@ def update_knowledge_base():
         {
             "question": "What do I need to be ready for?",
             "answer": "Bring water, knee pads, and court shoes. Ensure SRVA membership and medical forms are complete."
+        },
+        {
+            "question": "Who are the sponsors?",
+            "answer": "Our official sponsors are Cerina Craig (Real Estate) and Shane Electric."
         }
     ]
 
@@ -193,6 +199,13 @@ def run_daemon():
         now = datetime.datetime.now()
         target = now.replace(hour=12, minute=0, second=0, microsecond=0)
 
+    print("Starting News Expert Agent in daemon mode...")
+    while True:
+        now = datetime.datetime.now()
+        # Calculate target time: today at 12:00 PM
+        target = now.replace(hour=12, minute=0, second=0, microsecond=0)
+
+        # If it's already past 12:00 PM today, target 12:00 PM tomorrow
         if now >= target:
             target += datetime.timedelta(days=1)
 
@@ -207,6 +220,23 @@ def run_daemon():
 
 if __name__ == "__main__":
     if "--daemon" in sys.argv:
+        print(f"Next update scheduled for {target}. Sleeping for {wait_seconds:.0f} seconds.")
+
+        # In a real environment, we'd sleep. For this sandbox, we'll run once and then exit if needed,
+        # but the logic for a daemon is here.
+        time.sleep(min(wait_seconds, 3600)) # Sleep at most 1 hour to stay responsive
+
+        if datetime.datetime.now() >= target:
+            update_knowledge_base()
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description="Mid TN VBC News Expert Agent")
+    parser.add_argument("--daemon", action="store_true", help="Run as a daemon (updates at noon daily)")
+    args = parser.parse_args()
+
+    if args.daemon:
+        # For the sake of this environment and testing, we might want to run once first
+        update_knowledge_base()
         run_daemon()
     else:
         update_knowledge_base()
