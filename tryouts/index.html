@@ -253,11 +253,12 @@ render(html`<${Chatbot}/>`, document.getElementById('chatbot-root'));
 const LOCAL_KEY='midtn_tryout_v2';
 const STAFF_PIN='1111';
 const HC_PIN='0000';
+const CHECKIN_PIN='9999';
+const STATION2_PIN='2222';
 const STATIONS=[
   {key:'checkin',label:'Sign In',metrics:[]},
   {key:'s1',label:'Reach & Vertical',metrics:['Height (in)','Reach (in)','Vertical (in)']},
   {key:'s2',label:'Agility',metrics:['Shuttle Run (sec)']},
-  {key:'drills',label:'Drills',metrics:['Drill Score (0-10)']},
 ];
 const AGES=['12','13','14','15','16','17','18'];
 const LEVELS=['Black','Blue','Silver','Yellow','White'];
@@ -353,7 +354,7 @@ function sAvg(metrics,key){
 }
 function totalScore(metrics, drillScore){
   let s=0,c=0;
-  STATIONS.filter(st=>st.key!=='checkin'&&st.key!=='drills').forEach(st=>{
+  STATIONS.filter(st=>st.key!=='checkin').forEach(st=>{
     const a=sAvg(metrics,st.key);
     if(a!==null){s+=a;c++;}
   });
@@ -617,7 +618,9 @@ function Login({onLogin}){
   const [err,setErr]=useState('');
   const go=()=>{
     if(pin===HC_PIN){onLogin({role:'hc'});return;}
-    if(pin===STAFF_PIN){onLogin({role:'staff'});return;}
+    if(pin===STAFF_PIN){onLogin({role:'staff', tab:'s1'});return;}
+    if(pin===CHECKIN_PIN){onLogin({role:'staff', tab:'checkin'});return;}
+    if(pin===STATION2_PIN){onLogin({role:'staff', tab:'s2'});return;}
     setPin('');setErr('Invalid PIN');
   };
 
@@ -688,9 +691,11 @@ function Login({onLogin}){
           <button onClick=${go} style=${{width:'100%',padding:12,background:'#f0a500',border:'none',borderRadius:8,color:'#000',fontSize:15,fontWeight:800,cursor:'pointer',marginBottom:20}}>Log In â†’</button>
           <div style=${{borderTop:'1px solid #2a2e38',paddingTop:14,fontSize:11,color:'#546e7a'}}>
             <div style=${{fontWeight:700,marginBottom:8,textTransform:'uppercase',letterSpacing:1}}>PINs</div>
-            <div style=${{display:'flex',justifyContent:'space-around',gap:8,marginBottom:4}}>
-              <div>Staff Hub: <span style=${{color:'#f0a500',fontFamily:'monospace',fontWeight:700}}>1111</span></div>
-              <div>Head Coach: <span style=${{color:'#ef5350',fontFamily:'monospace',fontWeight:700}}>0000</span></div>
+            <div style=${{display:'grid',gridTemplateColumns:'1fr 1fr',gap:8,marginBottom:4}}>
+              <div>Staff: <span style=${{color:'#f0a500',fontFamily:'monospace',fontWeight:700}}>1111</span></div>
+              <div>Coach: <span style=${{color:'#ef5350',fontFamily:'monospace',fontWeight:700}}>0000</span></div>
+              <div>CheckIn: <span style=${{color:'#26c6da',fontFamily:'monospace',fontWeight:700}}>9999</span></div>
+              <div>Station2: <span style=${{color:'#ffa726',fontFamily:'monospace',fontWeight:700}}>2222</span></div>
             </div>
           </div>
         </div>
@@ -772,9 +777,9 @@ function CheckInConfirmModal({ athlete, onClose, onConfirm }) {
   `;
 }
 
-// â”€â”€ STAFF HUB (DASHBOARD & STATIONS) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-function StaffDashboard({athletes, setAthletes, onArrive, onAddWalkup, onMetric, onLogout}) {
-  const [activeTab, setActiveTab] = useState('checkin'); // 'checkin', 's1', 's2', 'drills'
+// ── STAFF HUB (DASHBOARD & STATIONS) ──────────────────────────
+function StaffDashboard({athletes, setAthletes, onArrive, onAddWalkup, onMetric, onLogout, initialTab}) {
+  const [activeTab, setActiveTab] = useState(initialTab || 'checkin'); // 'checkin', 's1', 's2'
   const [globalSearch, setGlobalSearch] = useState('');
   const [selAth, setSelAth] = useState(null);
 
@@ -902,10 +907,9 @@ function StaffDashboard({athletes, setAthletes, onArrive, onAddWalkup, onMetric,
 
       <div style=${{display:'grid',gridTemplateColumns:'repeat(auto-fit, minmax(130px, 1fr))',gap:12,padding:'20px 20px 10px',maxWidth:800,margin:'0 auto'}}>
         ${[
-          {key:'checkin',label:'Sign In',desc:'Arrived / Walkups',icon:'ðŸ“',c:'#26c6da'},
-          {key:'s1',label:'Reach & Vertical',desc:'Physical Measurements',icon:'ðŸ“',c:'#42a5f5'},
-          {key:'s2',label:'Agility',desc:'Stopwatch & Agility',icon:'â±ï¸',c:'#ffa726'},
-          {key:'drills',label:'Drills',desc:'Drill Score Input',icon:'ðŸ',c:'#66bb6a'}
+          {key:'checkin',label:'Sign In',desc:'Arrived / Walkups',icon:'📝',c:'#26c6da'},
+          {key:'s1',label:'Reach & Vertical',desc:'Physical Measurements',icon:'📏',c:'#42a5f5'},
+          {key:'s2',label:'Agility',desc:'Stopwatch & Agility',icon:'⏱️',c:'#ffa726'}
         ].map(tile => {
           const active = activeTab === tile.key;
           return html`
@@ -964,18 +968,17 @@ function StaffDashboard({athletes, setAthletes, onArrive, onAddWalkup, onMetric,
                         <span>${comp.s1?'âœ“':'â³'}</span> Physical ${a.metrics?.s1 ? `(${a.metrics.s1.filter(Boolean).length}/3)` : ''}
                       </div>
                       <div style=${{display:'flex',alignItems:'center',gap:4,color:comp.s2?'#66bb6a':'#ef5350'}} title=${a.metrics?.s2 ? `Shuttle: ${a.metrics.s2[0]}s` : ''}>
-                        <span>${comp.s2?'âœ“':'â³'}</span> Agility
+                        <span>${comp.s2?'✓':'⏳'}</span> Agility
                       </div>
-                      <div style=${{display:'flex',alignItems:'center',gap:4,color:comp.drills?'#66bb6a':'#ef5350'}} title=${a.drillScore ? `Drill: ${a.drillScore}` : ''}>
-                        <span>${comp.drills?'âœ“':'â³'}</span> Drills
+                      <div style=${{display:'flex',alignItems:'center',gap:4,color:a.drillScore?'#66bb6a':'#ef5350'}} title=${a.drillScore ? `Drill: ${a.drillScore}` : ''}>
+                        <span>${a.drillScore?'✓':'⏳'}</span> Drill Score
                       </div>
                     </div>
                     
                     <!-- Jump Actions -->
                     <div style=${{display:'flex',gap:8,justifyContent:'flex-end',fontSize:11,marginTop:4}}>
-                      <button onClick=${()=>handleGlobalAction(a, 's1')} style=${{background:'none',border:'none',color:'#42a5f5',cursor:'pointer',textDecoration:'underline',fontSize:11,padding:0}}>â†’ Input Physical</button>
-                      <button onClick=${()=>handleGlobalAction(a, 's2')} style=${{background:'none',border:'none',color:'#ffa726',cursor:'pointer',textDecoration:'underline',fontSize:11,padding:0}}>â†’ Agility Timer</button>
-                      <button onClick=${()=>handleGlobalAction(a, 'drills')} style=${{background:'none',border:'none',color:'#66bb6a',cursor:'pointer',textDecoration:'underline',fontSize:11,padding:0}}>â†’ Input Drills</button>
+                      <button onClick=${()=>handleGlobalAction(a, 's1')} style=${{background:'none',border:'none',color:'#42a5f5',cursor:'pointer',textDecoration:'underline',fontSize:11,padding:0}}>→ Input Physical</button>
+                      <button onClick=${()=>handleGlobalAction(a, 's2')} style=${{background:'none',border:'none',color:'#ffa726',cursor:'pointer',textDecoration:'underline',fontSize:11,padding:0}}>→ Agility Timer</button>
                     </div>
                   </div>`;
               })}
@@ -1040,9 +1043,15 @@ function StaffDashboard({athletes, setAthletes, onArrive, onAddWalkup, onMetric,
                           <div style=${{fontSize:10,color:'#78909c'}}>${a.division} Â· ${posAbbr(a.primaryPos)}</div>
                         </div>
                         ${a.isWalkup&&html`<${Badge} c="#ffa726" sm>Walkup<//>`}
+                        <div style=${{display:'flex',alignItems:'center',gap:8,marginRight:8}}>
+                          <label style=${{fontSize:10,color:'#78909c',fontWeight:700}}>DRILL</label>
+                          <input type="number" min="1" max="10" step="0.5" value=${a.drillScore||''} onClick=${e=>e.stopPropagation()}
+                            onInput=${e=>setAthletes(prev=>prev.map(ath=>ath.id===a.id?{...ath,drillScore:e.target.value}:ath))}
+                            style=${{width:40,padding:'2px 4px',background:'#12151c',border:'1px solid #f0a50088',borderRadius:4,color:'#e8eaed',fontSize:12,textAlign:'center',fontWeight:700}}/>
+                        </div>
                         ${a.arrived
-                          ? html`<div style=${{display:'flex',gap:6}}><${Badge} c="#66bb6a" sm>âœ“ Arrived<//><${Btn} sm onClick=${()=>setSelAth(a)} color="#4fc3f7" outline>Profile ðŸ“‹<//></div>`
-                          : html`<div style=${{display:'flex',gap:6}}><${Btn} sm onClick=${()=>setConfirmCheckInAth(a)} color="#26c6da">Check In âœ“<//><${Btn} sm onClick=${()=>setSelAth(a)} color="#4fc3f7" outline>Profile ðŸ“‹<//></div>`}
+                          ? html`<div style=${{display:'flex',gap:6}}><${Badge} c="#66bb6a" sm>✓ Arrived<//><${Btn} sm onClick=${()=>setSelAth(a)} color="#f0a500" outline>Edit Profile 📋<//></div>`
+                          : html`<div style=${{display:'flex',gap:6}}><${Btn} sm onClick=${()=>setConfirmCheckInAth(a)} color="#26c6da">Check In ✓<//><${Btn} sm onClick=${()=>setSelAth(a)} color="#f0a500" outline>Edit Profile 📋<//></div>`}
                       </div>`)}
                   </div>
                 `}
@@ -1229,11 +1238,11 @@ function StaffDashboard({athletes, setAthletes, onArrive, onAddWalkup, onMetric,
         setAthletes(prev => prev.map(a => a.id === id ? { ...a, ...updates } : a));
         if (selAth && selAth.id === id) setSelAth(p => ({ ...p, ...updates }));
         if (activeAthlete && activeAthlete.id === id) setActiveAthlete(p => ({ ...p, ...updates }));
-      }} onHide=${()=>{}} onUnhide=${()=>{}} onEmail=${()=>{}}/>
+      }} onHide=${a=>{setSelAth(null);setHideAth(a);}} onUnhide=${doUnhide} onEmail=${a=>{setSelAth(null);setEmailAth(a);setEmailTeam(a.teamAssignment||'');}}/>
     </div>`;
 }
 
-// â”€â”€ ATHLETE MODAL â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── ATHLETE MODAL ────────────────────────────────────────────────
 function AthleteModal({athlete,onClose,onChange,onHide,onUnhide,onEmail}){
   if(!athlete) return null;
   const locked = athlete.teamLocked || athlete.status === 'accepted';
@@ -1516,8 +1525,9 @@ function HeadCoach({athletes,setAthletes,onLogout}){
   const [hideAth,setHideAth]=useState(null);
   const [teamOfferKey,setTeamOfferKey]=useState(null);
   const [confirmCheckInAth,setConfirmCheckInAth]=useState(null);
+  const [widePool,setWidePool]=useState(false);
 
-  // â”€â”€ ADMIN & CONFIG STATE â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // ── ADMIN & CONFIG STATE ──────────────────────────────────────
   const [emailConfig, setEmailConfig] = useState(() => {
     try {
       return JSON.parse(localStorage.getItem('midtn_email_config') || '{"method":"mailto"}');
@@ -1973,16 +1983,12 @@ function HeadCoach({athletes,setAthletes,onLogout}){
         ${view==='teams'&&html`
           <div style=${{display:'flex',gap:14,alignItems:'flex-start'}}>
             ${showPool&&html`
-              <div style=${{width:widePool?480:360,flexShrink:0,background:'#12151c',borderRadius:12,border:'1px solid #1e222b',maxHeight:'calc(100vh-180px)',display:'flex',flexDirection:'column',transition:'width 0.2s'}}>
               <div style=${{width:widePool?500:320,flexShrink:0,background:'#12151c',borderRadius:12,border:'1px solid #1e222b',maxHeight:'calc(100vh-180px)',display:'flex',flexDirection:'column',transition:'width 0.2s'}}>
                 <div style=${{padding:'10px 14px',borderBottom:'1px solid #1e222b'}}>
                   <div style=${{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:6}}>
                     <div style=${{display:'flex',alignItems:'center',gap:6}}>
                       <span style=${{fontWeight:700,fontSize:13}}>Pool <span style=${{color:'#546e7a',fontWeight:400}}>(${pool.length})</span></span>
-                      <button onClick=${()=>setWidePool(!widePool)} style=${{background:'none',border:'none',color:'#4fc3f7',fontSize:12,cursor:'pointer',padding:0}} title="Toggle Sidebar Width">
-                        ${widePool?'Â« Narrow':'Wide Â»'}
-                      </button>
-                      <button onClick=${()=>setWidePool(!widePool)} style=${{background:'none',border:'1px solid #2a2e38',color:'#78909c',fontSize:10,padding:'1px 5px',borderRadius:4,cursor:'pointer'}}>${widePool?'Narrow':'Wide'}</button>
+                      <button onClick=${()=>setWidePool(!widePool)} style=${{background:'none',border:'1px solid #2a2e38',color:'#78909c',fontSize:10,padding:'1px 5px',borderRadius:4,cursor:'pointer',marginLeft:8}}>${widePool?'Narrow':'Wide'}</button>
                     </div>
                     <div style=${{display:'flex',gap:4}}>
                       <button class=${'btn btn-sm '+(showAllPool?'btn-primary':'btn-outline')}
@@ -2000,22 +2006,17 @@ function HeadCoach({athletes,setAthletes,onLogout}){
                   ${poolSort==='pos'
                     ? html`<div>
                         ${[...POS_CATS,{key:'unsorted',label:'Unsorted'}].map(cat => {
-                          const list = pool.filter(a => (a.posCategories || [a.posCategory]).includes(cat.key))
+                          const listByCat = pool.filter(a => (a.posCategories || [a.posCategory]).includes(cat.key))
                                            .sort((a,b)=>(Number(totalScore(b.metrics, b.drillScore))||0)-(Number(totalScore(a.metrics, a.drillScore))||0));
-                          const list = pool.filter(a => (a.posCategories||[a.posCategory]).includes(cat.key));
-                          if(list.length === 0) return null;
+                          if(listByCat.length === 0) return null;
                           return html`
                             <div key=${cat.key} style=${{marginBottom:12,borderBottom:'1px solid #1e222b',paddingBottom:8}}>
                               <div style=${{fontSize:11,fontWeight:800,color:cat.key==='unsorted'?'#ffa726':'#4fc3f7',textTransform:'uppercase',marginBottom:8,paddingLeft:4,borderLeft:`3px solid ${cat.key==='unsorted'?'#ffa726':'#4fc3f7'}`,display:'flex',justifyContent:'space-between'}}>
                                 <span>${cat.label}</span>
-                                <span style=${{fontSize:10,opacity:.5}}>${list.length}</span>
+                                <span style=${{fontSize:10,opacity:.5}}>${listByCat.length}</span>
                               </div>
-                              ${list.map((a,i) => html`
-                                <div style=${{opacity:a.teamAssignment?.length?0.35:1,pointerEvents:a.teamAssignment?.length?'none':'auto',marginBottom:2,display:'flex',alignItems:'center',gap:4}}>
-                                  <span style=${{fontSize:10,color:'#546e7a',width:14,textAlign:'right'}}>${i+1}</span>
-                                  <div style=${{flex:1}}><${PCard} athlete=${a} onClick=${setSelAth} compact showScore/></div>
-                              ${list.map((a, idx) => html`
-                                <div style=${{opacity:a.teamAssignment?.length?0.35:1,pointerEvents:a.teamAssignment?.length?'none':'auto',marginBottom:2,display:'flex',alignItems:'center',gap:4}}>
+                              ${listByCat.map((a, idx) => html`
+                                <div style=${{opacity:(a.teamAssignment && !showAllPool)?0.35:1,pointerEvents:(a.teamAssignment && !showAllPool)?'none':'auto',marginBottom:2,display:'flex',alignItems:'center',gap:4}}>
                                   <span style=${{fontSize:10,color:'#546e7a',width:15,textAlign:'right'}}>${idx+1}</span>
                                   <div style=${{flex:1}}>
                                     <${PCard} key=${a.id} athlete=${a} onClick=${setSelAth} compact showScore/>
@@ -2549,7 +2550,7 @@ function App(){
   }
 
   if(!user) return html`<${Login} onLogin=${setUser}/>`;
-  if(user.role==='staff') return html`<${StaffDashboard} athletes=${athletes} setAthletes=${setAthletes} onArrive=${doArrive} onAddWalkup=${addWalkup} onMetric=${updMetric} onLogout=${()=>setUser(null)}/>`;
+  if(user.role==='staff') return html`<${StaffDashboard} athletes=${athletes} setAthletes=${setAthletes} onArrive=${doArrive} onAddWalkup=${addWalkup} onMetric=${updMetric} onLogout=${()=>setUser(null)} initialTab=${user.tab}/>`;
   return html`<${HeadCoach} athletes=${athletes} setAthletes=${setAthletes} onLogout=${()=>setUser(null)}/>`;
 }
 render(html`<${App}/>`,document.getElementById('app'));
