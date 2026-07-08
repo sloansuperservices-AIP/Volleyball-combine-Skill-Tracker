@@ -81,17 +81,7 @@ tr:hover td{background:#1a1d24;cursor:pointer}
 <script src="https://cdn.jsdelivr.net/npm/preact@10.24.3/dist/preact.umd.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/preact@10.24.3/hooks/dist/hooks.umd.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/htm@3.1.1/dist/htm.umd.js"></script>
-<script>
-// DIAGNOSTIC - shows on screen what loaded
-(function(){
-  var msg = 'DIAG: preact=' + typeof preact + ' | preactHooks=' + typeof preactHooks + ' | htm=' + typeof htm;
-  var d = document.createElement('div');
-  d.style.cssText = 'position:fixed;top:0;left:0;right:0;background:#f0a500;color:#000;padding:8px;font:12px monospace;z-index:99999;';
-  d.textContent = msg;
-  document.body.appendChild(d);
-  document.getElementById('app').style.marginTop = '30px';
-})();
-</script>
+
 <script>
 const {h,render,Fragment}=preact;
 const {useState,useEffect,useMemo,useRef,useCallback}=preactHooks;
@@ -1246,7 +1236,6 @@ function StaffDashboard({athletes, setAthletes, onArrive, onAddWalkup, onMetric,
 // ── ATHLETE MODAL ──────────────────────────────────────────────────
 function AthleteModal({athlete,onClose,onChange,onHide,onUnhide,onEmail}){
   if(!athlete) return null;
-  const locked = athlete.status === 'accepted';
   const locked = athlete.teamLocked || athlete.status === 'accepted';
   const sc = totalScore(athlete.metrics, athlete.drillScore);
   const [ef,setEf]=useState(null);
