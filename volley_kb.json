@@ -2,240 +2,79 @@
   "club_info": {
     "name": "Mid TN Volleyball Club",
     "location": "Smyrna, TN",
-    "director": "Rhonda Ross",
-    "assistant_director": "Jeff Wismer",
     "facility": "Hooptown",
-    "website": "http://MIDVBC.com",
-    "social_media": {
-      "facebook": "https://www.facebook.com/midtnvbc",
-      "instagram": "https://www.instagram.com/Midtvbc"
-    }
+    "website": "https://www.midtnvbc.com"
   },
   "news": [
     {
-      "title": "Championship Bound: USAV Brings 2027 Boys Junior National Championship to Anaheim",
-      "date": "2026-07-06",
-      "date": "2026-07-05",
-      "summary": "Source: USA Volleyball. Link: https://usavolleyball.org/story/championship-bound-usav-brings-2027-boys-junior-national-championship-to-anaheim/"
-    },
-    {
-      "title": "2026 Women\u2019s VNL Week Three Roster Announced",
-      "date": "2026-07-06",
-      "date": "2026-07-05",
-      "summary": "Source: USA Volleyball. Link: https://usavolleyball.org/story/2026-womens-vnl-week-three-roster-announced/"
-    },
-    {
       "title": "USA Volleyball Announces 2026 Women\u2019s U21 Roster for Pan American Cup",
-      "date": "2026-07-06",
-      "date": "2026-07-05",
+      "date": "2026-07-08",
       "summary": "Source: USA Volleyball. Link: https://usavolleyball.org/story/usa-volleyball-announces-2026-womens-u21-roster-for-pan-american-cup/"
     },
     {
-      "title": "2026 USA Volleyball Boys Junior National Championship presented by Credit Union 1",
-      "date": "2026-07-05",
-      "date": "2026-07-07",
-      "summary": "Source: USA Volleyball. Link: https://usavolleyball.org/story/usa-volleyball-announces-2026-womens-u21-roster-for-pan-american-cup/"
+      "title": "Women\u2019s Sitting Roster Announced for 2026 World ParaVolley World Championship",
+      "date": "2026-07-08",
+      "summary": "Source: USA Volleyball. Link: https://usavolleyball.org/story/womens-sitting-roster-announced-for-2026-world-paravolley-world-championship/"
+    },
+    {
+      "title": "U.S. Defeats Venezuela in Home Debut at Women\u2019s U21 Pan American Cup",
+      "date": "2026-07-08",
+      "summary": "Source: USA Volleyball. Link: https://usavolleyball.org/story/u-s-defeats-venezuela-in-home-debut-at-womens-u21-pan-american-cup/"
+    },
+    {
+      "title": "U.S. Women Sweep Thailand for Seventh Consecutive Win to Start 2026 Women\u2019s VNL Week Three",
+      "date": "2026-07-08",
+      "summary": "Source: USA Volleyball. Link: https://usavolleyball.org/story/u-s-women-sweep-thailand-for-seventh-consecutive-win-to-start-2026-womens-vnl-week-three/"
     },
     {
       "title": "2026 USA Volleyball Boys Junior National Championship presented by Credit Union 1",
-      "date": "2026-07-06",
-      "date": "2026-07-07",
+      "date": "2026-07-08",
       "summary": "Source: USA Volleyball. Link: https://usavolleyball.org/event/2026-usa-volleyball-boys-junior-national-championship/"
-    },
-    {
-      "title": "U.S. Men Fall in Five Sets in Showdown with Undefeated Japan at 2026 VNL",
-      "date": "2026-07-02",
-      "summary": "Source: USA Volleyball. Link: https://usavolleyball.org/story/u-s-men-fall-in-five-sets-in-showdown-with-undefeated-japan-at-2026-vnl/"
-    },
-    {
-      "title": "U.S. Men\u2019s U21 to Play for Gold at 2026 Pan Am Cup",
-      "date": "2026-07-02",
-      "summary": "Source: USA Volleyball. Link: https://usavolleyball.org/story/u-s-mens-u21-to-play-for-gold-at-2026-pan-am-cup/"
-    },
-    {
-      "title": "U.S. Men Down Serbia in Four Sets to Close Second Week of 2026 VNL",
-      "date": "2026-07-02",
-      "summary": "Source: USA Volleyball. Link: https://usavolleyball.org/story/u-s-men-down-serbia-in-four-sets-to-close-second-week-of-2026-vnl/"
-    },
-    {
-      "title": "U.S. Men\u2019s U21 Roll to 2026 Pan Am Cup Gold with Sweep of Canada",
-      "date": "2026-07-02",
-      "summary": "Source: USA Volleyball. Link: https://usavolleyball.org/story/u-s-mens-u21-roll-to-2026-pan-am-cup-gold-with-sweep-of-canada/"
-    },
-    {
-      "title": "2026 USA Volleyball Girls Junior National Championship 14-17 presented by Credit Union 1",
-      "date": "2026-07-02",
-      "summary": "Source: USA Volleyball. Link: https://usavolleyball.org/event/2026-usa-volleyball-girls-junior-national-championship-14-17/"
-    },
-    {
-      "title": "Countdown to Club Volleyball Tryouts!",
-      "date": "2026-07-02",
-      "summary": "Updates from midtnvbc.com"
-    },
-    {
-      "title": "Open Programs",
-      "date": "2026-07-02",
-      "summary": "Updates from midtnvbc.com"
-    },
-    {
-      "title": "Cerina Craig",
-      "date": "2026-07-02",
-      "summary": "Updates from midtnvbc.com"
-    },
-    {
-      "title": "Shane Electric",
-      "date": "2026-07-02",
-      "summary": "Updates from midtnvbc.com"
-    }
-  ],
-  "tryouts": {
-    "status": "2026-2027 season tryouts are coming up — check midtnvbc.com/page/show/6657701-tryouts for the exact schedule and registration link.",
-    "location": "Hooptown Sportsplex, 6910 Stroop Lane, Smyrna TN (Blue Building — look for MIDTN Volleyball signs). Enter between the two buildings under the porch.",
-    "cost": "$65 Early / $70 Regular / $75 Late or Walk-up",
-    "ages": "Ages 12–18 (12U, 13U, 14U, 15U, 16U, 17U, 18U divisions)",
-    "registration_link": "https://www.midtnvbc.com/page/show/6657701-tryouts",
-    "makeup_tryout_link": "https://www.midtnvbc.com/layout_container/show_layout_tab?layout_container_id=130062153&page_node_id=6657701&tab_element_id=261845",
-    "contact": "Direct any questions to the Mid TN VBC Tryout Staff via midtnvbc.com or email info@midtnvbc.com",
-    "requirements": [
-      "Valid SRVA Tryout Membership (purchase at srva.org before arriving)",
-      "Medical Release Form (printed and signed)",
-      "Notarized USAV Medical Form",
-      "Court shoes and knee pads",
-      "Arrive 30 minutes early for check-in"
-    ],
-    "important_notes": [
-      "All SRVA/USAV clubs hold tryouts on the SAME day at the SAME time — you must choose your club in advance.",
-      "Walk-ups are welcome but walk-up fee is $75.",
-      "Offers accepted in SportsEngine are binding for the season.",
-      "Max tryout fee allowed by SRVA is $75.",
-      "Use fall open gyms and training clinics to evaluate the club before tryout day."
-    ]
-  },
-  "programs": [
-    {
-      "name": "Elite/Travel (Black)",
-      "description": "Highest-level competitive teams traveling to USAV national qualifiers and national championships. Longest season commitment (6-8 months)."
-    },
-    {
-      "name": "Regional (Blue/Silver)",
-      "description": "Competitive teams playing within the SRVA region. Great balance of competition and development."
-    },
-    {
-      "name": "Developmental/Training (Yellow/White)",
-      "description": "Focus on skill building for younger or newer players. Shorter season, lower cost."
-    },
-    {
-      "name": "Recreational Leagues",
-      "description": "Multi-week sessions at Hooptown Sportsplex with no travel required. Lower cost, focused on fun and fundamentals. Offered quarterly."
-    },
-    {
-      "name": "Private Lessons",
-      "description": "1-hour sessions at Hooptown with experienced staff. Payment required at booking. Available up to 2 weeks in advance. Book at midtnvbc.com."
-    },
-    {
-      "name": "Camps & Clinics",
-      "description": "Tryout Tune-Up clinics, Fun with Fundamentals, All Skills camps, Skills Week. See midtnvbc.com for current schedule."
     }
   ],
   "rules_and_regulations": {
     "usa_volleyball": {
-      "expert_note": "2025-2027 Rule Highlights: Jewelry allowed if small/snug; re-serve allowed for tossing error (once per turn); Libero can be team captain; Coaches can stand/walk in free zone to attack line extension.",
       "expert_note": "2025-2027 Rule Highlights: Jewelry (studs/small hoops) allowed; re-serve allowed for tossing error (once per turn); Libero can be team captain; Coaches can stand/walk in free zone to attack line extension. Screening is strictly monitored\u2014players must not hide the server or path of the ball.",
       "link": "https://usavolleyball.org/resources-for-officials/rulebooks-and-interpretations/"
     },
     "srva": {
       "expert_note": "SRVA Policies: Valid USAV membership (Tryout or Full) required before stepping on court. Offers accepted via SportsEngine are binding. Max tryout fee $75. Athletes must bring a printed and signed USAV Medical Release form to tryouts.",
-      "expert_note": "2024-2025 Rule Highlights: Libero can now be the team captain. Jewelry is permitted if it is small and not a safety hazard (discretion of official). One re-serve is allowed per term of service if the ball is tossed and then caught or allowed to drop. Coaches may stand or walk in the free zone in front of their team bench, but not past the attack line extension.",
-      "link": "https://usavolleyball.org/resources-for-officials/rulebooks-and-interpretations/"
-    },
-    "srva": {
-      "expert_note": "SRVA Policies: All participants must have valid USAV membership before tryouts. Offers accepted in SportsEngine are binding for the season. Max tryout fee $75. All clubs tryout on the same SRVA-set date.",
       "link": "https://www.srva.org"
     },
     "highlights": [
       "Libero can now officially serve in one position in the rotation (USAV/SRVA specific).",
       "Uniform numbers must be clearly contrasting and centered (front and back).",
-      "Sanitized 'Medical Release' forms are required for every tournament."
+      "Medical Release forms are required for every tournament and must be notarized for some events."
     ]
   },
   "faq": [
     {
-      "question": "When are tryouts?",
-      "answer": "Mid TN VBC tryouts for the 2026-2027 season are coming up! The exact date is set by SRVA — all clubs in the region try out on the same day. Check midtnvbc.com/page/show/6657701-tryouts for the official schedule, or email info@midtnvbc.com. If you missed the main tryout date, makeup tryout dates are also available."
-    },
-    {
-      "question": "What date are tryouts?",
-      "answer": "Tryout dates are set by SRVA and all regional clubs hold tryouts simultaneously. Visit midtnvbc.com/page/show/6657701-tryouts for the current tryout date and registration link. You can also email the tryout staff at info@midtnvbc.com."
-    },
-    {
-      "question": "Where are tryouts located?",
-      "answer": "Tryouts are held at Hooptown Sportsplex, 6910 Stroop Lane, Smyrna TN. We are in the Blue Building — look for the MIDTN Volleyball signs. Enter between the two buildings under the covered porch area."
-    },
-    {
       "question": "Where do I sign in for tryouts?",
-      "answer": "Check-in is at the front desk of Hooptown Sportsplex (6910 Stroop Ln, Smyrna TN). Please arrive at least 30 minutes early to complete paperwork and get your number."
+      "answer": "Check-in is at the front desk of Hooptown (6910 Stroop Ln, Smyrna). Please arrive 30 minutes early."
     },
     {
-      "question": "What is the tryout cost?",
-      "answer": "Tryout fees: $65 (Early Registration), $70 (Regular), $75 (Late/Walk-up). The max allowed by SRVA is $75. Walk-ups are welcome on tryout day."
+      "question": "What is the cost?",
+      "answer": "Tryout fees: $65 (Early), $70 (Regular), $75 (Late/Walk-up)."
     },
     {
-      "question": "What do I need to bring to tryouts?",
-      "answer": "Bring: court shoes, knee pads, water bottle, and completed paperwork (SRVA Tryout Membership, Medical Release Form, and Notarized USAV Medical Form). Make sure your SRVA membership is active before you arrive."
+      "question": "What do I need to be ready for?",
+      "answer": "Bring water, knee pads, and court shoes. Ensure SRVA membership and medical forms are complete."
     },
     {
-      "question": "What forms do I need for tryouts?",
-      "answer": "You need: (1) A valid SRVA Tryout Membership — purchase at srva.org before arriving. (2) A signed Medical Release Form. (3) A Notarized USAV Medical Form. Missing any of these may prevent you from participating."
-    },
-    {
-      "question": "Can I walk up to tryouts without registering?",
-      "answer": "Yes! Walk-ups are welcome. The walk-up fee is $75. Just show up at Hooptown Sportsplex on tryout day with your completed forms and SRVA membership."
-    },
-    {
-      "question": "What if I missed the tryout date?",
-      "answer": "Mid TN VBC offers makeup tryout dates! Visit midtnvbc.com/page/show/6657701-tryouts and click 'Make Up Tryout Dates' for the schedule, or email info@midtnvbc.com."
-    },
-    {
-      "question": "What age groups tryout?",
-      "answer": "Mid TN VBC has teams for ages 12–18: 12U, 13U, 14U, 15U, 16U, 17U, and 18U divisions. The club offers Black (Elite), Blue, Silver, Yellow, and White team levels."
-    },
-    {
-      "question": "How do I register for tryouts?",
-      "answer": "Visit midtnvbc.com/page/show/6657701-tryouts and click 'Tryout Registration'. You'll also need an active SRVA membership from srva.org. Early registration ($65) saves you money vs. walk-up ($75)."
-    },
-    {
-      "question": "What happens after I make the team?",
-      "answer": "Offers are made through SportsEngine. Once you accept an offer in SportsEngine, it is binding for the season — so be certain before accepting. The season runs November through April with weekly practices and weekend tournaments."
-    },
-    {
-      "question": "How much does the season cost?",
-      "answer": "Season costs vary by team level (Elite travel teams cost more due to tournaments and travel). Expect to budget for tuition, travel, hotels, meals, uniforms, and equipment. Ask your specific team coach for a full cost breakdown."
-    },
-    {
-      "question": "Who runs tryouts?",
-      "answer": "Tryouts are run by the Mid TN VBC Tryout Staff under Director Rhonda Ross and Assistant Director Jeff Wismer. Questions can be directed to the tryout staff at midtnvbc.com or via email."
-    },
-    {
-      "question": "What is SRVA?",
-      "answer": "SRVA (Southeastern Regional Volleyball Association) is the regional governing body for USAV junior volleyball. All clubs in our region — including Mid TN VBC — must follow SRVA rules. All clubs hold tryouts on the SAME SRVA-set date, so you must choose your club before tryout day."
-    },
-    {
-      "question": "Do I need a USAV membership?",
-      "answer": "Yes. A valid SRVA Tryout Membership (which includes USAV coverage) is required before you can participate in tryouts. Purchase yours at srva.org before arriving on tryout day."
+      "question": "Who are the sponsors?",
+      "answer": "Our official sponsors are Cerina Craig (Real Estate) and Shane Electric."
     }
   ],
   "social_updates": {
     "instagram": "Check @midtnvbc on Instagram for latest photos and reels from training!",
     "facebook": "Visit Mid TN VBC on Facebook for community updates and event photos."
   },
-  "usa_volleyball_latest": "Check usavolleyball.org for the latest updates.",
-  "last_agent_run": "2026-07-06 14:26:18"
-  "last_agent_run": "2026-07-05 23:22:28",
+  "last_agent_run": "2026-07-08 14:28:47",
   "active_documents": [
     {
       "name": "MidTN VBC",
       "url": "https://www.midtnvbc.com/page/show/1484078-home",
-      "content": "2025-2026 Club Tryouts\nCountdown to Club Volleyball Tryouts!0Days0Hours0Minutes0Seconds\nCountdown to Club Volleyball Tryouts!\nPrivate Lessons are 1 hour each. All our staff is experienced at working with all levels of training from beginner players to college age players.\nFor prices & availability view the registration.\nThis is our first step into volleyball, built for beginners who are just getting started. Athletes develop agility, footwork, coordination, and body control through fun, age-appropriate drills that build a strong foundation.\nThe next step after Tot\u2019s\u2014athletes strengthen passing, setting, serving, and attacking while learning simple game concepts like spacing, communication, and teamwork through fun gameplay.\nFun with Fundamentals (7/20-23):This camp is all about FUN! Your athlete will be learning all of the basic skills and techniques of the sport. Our sessions will be gears toward beginners, so no experience is needed! This camp will teach the following skills, Footwork and movement, Passing, Setting, Serving, Attacking, and Defense.\nTryout Tune Up (6/22, 6/29, 7/6):Gear up for volleyball tryouts!Join our prep clinics to sharpen your serving, passing, setting, and attacking. With expert coaching and game-like drills, we\u2019ll help players of all skill levels build the confidence to make the team.\nAll Skills (Week 1: 6/8-11 OR Week 2: 7/27-7/30):Learn the fundamentals and play with confidence! Our camp covers the essentials\u2014passing, setting, hitting, serving, and defending\u2014through fun drills and friendly competition. With expert, individualized coaching, athletes will build skills, practice teamwork, and make lasting friendships.\nSkills Week (6/22-25):This 4-day camp focuses on a different skill theme each day to help athletes level up fast: Day 1: Setting + Attacking, Day 2: Serving + Serve Receive + Defense, Day 3: Dig-to-Attack,\u00a0Day 4: Pass-to-Set. Best for athletes with prior volleyball experience.\nTryout Tune Up (6/24, 7/1, 7/8):Gear up for volleyball tryouts!Join our prep clinics to sharpen your serving, passing, setting, and attacking. With expert coaching and game-like drills, we\u2019ll help players of all skill levels build the confidence to make the team.\nAll Skills (Week 1: 6/15-18:Learn the fundamentals and play with confidence! Our camp covers the essentials\u2014passing, setting, hitting, serving, and defending\u2014through fun drills and friendly competition. With expert, individualized coaching, athletes will build skills, practice teamwork, and make lasting friendships.\nThis website is powered by SportsEngine'sSports Relationship Management(SRM) software, but is owned by and subject to the  MidTN VBC privacy policy.\u00a92026 SportsEngine, LLC.Privacy Policy\nThis website is powered by SportsEngine'sSports Relationship Management(SRM) software, but is owned by and subject to the  MidTN VBC privacy policy.\u00a92026 SportsEngine, LLC."
+      "content": "2026-2027 Club Tryouts\nCountdown to Club Volleyball Tryouts!0Days0Hours0Minutes0Seconds\nCountdown to Club Volleyball Tryouts!\nPrivate Lessons are 1 hour each. All our staff is experienced at working with all levels of training from beginner players to college age players.\nFor prices & availability view the registration.\nThis is our first step into volleyball, built for beginners who are just getting started. Athletes develop agility, footwork, coordination, and body control through fun, age-appropriate drills that build a strong foundation.\nThe next step after Tot\u2019s\u2014athletes strengthen passing, setting, serving, and attacking while learning simple game concepts like spacing, communication, and teamwork through fun gameplay.\nFun with Fundamentals (7/20-23):This camp is all about FUN! Your athlete will be learning all of the basic skills and techniques of the sport. Our sessions will be gears toward beginners, so no experience is needed! This camp will teach the following skills, Footwork and movement, Passing, Setting, Serving, Attacking, and Defense.\nTryout Tune Up (6/22, 6/29, 7/6):Gear up for volleyball tryouts!Join our prep clinics to sharpen your serving, passing, setting, and attacking. With expert coaching and game-like drills, we\u2019ll help players of all skill levels build the confidence to make the team.\nAll Skills (Week 1: 6/8-11 OR Week 2: 7/27-7/30):Learn the fundamentals and play with confidence! Our camp covers the essentials\u2014passing, setting, hitting, serving, and defending\u2014through fun drills and friendly competition. With expert, individualized coaching, athletes will build skills, practice teamwork, and make lasting friendships.\nSkills Week (6/22-25):This 4-day camp focuses on a different skill theme each day to help athletes level up fast: Day 1: Setting + Attacking, Day 2: Serving + Serve Receive + Defense, Day 3: Dig-to-Attack,\u00a0Day 4: Pass-to-Set. Best for athletes with prior volleyball experience.\nTryout Tune Up (6/24, 7/1, 7/8):Gear up for volleyball tryouts!Join our prep clinics to sharpen your serving, passing, setting, and attacking. With expert coaching and game-like drills, we\u2019ll help players of all skill levels build the confidence to make the team.\nAll Skills (Week 1: 6/15-18:Learn the fundamentals and play with confidence! Our camp covers the essentials\u2014passing, setting, hitting, serving, and defending\u2014through fun drills and friendly competition. With expert, individualized coaching, athletes will build skills, practice teamwork, and make lasting friendships.\nThis website is powered by SportsEngine'sSports Relationship Management(SRM) software, but is owned by and subject to the  MidTN VBC privacy policy.\u00a92026 SportsEngine, LLC.Privacy Policy\nThis website is powered by SportsEngine'sSports Relationship Management(SRM) software, but is owned by and subject to the  MidTN VBC privacy policy.\u00a92026 SportsEngine, LLC."
     },
     {
       "name": "Private Lessons",
@@ -291,6 +130,11 @@
       "name": "Assets",
       "url": "https://www.midtnvbc.com/page/show/8842794-assets",
       "content": "This website is powered by SportsEngine'sSports Relationship Management(SRM) software, but is owned by and subject to the  MidTN VBC privacy policy.\u00a92026 SportsEngine, LLC.Privacy Policy\nThis website is powered by SportsEngine'sSports Relationship Management(SRM) software, but is owned by and subject to the  MidTN VBC privacy policy.\u00a92026 SportsEngine, LLC."
+    },
+    {
+      "name": "Recruiting Hub",
+      "url": "https://www.midtnvbc.com/page/show/9308140-recruiting-hub",
+      "content": "If you're a college coach seeking information on our athletes, verified stats, academic details, or recruiting materials, please contact our Recruiting Coordinator,Jess Pino, atRecruiting@midtnvbc.com.We\u2019re happy to provide anything you need to evaluate our players and connect with them efficiently.\nRecruiting Coordinator\nThis website is powered by SportsEngine'sSports Relationship Management(SRM) software, but is owned by and subject to the  MidTN VBC privacy policy.\u00a92026 SportsEngine, LLC.Privacy Policy\nThis website is powered by SportsEngine'sSports Relationship Management(SRM) software, but is owned by and subject to the  MidTN VBC privacy policy.\u00a92026 SportsEngine, LLC."
     }
   ]
 }
