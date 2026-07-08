@@ -340,6 +340,16 @@ function classifyPos(p){
   }
   return 'unsorted';
 }
+function getPosCategories(p1, p2){
+  const res = new Set();
+  [p1, p2].forEach(p => {
+    if(!p || p === 'N/A') return;
+    const s = p.toLowerCase();
+    for(const c of POS_CATS) {
+      if(c.abbrs.some(a => a.length <= 2 ? s === a : s.includes(a))) res.add(c.key);
+    }
+  });
+  return res.size ? Array.from(res) : ['unsorted'];
 function getAthleteCategories(a) {
   const cats = new Set();
   cats.add(classifyPos(a.primaryPos));
@@ -373,6 +383,7 @@ function initAthletes(raw){
     to:a.to||String(toN++),
     ageGroup:divAge(a.division),
     posCategory:classifyPos(a.primaryPos),
+    posCategories:getPosCategories(a.primaryPos, a.altPos),
     posCategories:getAthleteCategories(a),
     status:a.status||'pending',
     teamAssignment:a.teamAssignment||null,
@@ -1615,6 +1626,10 @@ function HeadCoach({athletes,setAthletes,onLogout}){
     setAthletes(p=>p.map(a=>{
       if(a.id!==id) return a;
       let next={...a,...updates};
+      if(updates.primaryPos || updates.altPos) {
+        next.posCategories = getPosCategories(next.primaryPos, next.altPos);
+        next.posCategory = classifyPos(next.primaryPos);
+      }
       if(updates.primaryPos || updates.altPos) next.posCategories = getAthleteCategories(next);
       if(updates.status==='accepted') next.teamLocked=true;
       else if(updates.status && a.status==='accepted') next.teamLocked=false;
@@ -1623,6 +1638,10 @@ function HeadCoach({athletes,setAthletes,onLogout}){
     setSelAth(p=>{
       if(p?.id!==id) return p;
       let next={...p,...updates};
+      if(updates.primaryPos || updates.altPos) {
+        next.posCategories = getPosCategories(next.primaryPos, next.altPos);
+        next.posCategory = classifyPos(next.primaryPos);
+      }
       if(updates.primaryPos || updates.altPos) next.posCategories = getAthleteCategories(next);
       if(updates.status==='accepted') next.teamLocked=true;
       else if(updates.status && p.status==='accepted') next.teamLocked=false;
@@ -1705,19 +1724,12 @@ function HeadCoach({athletes,setAthletes,onLogout}){
 
   const exportToCSV=()=>{
     const headers=['TO#','First','Last','Age','Primary','Alt','Coach','Status','Team','Score','Drill','Height','Reach','Vertical','Shuttle','Arrived','Notes','WontAccept','Phone','Email'];
-    const rows=athletes.filter(a=>!a.hidden).map(a=>[
+    const data=athletes.filter(a=>!a.hidden).map(a=>[
       a.to,a.first,a.last,a.ageGroup+'s',a.primaryPos,a.altPos,a.coachPos,a.status,a.teamAssignment||'',totalScore(a.metrics, a.drillScore)||'',
       a.drillScore||'',(a.metrics?.s1?.[0]||''),(a.metrics?.s1?.[1]||''),(a.metrics?.s1?.[2]||''),(a.metrics?.s2?.[0]||''),
-      a.arrived?'YES':'NO',(a.notes||'').replace(/"/g,'""'),(a.wontAccept||'').replace(/"/g,'""'),a.phone,a.email
+      a.arrived?'YES':'NO',a.notes,a.wontAccept,a.phone,a.email
     ]);
-    const csvContent='data:text/csv;charset=utf-8,'+headers.join(',')+'\n'+rows.map(r=>r.map(v=>`"${v}"`).join(',')).join('\n');
-    const encodedUri=encodeURI(csvContent);
-    const link=document.createElement('a');
-    link.setAttribute('href',encodedUri);
-    link.setAttribute('download',`midtn_tryouts_export_${new Date().toISOString().slice(0,10)}.csv`);
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+    exportCSV([headers,...data], `midtn_tryouts_export_${new Date().toISOString().slice(0,10)}.csv`);
   };
 
   const hidden=athletes.filter(a=>a.hidden);
@@ -1759,6 +1771,10 @@ function HeadCoach({athletes,setAthletes,onLogout}){
     const pool=athletes.filter(a=>a.ageGroup===age&&!a.hidden);
     const g={setter:[],middle:[],outside:[],defense:[],unsorted:[]};
     pool.forEach(a=>{
+      (a.posCategories || [a.posCategory || 'unsorted']).forEach(cat => {
+        if(g[cat]) g[cat].push(a);
+        else g.unsorted.push(a);
+      });
       (a.posCategories||[a.posCategory]).forEach(c => (g[c]||g.unsorted).push(a));
     });
     Object.keys(g).forEach(k=>g[k].sort((a,b)=>(Number(totalScore(b.metrics, b.drillScore))||0)-(Number(totalScore(a.metrics, a.drillScore))||0)));
@@ -1851,7 +1867,7 @@ function HeadCoach({athletes,setAthletes,onLogout}){
               <${Badge} c="#26c6da">${regList.filter(a=>a.arrived).length} Arrived<//>
               <${Badge} c="#78909c">${regList.length} Total<//>
               <${Btn} sm onClick=${()=>setAddWu(p=>!p)} color="#f0a500" style=${{border:'2px solid #f0a500',boxShadow:'0 0 10px rgba(240,165,0,0.3)'}}>+ Add Walkup<//>
-              <${Btn} sm onClick=${()=>exportCSV([['TO#','First','Last','Division','Primary','Alt','Score','Drill','Height','Reach','Vertical','Shuttle','Status','Arrived','Walkup','Phone','Email','Notes','WontAccept'],...athletes.filter(a=>!a.hidden).map(a=>[a.to,a.first,a.last,a.division,a.primaryPos,a.altPos,totalScore(a.metrics, a.drillScore)||'',a.drillScore||'',(a.metrics?.s1?.[0]||''),(a.metrics?.s1?.[1]||''),(a.metrics?.s1?.[2]||''),(a.metrics?.s2?.[0]||''),a.status,a.arrived?'Yes':'',a.isWalkup?'Yes':'',a.phone,a.email,a.notes,a.wontAccept])],'MidTN_Reg.csv')} color="#4fc3f7" outline>Export CSV<//>
+              <${Btn} sm onClick=${()=>exportCSV([['TO#','First','Last','Division','Primary','Alt','Coach','Score','Drill','Height','Reach','Vertical','Shuttle','Status','Arrived','Walkup','Phone','Email','Notes','WontAccept'],...athletes.filter(a=>!a.hidden).map(a=>[a.to,a.first,a.last,a.division,a.primaryPos,a.altPos,a.coachPos,totalScore(a.metrics, a.drillScore)||'',a.drillScore||'',(a.metrics?.s1?.[0]||''),(a.metrics?.s1?.[1]||''),(a.metrics?.s1?.[2]||''),(a.metrics?.s2?.[0]||''),a.status,a.arrived?'Yes':'',a.isWalkup?'Yes':'',a.phone,a.email,a.notes,a.wontAccept])],'MidTN_Reg.csv')} color="#4fc3f7" outline>Export CSV<//>
             </div>
             ${addWu&&html`
               <div class="card" style=${{padding:16,marginBottom:14,border:'1px solid #f0a50033'}}>
@@ -2001,6 +2017,8 @@ function HeadCoach({athletes,setAthletes,onLogout}){
                   ${poolSort==='pos'
                     ? html`<div>
                         ${[...POS_CATS,{key:'unsorted',label:'Unsorted'}].map(cat => {
+                          const list = pool.filter(a => (a.posCategories || [a.posCategory]).includes(cat.key))
+                                           .sort((a,b)=>(Number(totalScore(b.metrics, b.drillScore))||0)-(Number(totalScore(a.metrics, a.drillScore))||0));
                           const list = pool.filter(a => (a.posCategories||[a.posCategory]).includes(cat.key));
                           if(list.length === 0) return null;
                           return html`
