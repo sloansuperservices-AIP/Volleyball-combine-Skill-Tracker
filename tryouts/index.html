@@ -5,15 +5,22 @@
 <script>
   window.jsErrors = [];
   window.onerror = function(message, source, lineno, colno, error) {
-    window.jsErrors.push({
-      message: message,
-      source: source,
-      lineno: lineno,
-      colno: colno,
-      stack: error ? error.stack : ''
-    });
+    window.jsErrors.push({ message, source, lineno, colno, stack: error ? error.stack : '' });
+    // Show error visibly on screen
+    var d = document.getElementById('js-error-display');
+    if (!d) { d = document.createElement('div'); d.id='js-error-display';
+      d.style.cssText='position:fixed;top:0;left:0;right:0;background:#c00;color:#fff;padding:12px;font:13px monospace;z-index:99999;white-space:pre-wrap;max-height:50vh;overflow:auto;';
+      document.body.appendChild(d); }
+    d.textContent += 'LINE ' + lineno + ': ' + message + '\n' + (error&&error.stack?error.stack:'') + '\n\n';
     return false;
   };
+  window.addEventListener('unhandledrejection', function(e) {
+    var d = document.getElementById('js-error-display');
+    if (!d) { d = document.createElement('div'); d.id='js-error-display';
+      d.style.cssText='position:fixed;top:0;left:0;right:0;background:#c00;color:#fff;padding:12px;font:13px monospace;z-index:99999;white-space:pre-wrap;max-height:50vh;overflow:auto;';
+      document.body.appendChild(d); }
+    d.textContent += 'PROMISE REJECTION: ' + e.reason + '\n\n';
+  });
   window.addEventListener('unhandledrejection', function(event) {
     window.jsErrors.push({
       message: 'Unhandled Promise Rejection: ' + event.reason,
