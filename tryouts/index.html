@@ -1764,7 +1764,6 @@ function HeadCoach({athletes,setAthletes,onLogout}){
         if(g[cat]) g[cat].push(a);
         else g.unsorted.push(a);
       });
-      (a.posCategories||[a.posCategory]).forEach(c => (g[c]||g.unsorted).push(a));
     });
     Object.keys(g).forEach(k=>g[k].sort((a,b)=>(Number(totalScore(b.metrics, b.drillScore))||0)-(Number(totalScore(a.metrics, a.drillScore))||0)));
     return g;
@@ -1788,14 +1787,11 @@ function HeadCoach({athletes,setAthletes,onLogout}){
   const ageAths=athletes.filter(a=>a.ageGroup===age&&!a.hidden);
   const pool=useMemo(()=>{
     let l=showAllPool ? [...ageAths] : ageAths.filter(a=>!a.teamAssignment);
-    if(poolSort==='score') l.sort((a,b)=>(Number(totalScore(b.metrics, b.drillScore))||0)-(Number(totalScore(a.metrics, a.drillScore))||0));
-    else if(poolSort==='name') l.sort((a,b)=>a.last.localeCompare(b.last));
-    else if(poolSort==='pos'){
     if(poolSort==='score') {
       l.sort((a,b)=>(Number(totalScore(b.metrics, b.drillScore))||0)-(Number(totalScore(a.metrics, a.drillScore))||0));
     } else if(poolSort==='name') {
       l.sort((a,b)=>a.last.localeCompare(b.last));
-    } else if(poolSort==='pos') {
+    } else if(poolSort==='pos'){
       const order = {setter:1, middle:2, outside:3, defense:4, unsorted:5};
       l.sort((a,b)=>{
         if(a.posCategory !== b.posCategory) return (order[a.posCategory]||99) - (order[b.posCategory]||99);
