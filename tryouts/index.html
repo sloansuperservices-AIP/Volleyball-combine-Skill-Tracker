@@ -184,12 +184,6 @@ function getPosCategories(p1, p2) {
   });
   return res.size ? Array.from(res) : ['unsorted'];
 }
-function getAthleteCategories(a) {
-  const cats = new Set();
-  cats.add(classifyPos(a.primaryPos));
-  if (a.altPos && a.altPos !== 'N/A' && a.altPos !== 'none') cats.add(classifyPos(a.altPos));
-  return Array.from(cats);
-}
 function divAge(d){const m=(d||'').match(/(\d+)/);return m?m[1]:'';}
 function sAvg(metrics, key) {
   // Use a single loop to avoid multiple iterations and intermediate array allocations
@@ -219,17 +213,10 @@ function totalScore(metrics, drillScore) {
     }
   }
   if (drillScore && !isNaN(Number(drillScore))) {
-function totalScore(metrics, drillScore){
-  let s=0,c=0;
-  STATIONS.filter(st=>st.key!=='checkin').forEach(st=>{
-    const a=sAvg(metrics,st.key);
-    if(a!==null){s+=a;c++;}
-  });
-  if(drillScore && !isNaN(Number(drillScore))){
     s += Number(drillScore);
     c++;
   }
-  return c>0?(s/c).toFixed(1):null;
+  return c > 0 ? (s / c).toFixed(1) : null;
 }
 function scoreColor(sc){return Number(sc)>=7?'#66bb6a':Number(sc)>=5?'#ffa726':'#ef5350';}
 let toN=100;
@@ -241,7 +228,6 @@ function initAthletes(raw){
     to:a.to||String(toN++),
     ageGroup:divAge(a.division),
     posCategory:classifyPos(a.primaryPos),
-    posCategories:getAthleteCategories(a),
     posCategories:getPosCategories(a.primaryPos, a.altPos),
     status:a.status||'pending',
     teamAssignment:a.teamAssignment||null,
@@ -1494,7 +1480,7 @@ function HeadCoach({athletes,setAthletes,onLogout}){
       let next={...a,...updates};
       if(updates.primaryPos || updates.altPos) {
         next.posCategory = classifyPos(next.primaryPos);
-        next.posCategories = getAthleteCategories(next);
+        next.posCategories = getPosCategories(next.primaryPos, next.altPos);
       }
       if(updates.status==='accepted') next.teamLocked=true;
       else if(updates.status && a.status==='accepted') next.teamLocked=false;
@@ -1505,7 +1491,7 @@ function HeadCoach({athletes,setAthletes,onLogout}){
       let next={...p,...updates};
       if(updates.primaryPos || updates.altPos) {
         next.posCategory = classifyPos(next.primaryPos);
-        next.posCategories = getAthleteCategories(next);
+        next.posCategories = getPosCategories(next.primaryPos, next.altPos);
       }
       if(updates.status==='accepted') next.teamLocked=true;
       else if(updates.status && p.status==='accepted') next.teamLocked=false;
@@ -1632,49 +1618,63 @@ function HeadCoach({athletes,setAthletes,onLogout}){
 
   // â”€â”€ DEPTH â”€â”€
   const depthPool=useMemo(()=>{
-    const pool=athletes.filter(a=>a.ageGroup===age&&!a.hidden);
-    const g={setter:[],middle:[],outside:[],defense:[],unsorted:[]};
-    pool.forEach(a=>{
+    const pool = athletes.filter(a => a.ageGroup === age && !a.hidden);
+    // Pre-calculate scores for sorting
+    const scores = new Map();
+    pool.forEach(a => scores.set(a.id, Number(totalScore(a.metrics, a.drillScore)) || 0));
+
+    const g = { setter: [], middle: [], outside: [], defense: [], unsorted: [] };
+    pool.forEach(a => {
       (a.posCategories || [a.posCategory || 'unsorted']).forEach(cat => {
-        if(g[cat]) g[cat].push(a);
+        if (g[cat]) g[cat].push(a);
         else g.unsorted.push(a);
       });
     });
-    Object.keys(g).forEach(k=>g[k].sort((a,b)=>(Number(totalScore(b.metrics, b.drillScore))||0)-(Number(totalScore(a.metrics, a.drillScore))||0)));
+    Object.keys(g).forEach(k => g[k].sort((a, b) => scores.get(b.id) - scores.get(a.id)));
     return g;
-  },[athletes,age]);
+  }, [athletes, age]);
 
   // â”€â”€ RESULTS â”€â”€
-  const [resSort,setResSort]=useState('score');
-  const resList=useMemo(()=>{
-    const l=athletes.filter(a=>a.ageGroup===age&&!a.hidden);
-    if(resSort==='score') l.sort((a,b)=>(Number(totalScore(b.metrics, b.drillScore))||0)-(Number(totalScore(a.metrics, a.drillScore))||0));
-    else if(resSort==='name') l.sort((a,b)=>a.last.localeCompare(b.last));
-    else l.sort((a,b)=>(sAvg(b.metrics,resSort)||0)-(sAvg(a.metrics,resSort)||0));
+  const [resSort, setResSort] = useState('score');
+  const resList = useMemo(() => {
+    const l = athletes.filter(a => a.ageGroup === age && !a.hidden);
+    if (resSort === 'score') {
+      const scores = new Map();
+      l.forEach(a => scores.set(a.id, Number(totalScore(a.metrics, a.drillScore)) || 0));
+      l.sort((a, b) => scores.get(b.id) - scores.get(a.id));
+    } else if (resSort === 'name') {
+      l.sort((a, b) => a.last.localeCompare(b.last));
+    } else {
+      l.sort((a, b) => (sAvg(b.metrics, resSort) || 0) - (sAvg(a.metrics, resSort) || 0));
+    }
     return l;
-  },[athletes,age,resSort]);
+  }, [athletes, age, resSort]);
 
   // â”€â”€ TEAMS â”€â”€
-  const [poolSort,setPoolSort]=useState('pos');
-  const [showPool,setShowPool]=useState(true);
-  const [dragOver,setDragOver]=useState(null);
-  const [showAllPool,setShowAllPool]=useState(true);
-  const ageAths=athletes.filter(a=>a.ageGroup===age&&!a.hidden);
-  const pool=useMemo(()=>{
-    let l=showAllPool ? [...ageAths] : ageAths.filter(a=>!a.teamAssignment);
-    if(poolSort==='score') {
-      l.sort((a,b)=>(Number(totalScore(b.metrics, b.drillScore))||0)-(Number(totalScore(a.metrics, a.drillScore))||0));
-    } else if(poolSort==='name') {
-      l.sort((a,b)=>a.last.localeCompare(b.last));
-    } else if(poolSort==='pos'){
-      const order = {setter:1, middle:2, outside:3, defense:4, unsorted:5};
-      l.sort((a,b)=>{
-        if(a.posCategory !== b.posCategory) return (order[a.posCategory]||99) - (order[b.posCategory]||99);
-        return (Number(totalScore(b.metrics, b.drillScore))||0)-(Number(totalScore(a.metrics, a.drillScore))||0);
+  const [poolSort, setPoolSort] = useState('pos');
+  const [showPool, setShowPool] = useState(true);
+  const [dragOver, setDragOver] = useState(null);
+  const [showAllPool, setShowAllPool] = useState(true);
+  const ageAths = athletes.filter(a => a.ageGroup === age && !a.hidden);
+  const pool = useMemo(() => {
+    let l = showAllPool ? [...ageAths] : ageAths.filter(a => !a.teamAssignment);
+    if (poolSort === 'score') {
+      const scores = new Map();
+      l.forEach(a => scores.set(a.id, Number(totalScore(a.metrics, a.drillScore)) || 0));
+      l.sort((a, b) => scores.get(b.id) - scores.get(a.id));
+    } else if (poolSort === 'name') {
+      l.sort((a, b) => a.last.localeCompare(b.last));
+    } else if (poolSort === 'pos') {
+      const order = { setter: 1, middle: 2, outside: 3, defense: 4, unsorted: 5 };
+      const scores = new Map();
+      l.forEach(a => scores.set(a.id, Number(totalScore(a.metrics, a.drillScore)) || 0));
+      l.sort((a, b) => {
+        if (a.posCategory !== b.posCategory) return (order[a.posCategory] || 99) - (order[b.posCategory] || 99);
+        return scores.get(b.id) - scores.get(a.id);
       });
     }
     return l;
-  },[ageAths,poolSort,showAllPool]);
+  }, [ageAths, poolSort, showAllPool]);
   const drop=(e,teamKey)=>{
     e.preventDefault();
     const id=e.dataTransfer.getData('text/plain');
@@ -1874,25 +1874,18 @@ function HeadCoach({athletes,setAthletes,onLogout}){
                           const listByCat = pool.filter(a => (a.posCategories || [a.posCategory]).includes(cat.key))
                                            .sort((a,b)=>(Number(totalScore(b.metrics, b.drillScore))||0)-(Number(totalScore(a.metrics, a.drillScore))||0));
                           if(listByCat.length === 0) return null;
-                          if(list.length === 0) return null;
                           return html`
                             <div key=${cat.key} style=${{marginBottom:12,borderBottom:'1px solid #1e222b',paddingBottom:8}}>
                               <div style=${{fontSize:11,fontWeight:800,color:cat.key==='unsorted'?'#ffa726':'#4fc3f7',textTransform:'uppercase',marginBottom:8,paddingLeft:4,borderLeft:`3px solid ${cat.key==='unsorted'?'#ffa726':'#4fc3f7'}`,display:'flex',justifyContent:'space-between'}}>
                                 <span>${cat.label}</span>
                                 <span style=${{fontSize:10,opacity:.5}}>${listByCat.length}</span>
                               </div>
-                              ${list.map((a, idx) => html`
-                                <div key=${a.id} style=${{opacity:a.teamAssignment?.length?0.35:1,pointerEvents:a.teamAssignment?.length?'none':'auto',marginBottom:2,display:'flex',alignItems:'center',gap:4}}>
                               ${listByCat.map((a, idx) => html`
-                                <div style=${{opacity:(a.teamAssignment && !showAllPool)?0.35:1,pointerEvents:(a.teamAssignment && !showAllPool)?'none':'auto',marginBottom:2,display:'flex',alignItems:'center',gap:4}}>
+                                <div key=${a.id} style=${{opacity:(a.teamAssignment && !showAllPool)?0.35:1,pointerEvents:(a.teamAssignment && !showAllPool)?'none':'auto',marginBottom:2,display:'flex',alignItems:'center',gap:4}}>
                                   <span style=${{fontSize:10,color:'#546e7a',width:15,textAlign:'right'}}>${idx+1}</span>
                                   <div style=${{flex:1}}>
                                     <${PCard} athlete=${a} onClick=${setSelAth} compact showScore/>
                                   </div>
-                              ${list.map((a,i) => html`
-                                <div style=${{opacity:a.teamAssignment?.length?0.35:1,pointerEvents:a.teamAssignment?.length?'none':'auto',marginBottom:2,display:'flex',alignItems:'center',gap:4}}>
-                                  <span style=${{fontSize:10,color:'#546e7a',width:14,textAlign:'right'}}>${i+1}</span>
-                                  <div style=${{flex:1}}><${PCard} athlete=${a} onClick=${setSelAth} compact showScore/></div>
                                 </div>`)}
                             </div>`;
                         })}
