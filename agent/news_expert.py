@@ -84,9 +84,10 @@ def pull_social_news():
         res = requests.get("https://www.facebook.com/midtnvbc", headers=headers, timeout=10)
         if res.status_code == 200:
             soup = BeautifulSoup(res.text, 'html.parser')
-            meta = soup.find("meta", property="og:description")
-            if meta and meta.get("content"):
-                social["facebook"] = meta["content"]
+            # Try multiple meta tags for robustness
+            meta_desc = soup.find("meta", property="og:description") or soup.find("meta", attrs={"name": "description"})
+            if meta_desc and meta_desc.get("content"):
+                social["facebook"] = meta_desc["content"]
     except Exception as e:
         print(f"Error pulling Facebook news: {e}")
 
@@ -95,9 +96,9 @@ def pull_social_news():
         res = requests.get("https://www.instagram.com/midtnvbc/", headers=headers, timeout=10)
         if res.status_code == 200:
             soup = BeautifulSoup(res.text, 'html.parser')
-            meta = soup.find("meta", property="og:description")
-            if meta and meta.get("content"):
-                social["instagram"] = meta["content"]
+            meta_desc = soup.find("meta", property="og:description") or soup.find("meta", attrs={"name": "description"})
+            if meta_desc and meta_desc.get("content"):
+                social["instagram"] = meta_desc["content"]
     except Exception as e:
         print(f"Error pulling Instagram news: {e}")
 
@@ -218,17 +219,18 @@ def update_knowledge_base():
     # Update Expert Rules (2025-2027)
     kb['rules_and_regulations'] = {
         "usa_volleyball": {
-            "expert_note": "2025-2027 Rule Highlights: Jewelry (studs/small hoops) allowed; re-serve allowed for tossing error (once per turn); Libero can be team captain; Coaches can stand/walk in free zone to attack line extension. Screening is strictly monitored—players must not hide the server or path of the ball.",
+            "expert_note": "2025-2027 Rule Highlights: Jewelry (studs/small hoops) allowed; re-serve allowed for tossing error (once per turn); Libero can be team captain; Coaches can stand/walk in free zone to attack line extension. Screening is strictly monitored—players must not hide the server or path of the ball. Uniforms must have clearly contrasting numbers.",
             "link": "https://usavolleyball.org/resources-for-officials/rulebooks-and-interpretations/"
         },
         "srva": {
-            "expert_note": "SRVA Policies: Valid USAV membership (Tryout or Full) required before stepping on court. Offers accepted via SportsEngine are binding. Max tryout fee $75. Athletes must bring a printed and signed USAV Medical Release form to tryouts.",
+            "expert_note": "SRVA Policies: Valid USAV membership (Tryout or Full) required before stepping on court. Offers accepted via SportsEngine are binding. Max tryout fee $75. Athletes must bring a printed and signed USAV Medical Release form to tryouts. Notarization is required for Medical Release forms at certain regional/national events.",
             "link": "https://www.srva.org"
         },
         "highlights": [
             "Libero can now officially serve in one position in the rotation (USAV/SRVA specific).",
             "Uniform numbers must be clearly contrasting and centered (front and back).",
-            "Medical Release forms are required for every tournament and must be notarized for some events."
+            "Medical Release forms are required for every tournament and must be printed, signed, and occasionally notarized.",
+            "Re-serve rule: One tossing error per service turn is allowed without loss of rally (ball must drop to floor)."
         ]
     }
 

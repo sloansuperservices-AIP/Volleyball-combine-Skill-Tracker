@@ -12,6 +12,7 @@ function Chatbot() {
     const [input, setInput] = useState('');
     const [kb, setKb] = useState(null);
     const [isTyping, setIsTyping] = useState(false);
+    const [activeSection, setActiveSection] = useState('');
 
     useEffect(() => {
         const loadKb = () => {
@@ -46,18 +47,59 @@ function Chatbot() {
         return () => window.removeEventListener('storage', handleStorage);
     }, []);
 
+    useEffect(() => {
+        const path = window.location.pathname;
+        if (path.includes('tryouts') || path.endsWith('/tryouts/index.html')) return;
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    setActiveSection(entry.target.id);
+                }
+            });
+        }, { threshold: 0.3 });
+
+        const sections = ['vision', 'news', 'programs', 'whyplayclub', 'recruiting', 'staff', 'facility', 'sponsors', 'tryouts', 'faq'];
+        sections.forEach(id => {
+            const el = document.getElementById(id);
+            if (el) observer.observe(el);
+        });
+
+        return () => observer.disconnect();
+    }, []);
+
     const pageContext = useMemo(() => {
         const path = window.location.pathname;
         if (path.includes('tryouts')) return 'Tryout Manager';
+        if (activeSection) {
+            const labels = {
+                vision: 'Vision & Values',
+                news: 'Latest News',
+                programs: 'Club Programs',
+                whyplayclub: 'Why Play Club?',
+                recruiting: 'Recruiting Hub',
+                staff: 'Staff & Leadership',
+                facility: 'Our Facilities',
+                sponsors: 'Official Sponsors',
+                tryouts: 'Tryout Information',
+                faq: 'FAQ'
+            };
+            return `Home Page - ${labels[activeSection] || activeSection}`;
+        }
         return 'Club Home Page';
-    }, []);
+    }, [activeSection]);
 
     const pageDescription = useMemo(() => {
         if (pageContext === 'Tryout Manager') {
             return 'This page is for coaches and staff to manage athlete check-ins, physical testing, and evaluations.';
         }
+        if (activeSection === 'tryouts') return 'You are viewing the 2026-2027 tryout dates and registration links.';
+        if (activeSection === 'programs') return 'You are looking at our Elite, Regional, and Youth development programs.';
+        if (activeSection === 'whyplayclub') return 'This section explains the commitment and benefits of club volleyball.';
+        if (activeSection === 'facility') return 'Information about Hooptown and Sportscom training locations.';
+
         return 'This is the main club home page. You can find information about our programs, news, facilities, and upcoming tryouts here.';
-    }, [pageContext]);
+    }, [pageContext, activeSection]);
 
     const handleSend = async () => {
         if (!input.trim()) return;
@@ -161,18 +203,38 @@ function Chatbot() {
 
         // 2. Offline Client-side RAG Engine (runs as fallback, or if no API settings are configured)
         if (response === fallbackText && kb) {
+            // 0. Priority "Expert Rule" match
+            if (q.includes('rule') || q.includes('jewelry') || q.includes('libero') || q.includes('medical form') || q.includes('re-serve') || q.includes('captain')) {
+                if (q.includes('srva') || q.includes('medical') || q.includes('notar')) {
+                    response = kb.rules_and_regulations?.srva?.expert_note || response;
+                } else {
+                    response = kb.rules_and_regulations?.usa_volleyball?.expert_note || response;
+                }
+                if (kb.rules_and_regulations?.highlights) {
+                    const hMatch = kb.rules_and_regulations.highlights.find(h => {
+                        const hl = h.toLowerCase();
+                        return (q.includes('libero') && hl.includes('libero')) ||
+                               (q.includes('jewelry') && hl.includes('jewelry')) ||
+                               (q.includes('re-serve') && hl.includes('re-serve')) ||
+                               (q.includes('uniform') && hl.includes('uniform')) ||
+                               (q.includes('medical') && hl.includes('medical'));
+                    });
+                    if (hMatch) response = hMatch;
+                }
+            }
+
             // FAQ direct matches
-            if (q.includes('cost') || q.includes('price') || q.includes('how much')) {
+            if (response === fallbackText && (q.includes('cost') || q.includes('price') || q.includes('how much'))) {
                 response = kb.faq?.find(f => f.question.toLowerCase().includes('cost'))?.answer || response;
-            } else if (q.includes('sign in') || q.includes('check in') || q.includes('register')) {
+            } else if (response === fallbackText && (q.includes('sign in') || q.includes('check in') || q.includes('register'))) {
                 response = kb.faq?.find(f => f.question.toLowerCase().includes('sign in'))?.answer || response;
-            } else if (q.includes('bring') || q.includes('ready') || q.includes('requirement')) {
+            } else if (response === fallbackText && (q.includes('bring') || q.includes('ready') || q.includes('requirement'))) {
                 response = kb.faq?.find(f => f.question.toLowerCase().includes('ready'))?.answer || response;
-            } else if (q.includes('rule') || q.includes('regulation') || q.includes('uniform')) {
+            } else if (response === fallbackText && (q.includes('rule') || q.includes('regulation') || q.includes('uniform'))) {
                 response = `USAV Expert Note: ${kb.rules_and_regulations?.usa_volleyball?.expert_note || ''}`;
-            } else if (q.includes('srva')) {
+            } else if (response === fallbackText && q.includes('srva')) {
                 response = `SRVA Expert Note: ${kb.rules_and_regulations?.srva?.expert_note || ''}`;
-            } else if (q.includes('news') || q.includes('update')) {
+            } else if (response === fallbackText && (q.includes('news') || q.includes('update'))) {
                 if (kb.news && kb.news[0]) {
                     response = `Latest News: ${kb.news[0].title} (${kb.news[0].date}). ${kb.news[0].summary}`;
                 }
