@@ -57,17 +57,29 @@ tr:hover td{background:#1a1d24;cursor:pointer}
 <div id="chatbot-root"></div>
 
 <script>
+  window.LOG = function(m) {
+    console.log("[Tryout Manager] " + m);
+    var d = document.getElementById('error-display');
+    if (d) d.textContent += "\nLOG: " + m;
+  };
   window.onerror = function(msg, url, line, col, error) {
-    var display = document.getElementById('error-display');
-    if (display) display.textContent += "\nError: " + msg + "\nLine: " + line + ":" + col;
+    window.LOG("Error: " + msg + " at " + line + ":" + col);
     return false;
   };
+  window.onunhandledrejection = function(event) {
+    window.LOG("Promise Rejection: " + event.reason);
+  };
+  window.LOG("Diagnostic script initialized");
 </script>
 
 <script type="module">
-console.log("Tryout Manager: Script starting...");
-import { render, useState, useEffect, useMemo, useRef, useCallback, html } from 'https://unpkg.com/htm/preact/standalone.module.js';
-console.log("Tryout Manager: Standalone imports successful");
+window.LOG("Module script execution started");
+
+import { h, render, Fragment } from 'https://esm.sh/preact@10';
+import { useState, useEffect, useMemo, useRef, useCallback } from 'https://esm.sh/preact@10/hooks';
+import htm from 'https://esm.sh/htm@3';
+const html = htm.bind(h);
+window.LOG("Modules imported successfully");
 
 // ── CONSTANTS ──────────────────────────────────────────────────────
 const LOCAL_KEY='midtn_tryout_v2';
@@ -1099,7 +1111,7 @@ function TeamOfferModal({teamKey,athletes,onClose,onSendOffer}){
 // ── ROOT ───────────────────────────────────────────────────────────
 function App(){
   useEffect(() => {
-    // Clear loading state
+    window.LOG("App component mounted");
     const appEl = document.getElementById('app');
     if (appEl) {
       appEl.style.display = 'block';
@@ -1109,8 +1121,14 @@ function App(){
 
   const [user,setUser]=useState(null);
   const [athletes,setAthletes]=useState(()=>{
-    const l=loadLocal();
-    return l?initAthletes(l):initAthletes(RAW);
+    try {
+      const l=loadLocal();
+      window.LOG(l ? "Loading from local storage" : "Loading from RAW data");
+      return l ? initAthletes(l) : initAthletes(RAW);
+    } catch (e) {
+      window.LOG("Error initializing athletes: " + e.message);
+      return initAthletes(RAW);
+    }
   });
   const updMetric=useCallback((id,key,vals)=>{
     setAthletes(p=>p.map(a=>a.id===id?{...a,metrics:{...a.metrics,[key]:vals}}:a));
@@ -1123,15 +1141,15 @@ function App(){
   if(user.role==='station') return html`<${Station} stationKey=${user.key} label=${user.label} metrics=${user.metrics} athletes=${athletes} onMetric=${updMetric} onLogout=${()=>setUser(null)}/>`;
   return html`<${HeadCoach} athletes=${athletes} setAthletes=${setAthletes} onLogout=${()=>setUser(null)}/>`;
 }
-console.log("Tryout Manager: Attempting initial render...");
+window.LOG("Attempting initial render...");
 try {
   const root = document.getElementById('app');
   render(html`<${App}/>`, root);
-  console.log("Tryout Manager: Initial render call completed");
+  window.LOG("Render call completed");
 } catch (err) {
   console.error("Render error:", err);
-  const errDisp = document.getElementById('error-display');
-  if (errDisp) errDisp.textContent += "\nRender Error: " + err.message + "\nStack: " + err.stack;
+  var display = document.getElementById('error-display');
+  if (display) display.textContent += "\nRENDER ERROR: " + err.message;
 }
 </script>
 <script src="../chatbot.js" type="module"></script>
