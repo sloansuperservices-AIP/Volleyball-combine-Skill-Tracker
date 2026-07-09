@@ -100,6 +100,7 @@ const STATIONS=[
   {key:'s1',label:'Reach & Vertical',metrics:['Height (in)','Reach (in)','Vertical (in)']},
   {key:'s2',label:'Agility',metrics:['Shuttle Run (sec)']},
 ];
+const SCORE_STATIONS = STATIONS.filter(st => st.key !== 'checkin' && st.key !== 'drills');
 const AGES=['12','13','14','15','16','17','18'];
 const LEVELS=['Black','Blue','Silver','Yellow','White'];
 const TEAM_STYLE={
@@ -171,22 +172,53 @@ function classifyPos(p){
   }
   return 'unsorted';
 }
-function getPosCategories(p1, p2){
+function getPosCategories(p1, p2) {
   const res = new Set();
   [p1, p2].forEach(p => {
+    if (!p || p === 'N/A') return;
     if(!p || p === 'N/A' || p === 'none') return;
     const s = p.toLowerCase();
-    for(const c of POS_CATS) {
-      if(c.abbrs.some(a => a.length <= 2 ? s === a : s.includes(a))) res.add(c.key);
+    for (const c of POS_CATS) {
+      if (c.abbrs.some(a => a.length <= 2 ? s === a : s.includes(a))) res.add(c.key);
     }
   });
   return res.size ? Array.from(res) : ['unsorted'];
 }
-function divAge(d){const m=(d||'').match(/(\d+)/);return m?m[1]:'';}
-function sAvg(metrics,key){
-  const v=((metrics||{})[key]||[]).filter(x=>x!==''&&x!==null&&!isNaN(Number(x))).map(Number);
-  return v.length?v.reduce((a,b)=>a+b,0)/v.length:null;
+function getAthleteCategories(a) {
+  const cats = new Set();
+  cats.add(classifyPos(a.primaryPos));
+  if (a.altPos && a.altPos !== 'N/A' && a.altPos !== 'none') cats.add(classifyPos(a.altPos));
+  return Array.from(cats);
 }
+function divAge(d){const m=(d||'').match(/(\d+)/);return m?m[1]:'';}
+function sAvg(metrics, key) {
+  // Use a single loop to avoid multiple iterations and intermediate array allocations
+  const values = (metrics || {})[key];
+  if (!values || !values.length) return null;
+  let sum = 0, count = 0;
+  for (let i = 0, len = values.length; i < len; i++) {
+    const val = values[i];
+    if (val !== '' && val !== null) {
+      const num = Number(val);
+      if (!isNaN(num)) {
+        sum += num;
+        count++;
+      }
+    }
+  }
+  return count > 0 ? sum / count : null;
+}
+function totalScore(metrics, drillScore) {
+  let s = 0, c = 0;
+  // SCORE_STATIONS is pre-filtered for performance
+  for (let i = 0, len = SCORE_STATIONS.length; i < len; i++) {
+    const a = sAvg(metrics, SCORE_STATIONS[i].key);
+    if (a !== null) {
+      s += a;
+      c++;
+    }
+  }
+  if (drillScore && !isNaN(Number(drillScore))) {
 function totalScore(metrics, drillScore){
   let s=0,c=0;
   STATIONS.filter(st=>st.key!=='checkin').forEach(st=>{
@@ -209,6 +241,7 @@ function initAthletes(raw){
     to:a.to||String(toN++),
     ageGroup:divAge(a.division),
     posCategory:classifyPos(a.primaryPos),
+    posCategories:getAthleteCategories(a),
     posCategories:getPosCategories(a.primaryPos, a.altPos),
     status:a.status||'pending',
     teamAssignment:a.teamAssignment||null,
@@ -1460,8 +1493,8 @@ function HeadCoach({athletes,setAthletes,onLogout}){
       if(a.id!==id) return a;
       let next={...a,...updates};
       if(updates.primaryPos || updates.altPos) {
-        next.posCategories = getPosCategories(next.primaryPos, next.altPos);
         next.posCategory = classifyPos(next.primaryPos);
+        next.posCategories = getAthleteCategories(next);
       }
       if(updates.status==='accepted') next.teamLocked=true;
       else if(updates.status && a.status==='accepted') next.teamLocked=false;
@@ -1471,8 +1504,8 @@ function HeadCoach({athletes,setAthletes,onLogout}){
       if(p?.id!==id) return p;
       let next={...p,...updates};
       if(updates.primaryPos || updates.altPos) {
-        next.posCategories = getPosCategories(next.primaryPos, next.altPos);
         next.posCategory = classifyPos(next.primaryPos);
+        next.posCategories = getAthleteCategories(next);
       }
       if(updates.status==='accepted') next.teamLocked=true;
       else if(updates.status && p.status==='accepted') next.teamLocked=false;
@@ -1848,11 +1881,13 @@ function HeadCoach({athletes,setAthletes,onLogout}){
                                 <span>${cat.label}</span>
                                 <span style=${{fontSize:10,opacity:.5}}>${listByCat.length}</span>
                               </div>
+                              ${list.map((a, idx) => html`
+                                <div key=${a.id} style=${{opacity:a.teamAssignment?.length?0.35:1,pointerEvents:a.teamAssignment?.length?'none':'auto',marginBottom:2,display:'flex',alignItems:'center',gap:4}}>
                               ${listByCat.map((a, idx) => html`
                                 <div style=${{opacity:(a.teamAssignment && !showAllPool)?0.35:1,pointerEvents:(a.teamAssignment && !showAllPool)?'none':'auto',marginBottom:2,display:'flex',alignItems:'center',gap:4}}>
                                   <span style=${{fontSize:10,color:'#546e7a',width:15,textAlign:'right'}}>${idx+1}</span>
                                   <div style=${{flex:1}}>
-                                    <${PCard} key=${a.id} athlete=${a} onClick=${setSelAth} compact showScore/>
+                                    <${PCard} athlete=${a} onClick=${setSelAth} compact showScore/>
                                   </div>
                               ${list.map((a,i) => html`
                                 <div style=${{opacity:a.teamAssignment?.length?0.35:1,pointerEvents:a.teamAssignment?.length?'none':'auto',marginBottom:2,display:'flex',alignItems:'center',gap:4}}>
