@@ -77,187 +77,28 @@ tr:hover td{background:#1a1d24;cursor:pointer}
 </head>
 <body>
 <div id="app"></div>
-<div id="chatbot-root" style="position:fixed;bottom:20px;left:20px;z-index:9999"></div>
+<div id="chatbot-root" style="position:fixed;bottom:20px;right:20px;z-index:9999"></div>
 <script src="https://cdn.jsdelivr.net/npm/preact@10.24.3/dist/preact.umd.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/preact@10.24.3/hooks/dist/hooks.umd.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/htm@3.1.1/dist/htm.umd.js"></script>
+<script src="../chatbot.js" type="module"></script>
 
 <script>
 const {h,render,Fragment}=preact;
 const {useState,useEffect,useMemo,useRef,useCallback}=preactHooks;
 const html=htm.bind(h);
 
-// â”€â”€ INLINE CHATBOT â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-function Chatbot() {
-    const [isOpen, setIsOpen] = useState(false);
-    const [messages, setMessages] = useState([
-        { role: 'bot', text: "Hi! I'm Volley AI. I'm an expert on USA Volleyball, SRVA, and Mid TN VBC. How can I help you today?" }
-    ]);
-    const [input, setInput] = useState('');
-    const [kb, setKb] = useState(null);
-    const [isTyping, setIsTyping] = useState(false);
-
-    useEffect(() => {
-        const loadKb = () => {
-            try {
-                const override = localStorage.getItem('midtn_kb_override');
-                if (override) { setKb(JSON.parse(override)); return; }
-            } catch (e) {}
-            fetch('../volley_kb.json').then(r => r.json()).then(d => setKb(d)).catch(() => {});
-        };
-        loadKb();
-        const handleStorage = (e) => { if (e.key === 'midtn_kb_override') loadKb(); };
-        window.addEventListener('storage', handleStorage);
-        return () => window.removeEventListener('storage', handleStorage);
-    }, []);
-
-    const handleSend = async () => {
-        if (!input.trim()) return;
-        const userQuery = input.trim();
-        setMessages(prev => [...prev, { role: 'user', text: userQuery }]);
-        setInput('');
-        setIsTyping(true);
-        const fallbackText = "I'm sorry, I don't have that specific information. Please check midtnvbc.com or email info@midtnvbc.com for more details.";
-        let response = fallbackText;
-        const q = userQuery.toLowerCase();
-        const stopWords = new Set(['what','where','when','how','who','why','does','have','with','about','from','your','this','that','they','them','their']);
-        let settings = { provider: 'rag', apiKey: '', modelName: '' };
-        try { const raw = localStorage.getItem('midtn_chatbot_settings'); if (raw) settings = JSON.parse(raw); } catch(e) {}
-        const useApi = settings.apiKey && (settings.provider === 'gemini' || settings.provider === 'openai');
-        if (useApi && kb) {
-            try {
-                let sp = "You are Volley AI, an expert chatbot for Mid TN VBC, USAV, and SRVA. Use this context:\n\n";
-                if (kb.club_info) sp += `Club: ${kb.club_info.name}, ${kb.club_info.facility}, Director: ${kb.club_info.director}\n`;
-                if (kb.rules_and_regulations) { sp += `USAV: ${kb.rules_and_regulations.usa_volleyball?.expert_note}\nSRVA: ${kb.rules_and_regulations.srva?.expert_note}\n`; }
-                if (kb.faq) kb.faq.forEach(f => { sp += `Q: ${f.question}\nA: ${f.answer}\n`; });
-                if (kb.active_documents) kb.active_documents.forEach(d => { sp += `Page "${d.name}": ${d.content.substring(0,800)}\n`; });
-                sp += '\nIf you cannot answer from the context, say: "' + fallbackText + '"';
-                if (settings.provider === 'gemini') {
-                    const model = settings.modelName || 'gemini-1.5-flash';
-                    const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${settings.apiKey}`, {
-                        method:'POST', headers:{'Content-Type':'application/json'},
-                        body: JSON.stringify({ contents: [{ role:'user', parts:[{ text: sp + '\n\nUser: ' + userQuery }] }] })
-                    });
-                    if (res.ok) { const d = await res.json(); const t = d.candidates?.[0]?.content?.parts?.[0]?.text; if(t) response = t.trim(); }
-                } else if (settings.provider === 'openai') {
-                    const model = settings.modelName || 'gpt-4o-mini';
-                    const res = await fetch('https://api.openai.com/v1/chat/completions', {
-                        method:'POST', headers:{'Content-Type':'application/json','Authorization':`Bearer ${settings.apiKey}`},
-                        body: JSON.stringify({ model, messages: [{role:'system',content:sp},{role:'user',content:userQuery}] })
-                    });
-                    if (res.ok) { const d = await res.json(); const t = d.choices?.[0]?.message?.content; if(t) response = t.trim(); }
-                }
-            } catch(err) {}
-        }
-        if (response === fallbackText && kb) {
-            const tryoutFaq = (kw) => kb.faq?.find(f=>f.question.toLowerCase().includes(kw))?.answer;
-            if (q.includes('when')||q.includes('date')||q.includes('schedule')) {
-                response = tryoutFaq('when are tryouts') || tryoutFaq('date') || `Tryout dates are set by SRVA. Check midtnvbc.com/page/show/6657701-tryouts for the official schedule, or email info@midtnvbc.com.`;
-            } else if (q.includes('cost')||q.includes('price')||q.includes('how much')||q.includes('fee')) {
-                response = tryoutFaq('cost') || `Tryout fees: $65 (Early), $70 (Regular), $75 (Late/Walk-up).`;
-            } else if (q.includes('sign in')||q.includes('check in')||q.includes('check-in')) {
-                response = tryoutFaq('sign in') || `Check-in at Hooptown front desk (6910 Stroop Ln, Smyrna). Arrive 30 min early.`;
-            } else if (q.includes('register')||q.includes('sign up')||q.includes('sign-up')) {
-                response = tryoutFaq('register') || `Register at midtnvbc.com/page/show/6657701-tryouts. You'll need an SRVA membership from srva.org first.`;
-            } else if (q.includes('walk up')||q.includes('walkup')||q.includes('walk-up')) {
-                response = tryoutFaq('walk up') || `Yes, walk-ups are welcome! The walk-up fee is $75. Bring your SRVA membership and completed forms.`;
-            } else if (q.includes('bring')||q.includes('need')||q.includes('ready')||q.includes('prepare')) {
-                response = tryoutFaq('bring') || tryoutFaq('forms') || `Bring: court shoes, knee pads, water, and your SRVA membership + medical forms.`;
-            } else if (q.includes('form')||q.includes('document')||q.includes('paper')||q.includes('member')) {
-                response = tryoutFaq('forms') || `You need: (1) SRVA Tryout Membership (srva.org), (2) Medical Release Form, (3) Notarized USAV Medical Form.`;
-            } else if (q.includes('makeup')||q.includes('make up')||q.includes('missed')) {
-                response = tryoutFaq('missed') || `Makeup tryout dates are available! Visit midtnvbc.com/page/show/6657701-tryouts for details.`;
-            } else if (q.includes('where')||q.includes('location')||q.includes('address')||q.includes('facility')||q.includes('hooptown')) {
-                response = tryoutFaq('located') || tryoutFaq('sign in') || `Tryouts at Hooptown Sportsplex, 6910 Stroop Ln, Smyrna TN. Blue Building â€” look for MIDTN Volleyball signs.`;
-            } else if (q.includes('age')||q.includes('division')||q.includes('12u')||q.includes('14u')||q.includes('16u')) {
-                response = tryoutFaq('age') || `Mid TN VBC has teams for ages 12â€“18: 12U, 13U, 14U, 15U, 16U, 17U, 18U divisions.`;
-            } else if (q.includes('srva')) {
-                response = tryoutFaq('srva') || `SRVA Expert Note: ${kb.rules_and_regulations?.srva?.expert_note||''}`;
-            } else if (q.includes('rule')||q.includes('regulation')) {
-                response = `USAV Expert Note: ${kb.rules_and_regulations?.usa_volleyball?.expert_note||''}`;
-            } else if (q.includes('news')||q.includes('update')) {
-                if(kb.news?.[0]) response = `Latest: ${kb.news[0].title} (${kb.news[0].date}).`;
-            } else if (q.includes('accept')||q.includes('offer')||q.includes('made the team')) {
-                response = tryoutFaq('after') || `Offers come through SportsEngine and are binding once accepted. The season runs Novemberâ€“April.`;
-            } else if (q.includes('season')||q.includes('tuition')||q.includes('commitment')) {
-                response = tryoutFaq('season cost') || `Season costs vary by team level. Budget for tuition, travel, hotels, uniforms, and equipment. Ask your team coach for a breakdown.`;
-            }
-
-            if (response === fallbackText && kb.faq) {
-                let bestFaq=null,bestScore=0;
-                for (const faq of kb.faq) {
-                    const faqQ=faq.question.toLowerCase();
-                    if(faqQ.includes(q)||q.includes(faqQ)){response=faq.answer;break;}
-                    const words=q.split(/[^a-zA-Z0-9]/).map(w=>w.trim()).filter(w=>w.length>3&&!stopWords.has(w));
-                    let score=0; for(const w of words) if(faqQ.includes(w)) score++;
-                    if(score>bestScore){bestScore=score;bestFaq=faq;}
-                }
-                if(response===fallbackText&&bestFaq&&bestScore>=1) response=bestFaq.answer;
-            }
-            if (response === fallbackText && kb.active_documents) {
-                let bestMatch=null,bestScore=0;
-                const kws=q.split(/[^a-zA-Z0-9]/).map(w=>w.trim()).filter(w=>w.length>3&&!stopWords.has(w));
-                if(kws.length>0) {
-                    for(const doc of kb.active_documents) {
-                        for(const passage of doc.content.split(/[.\n]+/)) {
-                            const p=passage.trim(); if(p.length<20) continue;
-                            const pl=p.toLowerCase(); let score=0;
-                            for(const kw of kws) if(pl.includes(kw)) score++;
-                            if(score>bestScore){bestScore=score;bestMatch={text:p,docName:doc.name,url:doc.url};}
-                        }
-                    }
-                }
-                if(bestMatch&&bestScore>=Math.min(2,kws.length)) response=`From "${bestMatch.docName}": "${bestMatch.text}." Visit: ${bestMatch.url}`;
-            }
-        }
-        if (response === fallbackText) {
-            try {
-                const key='midtn_unanswered_questions';
-                const current=JSON.parse(localStorage.getItem(key)||'[]');
-                if(!current.some(item=>item.question.toLowerCase()===q.trim().toLowerCase())) {
-                    current.push({id:`q-${Date.now()}-${Math.random().toString(36).substr(2,4)}`,question:userQuery,timestamp:new Date().toISOString()});
-                    localStorage.setItem(key,JSON.stringify(current));
-                    window.dispatchEvent(new StorageEvent('storage',{key,newValue:JSON.stringify(current)}));
-                }
-            } catch(e) {}
-        }
-        setMessages(prev => [...prev, { role: 'bot', text: response }]);
-        setIsTyping(false);
-    };
-
-    return html`
-        <div style=${{fontFamily:'Inter,sans-serif'}}>
-            ${!isOpen && html`<button onClick=${()=>setIsOpen(true)} id="volley-ai-trigger" style=${{width:'60px',height:'60px',borderRadius:'50%',backgroundColor:'#f0a500',border:'none',color:'#000',fontSize:'24px',cursor:'pointer',boxShadow:'0 4px 12px rgba(0,0,0,0.3)',display:'flex',alignItems:'center',justifyContent:'center'}}>ðŸ</button>`}
-            ${isOpen && html`
-                <div id="chatbot-window" style=${{width:'340px',height:'440px',backgroundColor:'#1a1d24',border:'1px solid #2a2e38',borderRadius:'12px',display:'flex',flexDirection:'column',overflow:'hidden',boxShadow:'0 8px 24px rgba(0,0,0,0.5)'}}>
-                    <div style=${{padding:'12px 16px',backgroundColor:'#f0a500',color:'#000',fontWeight:'bold',display:'flex',justifyContent:'space-between',alignItems:'center'}}>
-                        <span>Volley AI Expert</span>
-                        <button onClick=${()=>setIsOpen(false)} style=${{background:'none',border:'none',color:'#000',fontSize:'20px',cursor:'pointer'}}>Ã—</button>
-                    </div>
-                    <div style=${{flex:1,padding:'12px',overflowY:'auto',display:'flex',flexDirection:'column',gap:'8px'}}>
-                        ${messages.map(m=>html`<div style=${{alignSelf:m.role==='user'?'flex-end':'flex-start',backgroundColor:m.role==='user'?'#f0a500':'#2a2e38',color:m.role==='user'?'#000':'#e8eaed',padding:'8px 12px',borderRadius:'8px',maxWidth:'80%',fontSize:'13px'}}>${m.text}</div>`)}
-                        ${isTyping&&html`<div style=${{alignSelf:'flex-start',backgroundColor:'#2a2e38',color:'#78909c',padding:'8px 12px',borderRadius:'8px',fontSize:'13px',fontStyle:'italic'}}>Typing...</div>`}
-                    </div>
-                    <div style=${{padding:'10px',borderTop:'1px solid #2a2e38',display:'flex',gap:'8px'}}>
-                        <input value=${input} onInput=${e=>setInput(e.target.value)} onKeyDown=${e=>e.key==='Enter'&&handleSend()} placeholder="Ask about tryouts, rules..." style=${{flex:1,backgroundColor:'#12151c',border:'1px solid #2a2e38',color:'#fff',padding:'7px',borderRadius:'6px',fontSize:'13px'}} />
-                        <button onClick=${handleSend} style=${{backgroundColor:'#f0a500',border:'none',padding:'7px 12px',borderRadius:'6px',cursor:'pointer',fontWeight:700}}>Send</button>
-                    </div>
-                </div>
-            `}
-        </div>`;
-}
-render(html`<${Chatbot}/>`, document.getElementById('chatbot-root'));
-// â”€â”€ END CHATBOT â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 // â”€â”€ CONSTANTS â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 const LOCAL_KEY='midtn_tryout_v2';
 const STAFF_PIN='1111';
 const HC_PIN='0000';
+const CHECKIN_PIN='9999';
+const STATION2_PIN='2222';
 const STATIONS=[
   {key:'checkin',label:'Sign In',metrics:[]},
   {key:'s1',label:'Reach & Vertical',metrics:['Height (in)','Reach (in)','Vertical (in)']},
   {key:'s2',label:'Agility',metrics:['Shuttle Run (sec)']},
-  {key:'drills',label:'Drills',metrics:['Drill Score (0-10)']},
 ];
 const SCORE_STATIONS = STATIONS.filter(st => st.key !== 'checkin' && st.key !== 'drills');
 const AGES=['12','13','14','15','16','17','18'];
@@ -335,6 +176,7 @@ function getPosCategories(p1, p2) {
   const res = new Set();
   [p1, p2].forEach(p => {
     if (!p || p === 'N/A') return;
+    if(!p || p === 'N/A' || p === 'none') return;
     const s = p.toLowerCase();
     for (const c of POS_CATS) {
       if (c.abbrs.some(a => a.length <= 2 ? s === a : s.includes(a))) res.add(c.key);
@@ -377,6 +219,13 @@ function totalScore(metrics, drillScore) {
     }
   }
   if (drillScore && !isNaN(Number(drillScore))) {
+function totalScore(metrics, drillScore){
+  let s=0,c=0;
+  STATIONS.filter(st=>st.key!=='checkin').forEach(st=>{
+    const a=sAvg(metrics,st.key);
+    if(a!==null){s+=a;c++;}
+  });
+  if(drillScore && !isNaN(Number(drillScore))){
     s += Number(drillScore);
     c++;
   }
@@ -393,6 +242,7 @@ function initAthletes(raw){
     ageGroup:divAge(a.division),
     posCategory:classifyPos(a.primaryPos),
     posCategories:getAthleteCategories(a),
+    posCategories:getPosCategories(a.primaryPos, a.altPos),
     status:a.status||'pending',
     teamAssignment:a.teamAssignment||null,
     teamLocked:a.teamLocked||false,
@@ -635,7 +485,9 @@ function Login({onLogin}){
   const [err,setErr]=useState('');
   const go=()=>{
     if(pin===HC_PIN){onLogin({role:'hc'});return;}
-    if(pin===STAFF_PIN){onLogin({role:'staff'});return;}
+    if(pin===STAFF_PIN){onLogin({role:'staff', tab:'s1'});return;}
+    if(pin===CHECKIN_PIN){onLogin({role:'staff', tab:'checkin'});return;}
+    if(pin===STATION2_PIN){onLogin({role:'staff', tab:'s2'});return;}
     setPin('');setErr('Invalid PIN');
   };
 
@@ -706,9 +558,11 @@ function Login({onLogin}){
           <button onClick=${go} style=${{width:'100%',padding:12,background:'#f0a500',border:'none',borderRadius:8,color:'#000',fontSize:15,fontWeight:800,cursor:'pointer',marginBottom:20}}>Log In â†’</button>
           <div style=${{borderTop:'1px solid #2a2e38',paddingTop:14,fontSize:11,color:'#546e7a'}}>
             <div style=${{fontWeight:700,marginBottom:8,textTransform:'uppercase',letterSpacing:1}}>PINs</div>
-            <div style=${{display:'flex',justifyContent:'space-around',gap:8,marginBottom:4}}>
-              <div>Staff Hub: <span style=${{color:'#f0a500',fontFamily:'monospace',fontWeight:700}}>1111</span></div>
-              <div>Head Coach: <span style=${{color:'#ef5350',fontFamily:'monospace',fontWeight:700}}>0000</span></div>
+            <div style=${{display:'grid',gridTemplateColumns:'1fr 1fr',gap:8,marginBottom:4}}>
+              <div>Staff: <span style=${{color:'#f0a500',fontFamily:'monospace',fontWeight:700}}>1111</span></div>
+              <div>Coach: <span style=${{color:'#ef5350',fontFamily:'monospace',fontWeight:700}}>0000</span></div>
+              <div>CheckIn: <span style=${{color:'#26c6da',fontFamily:'monospace',fontWeight:700}}>9999</span></div>
+              <div>Station2: <span style=${{color:'#ffa726',fontFamily:'monospace',fontWeight:700}}>2222</span></div>
             </div>
           </div>
         </div>
@@ -790,9 +644,9 @@ function CheckInConfirmModal({ athlete, onClose, onConfirm }) {
   `;
 }
 
-// â”€â”€ STAFF HUB (DASHBOARD & STATIONS) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-function StaffDashboard({athletes, setAthletes, onArrive, onAddWalkup, onMetric, onLogout}) {
-  const [activeTab, setActiveTab] = useState('checkin'); // 'checkin', 's1', 's2', 'drills'
+// ── STAFF HUB (DASHBOARD & STATIONS) ──────────────────────────
+function StaffDashboard({athletes, setAthletes, onArrive, onAddWalkup, onMetric, onLogout, initialTab}) {
+  const [activeTab, setActiveTab] = useState(initialTab || 'checkin'); // 'checkin', 's1', 's2'
   const [globalSearch, setGlobalSearch] = useState('');
   const [selAth, setSelAth] = useState(null);
 
@@ -920,10 +774,9 @@ function StaffDashboard({athletes, setAthletes, onArrive, onAddWalkup, onMetric,
 
       <div style=${{display:'grid',gridTemplateColumns:'repeat(auto-fit, minmax(130px, 1fr))',gap:12,padding:'20px 20px 10px',maxWidth:800,margin:'0 auto'}}>
         ${[
-          {key:'checkin',label:'Sign In',desc:'Arrived / Walkups',icon:'ðŸ“',c:'#26c6da'},
-          {key:'s1',label:'Reach & Vertical',desc:'Physical Measurements',icon:'ðŸ“',c:'#42a5f5'},
-          {key:'s2',label:'Agility',desc:'Stopwatch & Agility',icon:'â±ï¸',c:'#ffa726'},
-          {key:'drills',label:'Drills',desc:'Drill Score Input',icon:'ðŸ',c:'#66bb6a'}
+          {key:'checkin',label:'Sign In',desc:'Arrived / Walkups',icon:'📝',c:'#26c6da'},
+          {key:'s1',label:'Reach & Vertical',desc:'Physical Measurements',icon:'📏',c:'#42a5f5'},
+          {key:'s2',label:'Agility',desc:'Stopwatch & Agility',icon:'⏱️',c:'#ffa726'}
         ].map(tile => {
           const active = activeTab === tile.key;
           return html`
@@ -982,18 +835,17 @@ function StaffDashboard({athletes, setAthletes, onArrive, onAddWalkup, onMetric,
                         <span>${comp.s1?'âœ“':'â³'}</span> Physical ${a.metrics?.s1 ? `(${a.metrics.s1.filter(Boolean).length}/3)` : ''}
                       </div>
                       <div style=${{display:'flex',alignItems:'center',gap:4,color:comp.s2?'#66bb6a':'#ef5350'}} title=${a.metrics?.s2 ? `Shuttle: ${a.metrics.s2[0]}s` : ''}>
-                        <span>${comp.s2?'âœ“':'â³'}</span> Agility
+                        <span>${comp.s2?'✓':'⏳'}</span> Agility
                       </div>
-                      <div style=${{display:'flex',alignItems:'center',gap:4,color:comp.drills?'#66bb6a':'#ef5350'}} title=${a.drillScore ? `Drill: ${a.drillScore}` : ''}>
-                        <span>${comp.drills?'âœ“':'â³'}</span> Drills
+                      <div style=${{display:'flex',alignItems:'center',gap:4,color:a.drillScore?'#66bb6a':'#ef5350'}} title=${a.drillScore ? `Drill: ${a.drillScore}` : ''}>
+                        <span>${a.drillScore?'✓':'⏳'}</span> Drill Score
                       </div>
                     </div>
                     
                     <!-- Jump Actions -->
                     <div style=${{display:'flex',gap:8,justifyContent:'flex-end',fontSize:11,marginTop:4}}>
-                      <button onClick=${()=>handleGlobalAction(a, 's1')} style=${{background:'none',border:'none',color:'#42a5f5',cursor:'pointer',textDecoration:'underline',fontSize:11,padding:0}}>â†’ Input Physical</button>
-                      <button onClick=${()=>handleGlobalAction(a, 's2')} style=${{background:'none',border:'none',color:'#ffa726',cursor:'pointer',textDecoration:'underline',fontSize:11,padding:0}}>â†’ Agility Timer</button>
-                      <button onClick=${()=>handleGlobalAction(a, 'drills')} style=${{background:'none',border:'none',color:'#66bb6a',cursor:'pointer',textDecoration:'underline',fontSize:11,padding:0}}>â†’ Input Drills</button>
+                      <button onClick=${()=>handleGlobalAction(a, 's1')} style=${{background:'none',border:'none',color:'#42a5f5',cursor:'pointer',textDecoration:'underline',fontSize:11,padding:0}}>→ Input Physical</button>
+                      <button onClick=${()=>handleGlobalAction(a, 's2')} style=${{background:'none',border:'none',color:'#ffa726',cursor:'pointer',textDecoration:'underline',fontSize:11,padding:0}}>→ Agility Timer</button>
                     </div>
                   </div>`;
               })}
@@ -1058,9 +910,15 @@ function StaffDashboard({athletes, setAthletes, onArrive, onAddWalkup, onMetric,
                           <div style=${{fontSize:10,color:'#78909c'}}>${a.division} Â· ${posAbbr(a.primaryPos)}</div>
                         </div>
                         ${a.isWalkup&&html`<${Badge} c="#ffa726" sm>Walkup<//>`}
+                        <div style=${{display:'flex',alignItems:'center',gap:8,marginRight:8}}>
+                          <label style=${{fontSize:10,color:'#78909c',fontWeight:700}}>DRILL</label>
+                          <input type="number" min="1" max="10" step="0.5" value=${a.drillScore||''} onClick=${e=>e.stopPropagation()}
+                            onInput=${e=>setAthletes(prev=>prev.map(ath=>ath.id===a.id?{...ath,drillScore:e.target.value}:ath))}
+                            style=${{width:40,padding:'2px 4px',background:'#12151c',border:'1px solid #f0a50088',borderRadius:4,color:'#e8eaed',fontSize:12,textAlign:'center',fontWeight:700}}/>
+                        </div>
                         ${a.arrived
-                          ? html`<div style=${{display:'flex',gap:6}}><${Badge} c="#66bb6a" sm>âœ“ Arrived<//><${Btn} sm onClick=${()=>setSelAth(a)} color="#4fc3f7" outline>Profile ðŸ“‹<//></div>`
-                          : html`<div style=${{display:'flex',gap:6}}><${Btn} sm onClick=${()=>setConfirmCheckInAth(a)} color="#26c6da">Check In âœ“<//><${Btn} sm onClick=${()=>setSelAth(a)} color="#4fc3f7" outline>Profile ðŸ“‹<//></div>`}
+                          ? html`<div style=${{display:'flex',gap:6}}><${Badge} c="#66bb6a" sm>✓ Arrived<//><${Btn} sm onClick=${()=>setSelAth(a)} color="#f0a500" outline>Edit Profile 📋<//></div>`
+                          : html`<div style=${{display:'flex',gap:6}}><${Btn} sm onClick=${()=>setConfirmCheckInAth(a)} color="#26c6da">Check In ✓<//><${Btn} sm onClick=${()=>setSelAth(a)} color="#f0a500" outline>Edit Profile 📋<//></div>`}
                       </div>`)}
                   </div>
                 `}
@@ -1247,11 +1105,11 @@ function StaffDashboard({athletes, setAthletes, onArrive, onAddWalkup, onMetric,
         setAthletes(prev => prev.map(a => a.id === id ? { ...a, ...updates } : a));
         if (selAth && selAth.id === id) setSelAth(p => ({ ...p, ...updates }));
         if (activeAthlete && activeAthlete.id === id) setActiveAthlete(p => ({ ...p, ...updates }));
-      }} onHide=${()=>{}} onUnhide=${()=>{}} onEmail=${()=>{}}/>
+      }} onHide=${a=>{setSelAth(null);setHideAth(a);}} onUnhide=${doUnhide} onEmail=${a=>{setSelAth(null);setEmailAth(a);setEmailTeam(a.teamAssignment||'');}}/>
     </div>`;
 }
 
-// â”€â”€ ATHLETE MODAL â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── ATHLETE MODAL ────────────────────────────────────────────────
 function AthleteModal({athlete,onClose,onChange,onHide,onUnhide,onEmail}){
   if(!athlete) return null;
   const locked = athlete.teamLocked || athlete.status === 'accepted';
@@ -1534,8 +1392,9 @@ function HeadCoach({athletes,setAthletes,onLogout}){
   const [hideAth,setHideAth]=useState(null);
   const [teamOfferKey,setTeamOfferKey]=useState(null);
   const [confirmCheckInAth,setConfirmCheckInAth]=useState(null);
+  const [widePool,setWidePool]=useState(false);
 
-  // â”€â”€ ADMIN & CONFIG STATE â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // ── ADMIN & CONFIG STATE ──────────────────────────────────────
   const [emailConfig, setEmailConfig] = useState(() => {
     try {
       return JSON.parse(localStorage.getItem('midtn_email_config') || '{"method":"mailto"}');
@@ -1989,16 +1848,12 @@ function HeadCoach({athletes,setAthletes,onLogout}){
         ${view==='teams'&&html`
           <div style=${{display:'flex',gap:14,alignItems:'flex-start'}}>
             ${showPool&&html`
-              <div style=${{width:widePool?480:360,flexShrink:0,background:'#12151c',borderRadius:12,border:'1px solid #1e222b',maxHeight:'calc(100vh-180px)',display:'flex',flexDirection:'column',transition:'width 0.2s'}}>
               <div style=${{width:widePool?500:320,flexShrink:0,background:'#12151c',borderRadius:12,border:'1px solid #1e222b',maxHeight:'calc(100vh-180px)',display:'flex',flexDirection:'column',transition:'width 0.2s'}}>
                 <div style=${{padding:'10px 14px',borderBottom:'1px solid #1e222b'}}>
                   <div style=${{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:6}}>
                     <div style=${{display:'flex',alignItems:'center',gap:6}}>
                       <span style=${{fontWeight:700,fontSize:13}}>Pool <span style=${{color:'#546e7a',fontWeight:400}}>(${pool.length})</span></span>
-                      <button onClick=${()=>setWidePool(!widePool)} style=${{background:'none',border:'none',color:'#4fc3f7',fontSize:12,cursor:'pointer',padding:0}} title="Toggle Sidebar Width">
-                        ${widePool?'Â« Narrow':'Wide Â»'}
-                      </button>
-                      <button onClick=${()=>setWidePool(!widePool)} style=${{background:'none',border:'1px solid #2a2e38',color:'#78909c',fontSize:10,padding:'1px 5px',borderRadius:4,cursor:'pointer'}}>${widePool?'Narrow':'Wide'}</button>
+                      <button onClick=${()=>setWidePool(!widePool)} style=${{background:'none',border:'1px solid #2a2e38',color:'#78909c',fontSize:10,padding:'1px 5px',borderRadius:4,cursor:'pointer',marginLeft:8}}>${widePool?'Narrow':'Wide'}</button>
                     </div>
                     <div style=${{display:'flex',gap:4}}>
                       <button class=${'btn btn-sm '+(showAllPool?'btn-primary':'btn-outline')}
@@ -2016,21 +1871,28 @@ function HeadCoach({athletes,setAthletes,onLogout}){
                   ${poolSort==='pos'
                     ? html`<div>
                         ${[...POS_CATS,{key:'unsorted',label:'Unsorted'}].map(cat => {
-                          const list = pool.filter(a => (a.posCategories || [a.posCategory]).includes(cat.key))
+                          const listByCat = pool.filter(a => (a.posCategories || [a.posCategory]).includes(cat.key))
                                            .sort((a,b)=>(Number(totalScore(b.metrics, b.drillScore))||0)-(Number(totalScore(a.metrics, a.drillScore))||0));
+                          if(listByCat.length === 0) return null;
                           if(list.length === 0) return null;
                           return html`
                             <div key=${cat.key} style=${{marginBottom:12,borderBottom:'1px solid #1e222b',paddingBottom:8}}>
                               <div style=${{fontSize:11,fontWeight:800,color:cat.key==='unsorted'?'#ffa726':'#4fc3f7',textTransform:'uppercase',marginBottom:8,paddingLeft:4,borderLeft:`3px solid ${cat.key==='unsorted'?'#ffa726':'#4fc3f7'}`,display:'flex',justifyContent:'space-between'}}>
                                 <span>${cat.label}</span>
-                                <span style=${{fontSize:10,opacity:.5}}>${list.length}</span>
+                                <span style=${{fontSize:10,opacity:.5}}>${listByCat.length}</span>
                               </div>
                               ${list.map((a, idx) => html`
                                 <div key=${a.id} style=${{opacity:a.teamAssignment?.length?0.35:1,pointerEvents:a.teamAssignment?.length?'none':'auto',marginBottom:2,display:'flex',alignItems:'center',gap:4}}>
+                              ${listByCat.map((a, idx) => html`
+                                <div style=${{opacity:(a.teamAssignment && !showAllPool)?0.35:1,pointerEvents:(a.teamAssignment && !showAllPool)?'none':'auto',marginBottom:2,display:'flex',alignItems:'center',gap:4}}>
                                   <span style=${{fontSize:10,color:'#546e7a',width:15,textAlign:'right'}}>${idx+1}</span>
                                   <div style=${{flex:1}}>
                                     <${PCard} athlete=${a} onClick=${setSelAth} compact showScore/>
                                   </div>
+                              ${list.map((a,i) => html`
+                                <div style=${{opacity:a.teamAssignment?.length?0.35:1,pointerEvents:a.teamAssignment?.length?'none':'auto',marginBottom:2,display:'flex',alignItems:'center',gap:4}}>
+                                  <span style=${{fontSize:10,color:'#546e7a',width:14,textAlign:'right'}}>${i+1}</span>
+                                  <div style=${{flex:1}}><${PCard} athlete=${a} onClick=${setSelAth} compact showScore/></div>
                                 </div>`)}
                             </div>`;
                         })}
@@ -2560,7 +2422,7 @@ function App(){
   }
 
   if(!user) return html`<${Login} onLogin=${setUser}/>`;
-  if(user.role==='staff') return html`<${StaffDashboard} athletes=${athletes} setAthletes=${setAthletes} onArrive=${doArrive} onAddWalkup=${addWalkup} onMetric=${updMetric} onLogout=${()=>setUser(null)}/>`;
+  if(user.role==='staff') return html`<${StaffDashboard} athletes=${athletes} setAthletes=${setAthletes} onArrive=${doArrive} onAddWalkup=${addWalkup} onMetric=${updMetric} onLogout=${()=>setUser(null)} initialTab=${user.tab}/>`;
   return html`<${HeadCoach} athletes=${athletes} setAthletes=${setAthletes} onLogout=${()=>setUser(null)}/>`;
 }
 render(html`<${App}/>`,document.getElementById('app'));
