@@ -88,8 +88,13 @@ def pull_social_news():
             meta_desc = soup.find("meta", property="og:description") or soup.find("meta", attrs={"name": "description"})
             if meta_desc and meta_desc.get("content"):
                 social["facebook"] = meta_desc["content"]
+            else:
+                social["facebook"] = "Latest social media updates are currently unavailable; please visit our Facebook page."
+        else:
+            social["facebook"] = "Latest social media updates are currently unavailable; please visit our Facebook page."
     except Exception as e:
         print(f"Error pulling Facebook news: {e}")
+        social["facebook"] = "Latest social media updates are currently unavailable; please visit our Facebook page."
 
     # Instagram
     try:
@@ -99,8 +104,13 @@ def pull_social_news():
             meta_desc = soup.find("meta", property="og:description") or soup.find("meta", attrs={"name": "description"})
             if meta_desc and meta_desc.get("content"):
                 social["instagram"] = meta_desc["content"]
+            else:
+                social["instagram"] = "Latest social media updates are currently unavailable; please visit our Instagram page."
+        else:
+            social["instagram"] = "Latest social media updates are currently unavailable; please visit our Instagram page."
     except Exception as e:
         print(f"Error pulling Instagram news: {e}")
+        social["instagram"] = "Latest social media updates are currently unavailable; please visit our Instagram page."
 
     return social
 
@@ -219,7 +229,7 @@ def update_knowledge_base():
     # Update Expert Rules (2025-2027)
     kb['rules_and_regulations'] = {
         "usa_volleyball": {
-            "expert_note": "2025-2027 Rule Highlights: Jewelry (studs/small hoops) allowed; re-serve allowed for tossing error (once per turn); Libero can be team captain; Coaches can stand/walk in free zone to attack line extension. Screening is strictly monitored—players must not hide the server or path of the ball. Uniforms must have clearly contrasting numbers.",
+            "expert_note": "2025-2027 Rule Highlights: Jewelry (studs and small hoops) is now allowed during play; a re-serve is permitted for a tossing error (limited to once per service turn); the Libero is now allowed to be the team or game captain; Coaches are allowed to stand and walk in the free zone up to the attack line extension. Screening is strictly monitored—players must not hide the server or the flight path of the ball. Uniforms must have clearly contrasting numbers centered on the front and back.",
             "link": "https://usavolleyball.org/resources-for-officials/rulebooks-and-interpretations/"
         },
         "srva": {
@@ -227,7 +237,7 @@ def update_knowledge_base():
             "link": "https://www.srva.org"
         },
         "highlights": [
-            "Libero can now officially serve in one position in the rotation (USAV/SRVA specific).",
+            "Libero can now officially serve in one position in the rotation and may also be the team or game captain (2025-2027 USAV Rules).",
             "Uniform numbers must be clearly contrasting and centered (front and back).",
             "Medical Release forms are required for every tournament and must be printed, signed, and occasionally notarized.",
             "Re-serve rule: One tossing error per service turn is allowed without loss of rally (ball must drop to floor)."

@@ -7,6 +7,26 @@
   },
   "news": [
     {
+      "title": "U.S. Upends Canada to Reach Semifinals at 2026 Women\u2019s U21 Pan American Cup",
+      "date": "2026-07-10",
+      "summary": "Source: USA Volleyball. Link: https://usavolleyball.org/story/u-s-upends-canada-to-reach-semifinals-at-2026-womens-u21-pan-american-cup/"
+    },
+    {
+      "title": "U.S. Women Rally Past T\u00fcrkiye in 2026 Women\u2019s VNL Week Three",
+      "date": "2026-07-10",
+      "summary": "Source: USA Volleyball. Link: https://usavolleyball.org/story/u-s-women-rally-past-turkiye-in-2026-womens-vnl-week-three/"
+    },
+    {
+      "title": "U.S. Men\u2019s Sitting Starts 2026 Worlds with Key Win over Ukraine",
+      "date": "2026-07-10",
+      "summary": "Source: USA Volleyball. Link: https://usavolleyball.org/story/u-s-mens-sitting-starts-2026-worlds-with-key-win-over-ukraine/"
+    },
+    {
+      "title": "U.S. Women\u2019s Sitting Downs Netherlands to Begin 2026 Worlds",
+      "date": "2026-07-10",
+      "summary": "Source: USA Volleyball. Link: https://usavolleyball.org/story/u-s-womens-sitting-downs-netherlands-to-begin-2026-worlds/"
+    },
+    {
       "title": "U.S. Women\u2019s National Team to Face Canada in USA Volleyball Cup",
       "date": "2026-07-09",
       "summary": "Source: USA Volleyball. Link: https://usavolleyball.org/story/u-s-womens-national-team-to-face-canada-in-usa-volleyball-cup/"
@@ -54,7 +74,7 @@
   ],
   "rules_and_regulations": {
     "usa_volleyball": {
-      "expert_note": "2025-2027 Rule Highlights: Jewelry (studs/small hoops) allowed; re-serve allowed for tossing error (once per turn); Libero can be team captain; Coaches can stand/walk in free zone to attack line extension. Screening is strictly monitored\u2014players must not hide the server or path of the ball. Uniforms must have clearly contrasting numbers.",
+      "expert_note": "2025-2027 Rule Highlights: Jewelry (studs and small hoops) is now allowed during play; a re-serve is permitted for a tossing error (limited to once per service turn); the Libero is now allowed to be the team or game captain; Coaches are allowed to stand and walk in the free zone up to the attack line extension. Screening is strictly monitored\u2014players must not hide the server or the flight path of the ball. Uniforms must have clearly contrasting numbers centered on the front and back.",
       "link": "https://usavolleyball.org/resources-for-officials/rulebooks-and-interpretations/"
     },
     "srva": {
@@ -62,7 +82,7 @@
       "link": "https://www.srva.org"
     },
     "highlights": [
-      "Libero can now officially serve in one position in the rotation (USAV/SRVA specific).",
+      "Libero can now officially serve in one position in the rotation and may also be the team or game captain (2025-2027 USAV Rules).",
       "Uniform numbers must be clearly contrasting and centered (front and back).",
       "Medical Release forms are required for every tournament and must be printed, signed, and occasionally notarized.",
       "Re-serve rule: One tossing error per service turn is allowed without loss of rally (ball must drop to floor)."
@@ -87,10 +107,10 @@
     }
   ],
   "social_updates": {
-    "instagram": "Check @midtnvbc on Instagram for latest photos and reels from training!",
-    "facebook": "Visit Mid TN VBC on Facebook for community updates and event photos."
+    "instagram": "Latest social media updates are currently unavailable; please visit our Instagram page.",
+    "facebook": "Latest social media updates are currently unavailable; please visit our Facebook page."
   },
-  "last_agent_run": "2026-07-09 14:04:22",
+  "last_agent_run": "2026-07-10 14:42:09",
   "active_documents": [
     {
       "name": "MidTN VBC",
