@@ -240,10 +240,10 @@ function Chatbot() {
                 }
             } else if (q.includes('social') || q.includes('instagram') || q.includes('facebook')) {
                 response = `Social Media Updates: (IG) ${kb.social_updates?.instagram} (FB) ${kb.social_updates?.facebook}`;
-            } else if (q.includes('where') || q.includes('location') || q.includes('facility')) {
-                response = `We are based at Hooptown in Smyrna, TN (6910 Stroop Ln).`;
-            } else if (q.includes('offer') || q.includes('when will we know')) {
-                response = "Initial offers are typically made within 24-48 hours after the conclusion of tryouts for your age group via email/SportsEngine.";
+            } else if (q.includes('where') || q.includes('location') || q.includes('facility') || q.includes('hooptown') || q.includes('sportscom')) {
+                response = `We are based at Hooptown in Smyrna, TN (6910 Stroop Ln). Our beach program is at Sportscom in Murfreesboro.`;
+            } else if (response === fallbackText && (q.includes('offer') || q.includes('when will we know') || q.includes('when will i know'))) {
+                response = kb.faq?.find(f => f.question.toLowerCase().includes('offer'))?.answer || "Initial offers are typically made within 24-48 hours after the conclusion of tryouts for your age group via email/SportsEngine.";
             }
 
             // Custom trained FAQ match scan
@@ -311,8 +311,17 @@ function Chatbot() {
             }
         }
 
-        if (q.includes('where am i') || q.includes('page') || q.includes('current section')) {
+        if (q.includes('where am i') || q.includes('page') || q.includes('current section') || q.includes('what do i do here') || q.includes('what is this page')) {
             response = `You are currently on the ${pageContext}. ${pageDescription}`;
+        }
+
+        // Proactive context-based help
+        if (response === fallbackText) {
+            if (pageContext === 'Tryout Manager' && (q.includes('help') || q.includes('how to'))) {
+                response = "On the Tryout Manager page, you can sign in athletes using the 'Sign In' station (PIN 9999), or record physical/agility metrics using Station 1 (PIN 1111) and Station 2 (PIN 2222). Head Coaches (PIN 0000) can build teams and manage rosters.";
+            } else if (activeSection === 'tryouts' && (q.includes('help') || q.includes('how to'))) {
+                response = "You are in the Tryouts section. You can see the dates for 13U-18U (July 11-12) and 12U (Sept 20). There are buttons here to register online or access the Tryout Manager for staff.";
+            }
         }
 
         // 3. Log Unanswered Query for Training
