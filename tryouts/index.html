@@ -32,7 +32,7 @@
   });
 </script>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>Mid TN VBC â€” Tryout Manager</title>
+<title>Mid TN VBC — Tryout Manager</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
@@ -89,7 +89,7 @@ const {useState,useEffect,useMemo,useRef,useCallback}=preactHooks;
 const html=htm.bind(h);
 
 
-// â”€â”€ CONSTANTS â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── CONSTANTS ──────────────────────────────────────────────────────
 const LOCAL_KEY='midtn_tryout_v2';
 const STAFF_PIN='1111';
 const HC_PIN='0000';
@@ -119,7 +119,7 @@ const POS_CATS=[
 const STATUSES=['pending','arrived','contacted','offered','accepted','declined','info_requested'];
 const HIDE_REASONS=['Athlete Declined','Coach Declined','Age/Division Issue','Other'];
 
-// â”€â”€ ATHLETES â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── ATHLETES ───────────────────────────────────────────────────────
 const RAW=[
   {first:'Bristol',last:'Ardissono',dob:'12/23/2013',division:'12 & Under',primaryPos:'Defensive Specialist',altPos:'Setter',phone:'615-359-8436',email:'slardissono@gmail.com'},
   {first:'Emmalee',last:'Bringhurst',dob:'7/15/2013',division:'12 & Under',primaryPos:'Defensive Specialist',altPos:'Setter',phone:'6158126284',email:'robincluck@hotmail.com'},
@@ -153,7 +153,7 @@ const RAW=[
   {first:'Kierstan',last:'Blocker',dob:'8/5/2008',division:'18 & Under',primaryPos:'Outside Hitter',altPos:'Defensive Specialist',phone:'6159954049',email:'laquandablocker@att.net'},
 ];
 
-// â”€â”€ UTILS â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── UTILS ──────────────────────────────────────────────────────────
 function posAbbr(p){
   if(!p) return '---'; const s=p.toLowerCase();
   if(s.includes('setter')||s==='s') return 'S';
@@ -252,7 +252,7 @@ function exportCSV(rows,name){
   a.download=name; a.click();
 }
 
-// â”€â”€ COMPONENTS â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── COMPONENTS ─────────────────────────────────────────────────────
 function Badge({c='#4fc3f7',children,sm}){
   return html`<span class="${'badge'+(sm?' badge-sm':'')}" style=${{background:c+'22',color:c,border:`1px solid ${c}44`}}>${children}</span>`;
 }
@@ -267,7 +267,7 @@ function Btn({children,onClick,color='#1565c0',outline,sm,disabled,style:sx,dang
     style=${{background:outline?'transparent':c,color:outline?c:'#fff',border:outline?`1px solid ${c}`:'none',opacity:disabled?.5:1,...sx}}>${children}</button>`;
 }
 
-// â”€â”€ HELPERS & EXTRA COMPONENTS â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── HELPERS & EXTRA COMPONENTS ──────────────────────────────────────
 const getWalkupUrl = () => {
   const u = new URL(window.location.href);
   u.searchParams.set('mode', 'walkup');
@@ -391,14 +391,14 @@ function WalkupRegister({ athletes, onAddWalkup }) {
     <div style=${{ minHeight: '100vh', background: '#0d1017', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}>
       <div class="card" style=${{ padding: '32px', maxWidth: '480px', width: '100%', border: '1px solid #f0a50033' }}>
         <div style=${{ textAlign: 'center', marginBottom: '24px' }}>
-          <div style=${{ fontSize: '48px', marginBottom: '12px' }}>ðŸ</div>
+          <div style=${{ fontSize: '48px', marginBottom: '12px' }}>🏐</div>
           <h1 style=${{ fontSize: '24px', fontWeight: 800, margin: '0 0 4px' }}><span style=${{color: '#f0a500'}}>MID TN</span> VBC</h1>
           <p style=${{ color: '#78909c', fontSize: '13px' }}>Walk-up Registration & Check-In</p>
         </div>
 
         ${registeredTo ? html`
           <div style=${{ textAlign: 'center', padding: '20px 0' }}>
-            <div style=${{ fontSize: '56px', color: '#66bb6a', marginBottom: '16px' }}>âœ“</div>
+            <div style=${{ fontSize: '56px', color: '#66bb6a', marginBottom: '16px' }}>✓</div>
             <h2 style=${{ fontSize: '20px', fontWeight: 800, marginBottom: '8px' }}>Registration Complete!</h2>
             <p style=${{ color: '#78909c', fontSize: '13px', marginBottom: '20px' }}>Please write this Tryout Number clearly on your shoulder or collect your sticker:</p>
             <div style=${{ display: 'inline-block', background: '#12151c', border: '2px solid #f0a500', borderRadius: '12px', padding: '16px 32px', fontSize: '36px', fontFamily: 'monospace', fontWeight: 900, color: '#f0a500', marginBottom: '32px' }}>
@@ -451,7 +451,7 @@ function WalkupRegister({ athletes, onAddWalkup }) {
           </div>
           
           <button onClick=${submit} disabled=${!isValid} style=${{ width: '100%', padding: '12px', background: '#66bb6a', border: 'none', borderRadius: '8px', color: '#fff', fontSize: '14px', fontWeight: 800, cursor: 'pointer', marginBottom: '16px', opacity: (!isValid) ? 0.5 : 1 }}>
-            Submit & Register âœ“
+            Submit & Register ✓
           </button>
           
           <div style=${{ textAlign: 'center', fontSize: '12px' }}>
@@ -465,7 +465,7 @@ function WalkupRegister({ athletes, onAddWalkup }) {
   `;
 }
 
-// â”€â”€ LOGIN â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── LOGIN ──────────────────────────────────────────────────────────
 function Login({onLogin}){
   const [pin,setPin]=useState('');
   const [err,setErr]=useState('');
@@ -532,16 +532,16 @@ function Login({onLogin}){
         
         <!-- Login Card -->
         <div class="card" style=${{padding:40,width:380,textAlign:'center',display:'flex',flexDirection:'column',justifyContent:'center'}}>
-          <div style=${{fontSize:48,marginBottom:12}}>ðŸ</div>
+          <div style=${{fontSize:48,marginBottom:12}}>🏐</div>
           <h1 style=${{fontSize:26,fontWeight:800,margin:'0 0 4px'}}><span style=${{color:'#f0a500'}}>MID TN</span> VBC</h1>
-          <p style=${{color:'#78909c',fontSize:13,margin:'0 0 6px'}}>Tryout Manager Â· 2026â€“2027</p>
-          <a href="../" style=${{display:'block',fontSize:12,color:'#4fc3f7',marginBottom:24}}>â† Back to Hub</a>
+          <p style=${{color:'#78909c',fontSize:13,margin:'0 0 6px'}}>Tryout Manager · 2026–2027</p>
+          <a href="../" style=${{display:'block',fontSize:12,color:'#4fc3f7',marginBottom:24}}>← Back to Hub</a>
           <input type="password" placeholder="Enter PIN" maxLength="6" value=${pin}
             onInput=${e=>{setPin(e.target.value);setErr('');}}
             onKeyDown=${e=>e.key==='Enter'&&go()}
             style=${{width:'100%',padding:12,background:'#12151c',border:'1px solid #2a2e38',borderRadius:8,color:'#e8eaed',fontSize:22,textAlign:'center',letterSpacing:12,marginBottom:10}}/>
           ${err&&html`<p style=${{color:'#ef5350',fontSize:13,marginBottom:10}}>${err}</p>`}
-          <button onClick=${go} style=${{width:'100%',padding:12,background:'#f0a500',border:'none',borderRadius:8,color:'#000',fontSize:15,fontWeight:800,cursor:'pointer',marginBottom:20}}>Log In â†’</button>
+          <button onClick=${go} style=${{width:'100%',padding:12,background:'#f0a500',border:'none',borderRadius:8,color:'#000',fontSize:15,fontWeight:800,cursor:'pointer',marginBottom:20}}>Log In →</button>
           <div style=${{borderTop:'1px solid #2a2e38',paddingTop:14,fontSize:11,color:'#546e7a'}}>
             <div style=${{fontWeight:700,marginBottom:8,textTransform:'uppercase',letterSpacing:1}}>PINs</div>
             <div style=${{display:'grid',gridTemplateColumns:'1fr 1fr',gap:8,marginBottom:4}}>
@@ -582,7 +582,7 @@ function Login({onLogin}){
           </div>
 
           <button onClick=${printSigns} class="btn" style=${{background:'rgba(240,165,0,0.1)',color:'#f0a500',border:'1px solid #f0a500',fontWeight:700,marginTop:16,width:'100%',padding:10}}>
-            ðŸ–¨ï¸ Print Desk Signs
+            🖨️ Print Desk Signs
           </button>
         </div>
 
@@ -590,7 +590,7 @@ function Login({onLogin}){
     </div>`;
 }
 
-// â”€â”€ CHECK-IN CONFIRMATION MODAL â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── CHECK-IN CONFIRMATION MODAL ────────────────────────────────────
 function CheckInConfirmModal({ athlete, onClose, onConfirm }) {
   if (!athlete) return null;
   const [phone, setPhone] = useState(athlete.phone || '');
@@ -623,7 +623,7 @@ function CheckInConfirmModal({ athlete, onClose, onConfirm }) {
         
         <div style=${{display:'flex',gap:10,justifyContent:'flex-end'}}>
           <${Btn} onClick=${onClose} color="#2a2e38">Cancel<//>
-          <${Btn} onClick=${handleConfirm} disabled=${!isValid} color="#26c6da">Confirm & Check In âœ“<//>
+          <${Btn} onClick=${handleConfirm} disabled=${!isValid} color="#26c6da">Confirm & Check In ✓<//>
         </div>
       </div>
     </div>
@@ -789,7 +789,7 @@ function StaffDashboard({athletes, setAthletes, onArrive, onAddWalkup, onMetric,
 
       <div style=${{padding:'10px 20px 20px',maxWidth:800,margin:'0 auto'}}>
         <div class="card" style=${{padding:16,marginBottom:20,border:'1px solid #2a2e38',background:'#12151c'}}>
-          <label class="label" style=${{fontWeight:700,fontSize:12,color:'#78909c',marginBottom:6}}>ðŸ” Quick Player Completion Lookup</label>
+          <label class="label" style=${{fontWeight:700,fontSize:12,color:'#78909c',marginBottom:6}}>🔍 Quick Player Completion Lookup</label>
           <input class="input" placeholder="Search registered player by name or TO#..."
             value=${globalSearch} onInput=${e=>setGlobalSearch(e.target.value)}
             style=${{padding:10,fontSize:14}}/>
@@ -804,21 +804,21 @@ function StaffDashboard({athletes, setAthletes, onArrive, onAddWalkup, onMetric,
                       <div>
                         <span style=${{fontWeight:700,fontSize:14}}>${a.first} ${a.last}</span>
                         <span style=${{fontFamily:'monospace',color:'#4fc3f7',fontSize:12,marginLeft:8}}>#${a.to}</span>
-                        <span style=${{fontSize:11,color:'#546e7a',marginLeft:8}}>${a.division} Â· ${posAbbr(a.primaryPos)}</span>
+                        <span style=${{fontSize:11,color:'#546e7a',marginLeft:8}}>${a.division} · ${posAbbr(a.primaryPos)}</span>
                       </div>
                       <div style=${{display:'flex',gap:6}}>
-                        <${Btn} sm onClick=${()=>setSelAth(a)} color="#4fc3f7" outline>Profile ðŸ“‹<//>
-                         ${!a.arrived && html`<${Btn} sm onClick=${()=>setConfirmCheckInAth(a)} color="#26c6da">Check In âœ“<//>`}
+                        <${Btn} sm onClick=${()=>setSelAth(a)} color="#4fc3f7" outline>Profile 📋<//>
+                         ${!a.arrived && html`<${Btn} sm onClick=${()=>setConfirmCheckInAth(a)} color="#26c6da">Check In ✓<//>`}
                       </div>
                     </div>
                     
                     <!-- Progress Grid -->
                     <div style=${{display:'grid',gridTemplateColumns:'repeat(auto-fit, minmax(110px, 1fr))',gap:6,background:'#12151c',padding:8,borderRadius:6,border:'1px solid #1e222b',fontSize:11}}>
                       <div style=${{display:'flex',alignItems:'center',gap:4,color:comp.checkin?'#66bb6a':'#ffa726'}}>
-                        <span>${comp.checkin?'âœ“':'â³'}</span> Sign In
+                        <span>${comp.checkin?'✓':'⏳'}</span> Sign In
                       </div>
                       <div style=${{display:'flex',alignItems:'center',gap:4,color:comp.s1?'#66bb6a':'#ef5350'}} title=${a.metrics?.s1 ? `Height: ${a.metrics.s1[0]}", Reach: ${a.metrics.s1[1]}", Vert: ${a.metrics.s1[2]}"` : ''}>
-                        <span>${comp.s1?'âœ“':'â³'}</span> Physical ${a.metrics?.s1 ? `(${a.metrics.s1.filter(Boolean).length}/3)` : ''}
+                        <span>${comp.s1?'✓':'⏳'}</span> Physical ${a.metrics?.s1 ? `(${a.metrics.s1.filter(Boolean).length}/3)` : ''}
                       </div>
                       <div style=${{display:'flex',alignItems:'center',gap:4,color:comp.s2?'#66bb6a':'#ef5350'}} title=${a.metrics?.s2 ? `Shuttle: ${a.metrics.s2[0]}s` : ''}>
                         <span>${comp.s2?'✓':'⏳'}</span> Agility
@@ -877,7 +877,7 @@ function StaffDashboard({athletes, setAthletes, onArrive, onAddWalkup, onMetric,
                     setRecentCheckins(p=>[{...walkupForm,to:toN,isWalkup:true},...p].slice(0,6));
                     setWalkupForm({first:'',last:'',dob:'',division:'12 & Under',primaryPos:'Outside Hitter',altPos:'N/A',phone:'',email:''});
                     setShowWalkup(false);
-                  }} disabled=${!(walkupForm.first.trim() && walkupForm.last.trim() && walkupForm.phone.trim().length >= 7 && walkupForm.email.trim().includes('@'))} style=${{width:'100%',padding:10}}>Register & Check In âœ“<//>
+                  }} disabled=${!(walkupForm.first.trim() && walkupForm.last.trim() && walkupForm.phone.trim().length >= 7 && walkupForm.email.trim().includes('@'))} style=${{width:'100%',padding:10}}>Register & Check In ✓<//>
                 </div>
               ` : html`
                 <div class="card" style=${{padding:16,marginBottom:16}}>
@@ -893,7 +893,7 @@ function StaffDashboard({athletes, setAthletes, onArrive, onAddWalkup, onMetric,
                         <span style=${{fontFamily:'monospace',color:'#4fc3f7',fontSize:12}}>#${a.to}</span>
                         <div style=${{flex:1}}>
                           <div style=${{fontWeight:700,fontSize:14}}>${a.first} ${a.last}</div>
-                          <div style=${{fontSize:10,color:'#78909c'}}>${a.division} Â· ${posAbbr(a.primaryPos)}</div>
+                          <div style=${{fontSize:10,color:'#78909c'}}>${a.division} · ${posAbbr(a.primaryPos)}</div>
                         </div>
                         ${a.isWalkup&&html`<${Badge} c="#ffa726" sm>Walkup<//>`}
                         <div style=${{display:'flex',alignItems:'center',gap:8,marginRight:8}}>
@@ -916,7 +916,7 @@ function StaffDashboard({athletes, setAthletes, onArrive, onAddWalkup, onMetric,
                       <div key=${i} style=${{display:'flex',alignItems:'center',gap:8,padding:'4px 0',borderBottom:'1px solid #1e222b'}}>
                         <span style=${{fontFamily:'monospace',color:'#4fc3f7',fontSize:11}}>#${a.to}</span>
                         <span style=${{flex:1,fontSize:12}}>${a.first} ${a.last}</span>
-                        <span style=${{color:'#66bb6a',fontSize:12}}>âœ“ Checked In</span>
+                        <span style=${{color:'#66bb6a',fontSize:12}}>✓ Checked In</span>
                         ${a.isWalkup&&html`<${Badge} c="#ffa726" sm>WU<//>`}
                       </div>`)}
                   </div>
@@ -935,11 +935,11 @@ function StaffDashboard({athletes, setAthletes, onArrive, onAddWalkup, onMetric,
                     <div>
                       <h3 style=${{margin:0,fontSize:16,fontWeight:800,display:'flex',alignItems:'center',gap:6}}>
                         ${activeAthlete.first} ${activeAthlete.last}
-                        ${!activeAthlete.arrived && html`<span style=${{color:'#ffa726',fontSize:11,background:'rgba(240,165,0,0.1)',padding:'2px 6px',borderRadius:4}}>âš ï¸ Not Checked In</span>`}
+                        ${!activeAthlete.arrived && html`<span style=${{color:'#ffa726',fontSize:11,background:'rgba(240,165,0,0.1)',padding:'2px 6px',borderRadius:4}}>⚠️ Not Checked In</span>`}
                       </h3>
-                      <div style=${{fontSize:11,color:'#78909c',marginTop:2}}>TO# ${activeAthlete.to} Â· ${activeAthlete.division} Â· ${posAbbr(activeAthlete.primaryPos)}</div>
+                      <div style=${{fontSize:11,color:'#78909c',marginTop:2}}>TO# ${activeAthlete.to} · ${activeAthlete.division} · ${posAbbr(activeAthlete.primaryPos)}</div>
                     </div>
-                    <${Btn} sm onClick=${()=>setSelAth(activeAthlete)} color="#4fc3f7" outline>Profile ðŸ“‹<//>
+                    <${Btn} sm onClick=${()=>setSelAth(activeAthlete)} color="#4fc3f7" outline>Profile 📋<//>
                   </div>
                   
                   <div style=${{display:'grid',gridTemplateColumns:'1fr 1fr 1fr',gap:10,marginBottom:14}}>
@@ -955,7 +955,7 @@ function StaffDashboard({athletes, setAthletes, onArrive, onAddWalkup, onMetric,
                   
                   <div style=${{display:'flex',gap:8}}>
                     <${Btn} onClick=${()=>setActiveAthlete(null)} color="#2a2e38" style=${{flex:1}}>Cancel<//>
-                    <${Btn} onClick=${handleSaveS1} color="#66bb6a" style=${{flex:2}}>Save & Load Next âœ“<//>
+                    <${Btn} onClick=${handleSaveS1} color="#66bb6a" style=${{flex:2}}>Save & Load Next ✓<//>
                   </div>
                 </div>
               ` : html`
@@ -969,7 +969,7 @@ function StaffDashboard({athletes, setAthletes, onArrive, onAddWalkup, onMetric,
                           <span style=${{fontFamily:'monospace',color:'#4fc3f7',fontSize:11}}>#${a.to}</span>
                           <div style=${{flex:1}}>
                             <span style=${{fontSize:13,fontWeight:600}}>${a.first} ${a.last}</span>
-                            ${!a.arrived && html`<span style=${{color:'#ffa726',fontSize:9,marginLeft:6}}>âš ï¸ Not Checked In</span>`}
+                            ${!a.arrived && html`<span style=${{color:'#ffa726',fontSize:9,marginLeft:6}}>⚠️ Not Checked In</span>`}
                           </div>
                           ${comp ? html`<${Badge} c="#66bb6a" sm>Completed<//>` : html`<${Badge} c="#ef5350" sm>Pending<//>`}
                         </div>`;
@@ -990,11 +990,11 @@ function StaffDashboard({athletes, setAthletes, onArrive, onAddWalkup, onMetric,
                     <div>
                       <h3 style=${{margin:0,fontSize:16,fontWeight:800,display:'flex',alignItems:'center',gap:6}}>
                         ${activeAthlete.first} ${activeAthlete.last}
-                        ${!activeAthlete.arrived && html`<span style=${{color:'#ffa726',fontSize:11,background:'rgba(240,165,0,0.1)',padding:'2px 6px',borderRadius:4}}>âš ï¸ Not Checked In</span>`}
+                        ${!activeAthlete.arrived && html`<span style=${{color:'#ffa726',fontSize:11,background:'rgba(240,165,0,0.1)',padding:'2px 6px',borderRadius:4}}>⚠️ Not Checked In</span>`}
                       </h3>
-                      <div style=${{fontSize:11,color:'#78909c',marginTop:2}}>TO# ${activeAthlete.to} Â· ${activeAthlete.division} Â· ${posAbbr(activeAthlete.primaryPos)}</div>
+                      <div style=${{fontSize:11,color:'#78909c',marginTop:2}}>TO# ${activeAthlete.to} · ${activeAthlete.division} · ${posAbbr(activeAthlete.primaryPos)}</div>
                     </div>
-                    <${Btn} sm onClick=${()=>setSelAth(activeAthlete)} color="#4fc3f7" outline>Profile ðŸ“‹<//>
+                    <${Btn} sm onClick=${()=>setSelAth(activeAthlete)} color="#4fc3f7" outline>Profile 📋<//>
                   </div>
                   
                   <div style=${{marginBottom:12}}>
@@ -1009,7 +1009,7 @@ function StaffDashboard({athletes, setAthletes, onArrive, onAddWalkup, onMetric,
                   
                   <div style=${{display:'flex',gap:8}}>
                     <${Btn} onClick=${()=>setActiveAthlete(null)} color="#2a2e38" style=${{flex:1}}>Cancel<//>
-                    <${Btn} onClick=${handleSaveS2} color="#66bb6a" style=${{flex:2}}>Save & Load Next âœ“<//>
+                    <${Btn} onClick=${handleSaveS2} color="#66bb6a" style=${{flex:2}}>Save & Load Next ✓<//>
                   </div>
                 </div>
               ` : html`
@@ -1023,7 +1023,7 @@ function StaffDashboard({athletes, setAthletes, onArrive, onAddWalkup, onMetric,
                           <span style=${{fontFamily:'monospace',color:'#4fc3f7',fontSize:11}}>#${a.to}</span>
                           <div style=${{flex:1}}>
                             <span style=${{fontSize:13,fontWeight:600}}>${a.first} ${a.last}</span>
-                            ${!a.arrived && html`<span style=${{color:'#ffa726',fontSize:9,marginLeft:6}}>âš ï¸ Not Checked In</span>`}
+                            ${!a.arrived && html`<span style=${{color:'#ffa726',fontSize:9,marginLeft:6}}>⚠️ Not Checked In</span>`}
                           </div>
                           ${comp ? html`<${Badge} c="#66bb6a" sm>Completed<//>` : html`<${Badge} c="#ef5350" sm>Pending<//>`}
                         </div>`;
@@ -1044,11 +1044,11 @@ function StaffDashboard({athletes, setAthletes, onArrive, onAddWalkup, onMetric,
                     <div>
                       <h3 style=${{margin:0,fontSize:16,fontWeight:800,display:'flex',alignItems:'center',gap:6}}>
                         ${activeAthlete.first} ${activeAthlete.last}
-                        ${!activeAthlete.arrived && html`<span style=${{color:'#ffa726',fontSize:11,background:'rgba(240,165,0,0.1)',padding:'2px 6px',borderRadius:4}}>âš ï¸ Not Checked In</span>`}
+                        ${!activeAthlete.arrived && html`<span style=${{color:'#ffa726',fontSize:11,background:'rgba(240,165,0,0.1)',padding:'2px 6px',borderRadius:4}}>⚠️ Not Checked In</span>`}
                       </h3>
-                      <div style=${{fontSize:11,color:'#78909c',marginTop:2}}>TO# ${activeAthlete.to} Â· ${activeAthlete.division} Â· ${posAbbr(activeAthlete.primaryPos)}</div>
+                      <div style=${{fontSize:11,color:'#78909c',marginTop:2}}>TO# ${activeAthlete.to} · ${activeAthlete.division} · ${posAbbr(activeAthlete.primaryPos)}</div>
                     </div>
-                    <${Btn} sm onClick=${()=>setSelAth(activeAthlete)} color="#4fc3f7" outline>Profile ðŸ“‹<//>
+                    <${Btn} sm onClick=${()=>setSelAth(activeAthlete)} color="#4fc3f7" outline>Profile 📋<//>
                   </div>
                   
                   <div style=${{marginBottom:14}}>
@@ -1059,7 +1059,7 @@ function StaffDashboard({athletes, setAthletes, onArrive, onAddWalkup, onMetric,
                   
                   <div style=${{display:'flex',gap:8}}>
                     <${Btn} onClick=${()=>setActiveAthlete(null)} color="#2a2e38" style=${{flex:1}}>Cancel<//>
-                    <${Btn} onClick=${handleSaveDrill} color="#66bb6a" style=${{flex:2}}>Save & Load Next âœ“<//>
+                    <${Btn} onClick=${handleSaveDrill} color="#66bb6a" style=${{flex:2}}>Save & Load Next ✓<//>
                   </div>
                 </div>
               ` : html`
@@ -1073,7 +1073,7 @@ function StaffDashboard({athletes, setAthletes, onArrive, onAddWalkup, onMetric,
                           <span style=${{fontFamily:'monospace',color:'#4fc3f7',fontSize:11}}>#${a.to}</span>
                           <div style=${{flex:1}}>
                             <span style=${{fontSize:13,fontWeight:600}}>${a.first} ${a.last}</span>
-                            ${!a.arrived && html`<span style=${{color:'#ffa726',fontSize:9,marginLeft:6}}>âš ï¸ Not Checked In</span>`}
+                            ${!a.arrived && html`<span style=${{color:'#ffa726',fontSize:9,marginLeft:6}}>⚠️ Not Checked In</span>`}
                           </div>
                           ${comp ? html`<${Badge} c="#66bb6a" sm>Completed<//>` : html`<${Badge} c="#ef5350" sm>Pending<//>`}
                         </div>`;
@@ -1113,7 +1113,7 @@ function AthleteModal({athlete,onClose,onChange,onHide,onUnhide,onEmail}){
         ?html`<select class="select" value=${ev} onChange=${e=>setEv(e.target.value)} onBlur=${saveEdit} autoFocus>${opts.map(o=>html`<option>${o}</option>`)}</select>`
         :html`<input class="input" value=${ev} onInput=${e=>setEv(e.target.value)} onBlur=${saveEdit} onKeyDown=${e=>e.key==='Enter'&&saveEdit()} autoFocus style=${{fontSize:13,padding:'6px 8px'}}/>`)
       :html`<div onClick=${()=>startEdit(key,athlete[key])} style=${{fontSize:13,color:athlete[key]?'#e8eaed':'#444',cursor:locked?'default':'pointer',padding:'2px 0',borderBottom:'1px dashed #2a2e38',wordBreak:'break-all',minHeight:20}}>
-        ${athlete[key]||'â€”'}${!locked&&html`<span style=${{color:'#4fc3f7',marginLeft:4,fontSize:10}}>âœ</span>`}
+        ${athlete[key]||'—'}${!locked&&html`<span style=${{color:'#4fc3f7',marginLeft:4,fontSize:10}}>📝</span>`}
       </div>`}
     </div>`;
   return html`
@@ -1122,18 +1122,18 @@ function AthleteModal({athlete,onClose,onChange,onHide,onUnhide,onEmail}){
         <div style=${{display:'flex',justifyContent:'space-between',alignItems:'flex-start',marginBottom:16}}>
           <div>
             <h3 style=${{fontSize:20,color:'#e8eaed',margin:0,display:'flex',alignItems:'center',gap:8}}>
-              ${locked&&'ðŸ”’ '}${athlete.first} ${athlete.last}
+              ${locked&&'🔒 '}${athlete.first} ${athlete.last}
               ${athlete.isWalkup&&html`<${Badge} c="#ffa726" sm>Walkup<//>`}
-              ${athlete.arrived&&html`<${Badge} c="#26c6da" sm>âœ“ Arrived<//>`}
+              ${athlete.arrived&&html`<${Badge} c="#26c6da" sm>✓ Arrived<//>`}
             </h3>
             <div style=${{display:'flex',gap:8,marginTop:6,flexWrap:'wrap',alignItems:'center'}}>
               <span style=${{color:'#4fc3f7',fontFamily:'monospace',fontSize:13}}>TO# ${athlete.to}</span>
               ${sc&&html`<${Badge} c=${scoreColor(sc)}>Score: ${sc}<//>`}
               <${SBadge} status=${athlete.status}/>
-              ${athlete.wontAccept&&html`<span title=${athlete.wontAccept}>âš ï¸</span>`}
+              ${athlete.wontAccept&&html`<span title=${athlete.wontAccept}>⚠️</span>`}
             </div>
           </div>
-          <button onClick=${onClose} style=${{background:'none',border:'none',color:'#666',fontSize:24,cursor:'pointer'}}>Ã—</button>
+          <button onClick=${onClose} style=${{background:'none',border:'none',color:'#666',fontSize:24,cursor:'pointer'}}>×</button>
         </div>
         <div style=${{display:'grid',gridTemplateColumns:'1fr 1fr',gap:'12px 20px',marginBottom:16}}>
           ${F('First Name','first')}${F('Last Name','last')}
@@ -1149,7 +1149,7 @@ function AthleteModal({athlete,onClose,onChange,onHide,onUnhide,onEmail}){
             style=${{lineHeight:1.6,resize:'vertical',height:'auto',border:'1px solid #f0a50044'}}></textarea>
         </div>
         <div style=${{marginBottom:16}}>
-          <label class="label" style=${{color:'#ffa726',fontWeight:800}}>âš ï¸ Won't Accept / Team Restrictions</label>
+          <label class="label" style=${{color:'#ffa726',fontWeight:800}}>⚠️ Won't Accept / Team Restrictions</label>
           <input class="input" placeholder="e.g. Will not accept 14 Silver or lower"
             value=${athlete.wontAccept||''} onInput=${e=>onChange(athlete.id,{wontAccept:e.target.value})} disabled=${locked}
             style=${{borderColor:'#ffa72688'}}/>
@@ -1165,13 +1165,13 @@ function AthleteModal({athlete,onClose,onChange,onHide,onUnhide,onEmail}){
             <select class="select" value=${athlete.arrived?'yes':'no'}
               disabled=${locked}
               onChange=${e=>onChange(athlete.id,{arrived:e.target.value==='yes',status:e.target.value==='yes'&&athlete.status==='pending'?'arrived':athlete.status})}>
-              <option value="no">Not Arrived</option><option value="yes">Arrived âœ“</option></select></div>
+              <option value="no">Not Arrived</option><option value="yes">Arrived ✓</option></select></div>
         </div>
         <div style=${{borderTop:'1px solid #2a2e38',paddingTop:14,marginBottom:14}}>
           <div style=${{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:10}}>
             <div style=${{fontSize:13,fontWeight:700,color:'#4fc3f7'}}>Tryout Scores</div>
             <button onClick=${()=>setShowStopwatch(!showStopwatch)} class="btn btn-sm btn-outline" style=${{borderColor:'#ffa726',color:'#ffa726',padding:'2px 8px',fontSize:'11px'}}>
-              ${showStopwatch ? 'âœ• Close Timer' : 'â±ï¸ Open Timer'}
+              ${showStopwatch ? '✕ Close Timer' : '⏱️ Open Timer'}
             </button>
           </div>
           ${showStopwatch && html`
@@ -1216,13 +1216,13 @@ function AthleteModal({athlete,onClose,onChange,onHide,onUnhide,onEmail}){
         <div style=${{display:'flex',gap:8,flexWrap:'wrap',alignItems:'center'}}>
           ${!locked&&html`
             <div style=${{display:'flex',gap:6}}>
-              <${Btn} onClick=${()=>{onEmail(athlete, 'offer');onClose();}} color="#42a5f5">ðŸ“¬ Offer<//>
-              <${Btn} onClick=${()=>{onEmail(athlete, 'report');onClose();}} color="#26c6da" outline style=${{borderWidth:2}}>ðŸ“Š Report<//>
+              <${Btn} onClick=${()=>{onEmail(athlete, 'offer');onClose();}} color="#42a5f5">📩 Offer<//>
+              <${Btn} onClick=${()=>{onEmail(athlete, 'report');onClose();}} color="#26c6da" outline style=${{borderWidth:2}}>📊 Report<//>
             </div>
           `}
           ${!locked&&!athlete.hidden&&html`<${Btn} onClick=${()=>{onHide(athlete);onClose();}} danger outline>Hide<//>`}
           ${athlete.hidden&&html`<${Btn} onClick=${()=>{onUnhide(athlete.id);onClose();}} color="#66bb6a">Unhide<//>`}
-          ${locked&&html`<${Badge} c="#66bb6a">ðŸ”’ Accepted â€” Locked<//>`}
+          ${locked&&html`<${Badge} c="#66bb6a">🔒 Accepted — Locked<//>`}
           <div style=${{flex:1}}/>
           <label style=${{fontSize:12,display:'flex',alignItems:'center',gap:6,cursor:'pointer',color:'#78909c'}}>
             <input type="checkbox" checked=${athlete.teamLocked} onChange=${e=>onChange(athlete.id,{teamLocked:e.target.checked})}/>
@@ -1233,7 +1233,7 @@ function AthleteModal({athlete,onClose,onChange,onHide,onUnhide,onEmail}){
     </div>`;
 }
 
-// â”€â”€ EMAIL MODAL â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── EMAIL MODAL ────────────────────────────────────────────────────
 function getPerformanceReportBody(athlete) {
   const sc = totalScore(athlete.metrics, athlete.drillScore);
   const s1Val = athlete.metrics?.s1 || [];
@@ -1245,12 +1245,12 @@ function getPerformanceReportBody(athlete) {
          `Age Group: ${athlete.ageGroup}s\n` +
          `Position: ${athlete.primaryPos}\n\n` +
          `--- PERFORMANCE METRICS ---\n` +
-         `- Height: ${s1Val[0] || 'â€”'} in\n` +
-         `- Reach: ${s1Val[1] || 'â€”'} in\n` +
-         `- Vertical: ${s1Val[2] || 'â€”'} in\n` +
-         `- Agility (Shuttle Run): ${s2Val[0] || 'â€”'} sec\n` +
-         `- Coach Drill Score: ${athlete.drillScore || 'â€”'} / 10\n\n` +
-         `Overall Tryout Score: ${sc || 'â€”'} / 10\n` +
+         `- Height: ${s1Val[0] || '—'} in\n` +
+         `- Reach: ${s1Val[1] || '—'} in\n` +
+         `- Vertical: ${s1Val[2] || '—'} in\n` +
+         `- Agility (Shuttle Run): ${s2Val[0] || '—'} sec\n` +
+         `- Coach Drill Score: ${athlete.drillScore || '—'} / 10\n\n` +
+         `Overall Tryout Score: ${sc || '—'} / 10\n` +
          `Roster Status: ${athlete.status.toUpperCase()}\n\n` +
          `If you have any questions or want to discuss your results, please feel free to reply to this email.\n\n` +
          `Thank you,\n` +
@@ -1261,7 +1261,7 @@ function EmailModal({athlete,team,onClose,onSend,initialType='offer'}){
   const [emailType, setEmailType] = useState(initialType);
   
   const offerTpl = useMemo(() => {
-    return `Hello,\n\nWe are pleased to offer ${athlete?.first||''} ${athlete?.last||''} a roster spot on Mid TN VBC${team?' â€” '+team:''} for the 2026-2027 season.\n\nDetails at www.midtnvbc.com/clubtryouts\n\nPlease reply:\n  1. Accept\n  2. Request a call\n  3. Decline\n\nThank you!\nMid TN VBC`;
+    return `Hello,\n\nWe are pleased to offer ${athlete?.first||''} ${athlete?.last||''} a roster spot on Mid TN VBC${team?' — '+team:''} for the 2026-2027 season.\n\nDetails at www.midtnvbc.com/clubtryouts\n\nPlease reply:\n  1. Accept\n  2. Request a call\n  3. Decline\n\nThank you!\nMid TN VBC`;
   }, [athlete, team]);
 
   const reportTpl = useMemo(() => {
@@ -1291,8 +1291,8 @@ function EmailModal({athlete,team,onClose,onSend,initialType='offer'}){
     <div class="modal-overlay" onClick=${onClose}>
       <div class="modal-box" style=${{width:560}} onClick=${e=>e.stopPropagation()}>
         <div style=${{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:12}}>
-          <h3 style=${{margin:0,fontSize:16}}>Compose Email â€” ${athlete.first} ${athlete.last}</h3>
-          <button onClick=${onClose} style=${{background:'none',border:'none',color:'#666',fontSize:24,cursor:'pointer'}}>Ã—</button>
+          <h3 style=${{margin:0,fontSize:16}}>Compose Email — ${athlete.first} ${athlete.last}</h3>
+          <button onClick=${onClose} style=${{background:'none',border:'none',color:'#666',fontSize:24,cursor:'pointer'}}>×</button>
         </div>
         
         <div style=${{display:'grid',gridTemplateColumns:'1fr 1fr',gap:12,marginBottom:12}}>
@@ -1306,27 +1306,27 @@ function EmailModal({athlete,team,onClose,onSend,initialType='offer'}){
           <div>
             <label class="label">Sending Via</label>
             <div style=${{padding:'6px 10px',background:'#12151c',borderRadius:6,border:'1px solid #2a2e38',fontSize:12,color:'#66bb6a',fontWeight:700}}>
-              ${deliveryMethod === 'mailto' ? 'ðŸ“§ Local Mail Client (mailto:)' : 'ðŸŒ Web API Service'}
+              ${deliveryMethod === 'mailto' ? '📧 Local Mail Client (mailto:)' : '🌐 Web API Service'}
             </div>
           </div>
         </div>
 
         ${team && emailType === 'offer' && html`<p style=${{margin:'0 0 6px',fontSize:12,color:'#f0a500',fontWeight:600}}>Roster Spot: ${team}</p>`}
-        <p style=${{margin:'0 0 14px',fontSize:12,color:'#78909c'}}>${athlete.email||'âš ï¸ No email on file'}</p>
+        <p style=${{margin:'0 0 14px',fontSize:12,color:'#78909c'}}>${athlete.email||'⚠️ No email on file'}</p>
         <textarea class="input" rows="12" style=${{lineHeight:1.6,resize:'vertical',height:'auto',marginBottom:14,fontFamily:'monospace',fontSize:12}}
           value=${body} onInput=${e=>setBody(e.target.value)}></textarea>
         <div style=${{display:'flex',gap:8}}>
           <${Btn} onClick=${onClose} color="#2a2e38">Cancel<//>
           <${Btn} onClick=${()=>navigator.clipboard?.writeText(body)} color="#ffa726" outline>Copy Text<//>
           <${Btn} onClick=${()=>{onSend(athlete,body,team,emailType);onClose();}} color="#66bb6a" style=${{flex:1}}>
-            ${athlete.email ? (deliveryMethod === 'mailto' ? 'Open Mail App âœ“' : 'Send via Web API âœ“') : 'Copy & Mark Contacted'}
+            ${athlete.email ? (deliveryMethod === 'mailto' ? 'Open Mail App ✓' : 'Send via Web API ✓') : 'Copy & Mark Contacted'}
           <//>
         </div>
       </div>
     </div>`;
 }
 
-// â”€â”€ HIDE MODAL â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── HIDE MODAL ─────────────────────────────────────────────────────
 function HideModal({athlete,onClose,onHide}){
   const [reason,setReason]=useState(HIDE_REASONS[0]);
   const [note,setNote]=useState('');
@@ -1348,7 +1348,7 @@ function HideModal({athlete,onClose,onHide}){
     </div>`;
 }
 
-// â”€â”€ PLAYER CARD â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── PLAYER CARD ────────────────────────────────────────────────────
 function PCard({athlete,onClick,compact,showScore,teamKey}){
   const sc=totalScore(athlete.metrics, athlete.drillScore);
   const locked=athlete.teamLocked||athlete.status==='accepted';
@@ -1356,19 +1356,19 @@ function PCard({athlete,onClick,compact,showScore,teamKey}){
     <div class=${'player-card'+(athlete.status==='declined'?' declined':'')+(locked?' locked':'')}
       draggable=${!locked} onDragStart=${e=>!locked&&e.dataTransfer.setData('text/plain',athlete.id)}
       onClick=${()=>onClick?.(athlete)}>
-      ${locked&&html`<span title="Locked" style=${{fontSize:10,fontWeight:800,color:'#f0a500'}}>ðŸ”’</span>`}
+      ${locked&&html`<span title="Locked" style=${{fontSize:10,fontWeight:800,color:'#f0a500'}}>🔒</span>`}
       <span style=${{fontFamily:'monospace',fontSize:10,color:'#4fc3f7',minWidth:22}}>#${athlete.to}</span>
       <span style=${{fontWeight:600,fontSize:compact?12:13,flex:1,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>${athlete.first} ${athlete.last}</span>
       <${Badge} c="#78909c" sm>${posAbbr(athlete.primaryPos)}<//>
       ${athlete.altPos&&athlete.altPos!==athlete.primaryPos&&html`<${Badge} c="#3a3f47" sm>${posAbbr(athlete.altPos)}<//>`}
-      ${athlete.wontAccept&&html`<span title=${'WON\'T ACCEPT / RESTRICTION: '+athlete.wontAccept} style=${{fontSize:16,cursor:'help',filter:'drop-shadow(0 0 2px #ffa726)'}}>âš ï¸</span>`}
-      ${athlete.notes&&html`<span title=${'TRYOUT NOTES: '+athlete.notes} style=${{fontSize:16,cursor:'help',filter:'drop-shadow(0 0 2px #4fc3f7)'}}>ðŸ“</span>`}
+      ${athlete.wontAccept&&html`<span title=${'WON\'T ACCEPT / RESTRICTION: '+athlete.wontAccept} style=${{fontSize:16,cursor:'help',filter:'drop-shadow(0 0 2px #ffa726)'}}>⚠️</span>`}
+      ${athlete.notes&&html`<span title=${'TRYOUT NOTES: '+athlete.notes} style=${{fontSize:16,cursor:'help',filter:'drop-shadow(0 0 2px #4fc3f7)'}}>📝</span>`}
       ${showScore&&sc&&html`<${Badge} c=${scoreColor(sc)} sm>${sc}<//>`}
       <${SBadge} status=${athlete.status}/>
     </div>`;
 }
 
-// â”€â”€ HEAD COACH â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── HEAD COACH ─────────────────────────────────────────────────────
 function HeadCoach({athletes,setAthletes,onLogout}){
   const [view,setView]=useState('allreg');
   const [age,setAge]=useState('12');
@@ -1594,12 +1594,12 @@ function HeadCoach({athletes,setAthletes,onLogout}){
     results:'Results',
     teams:'Team Builder',
     allteams:'All Teams',
-    admin: unansweredQ.length > 0 ? html`âš™ï¸ Admin <span style=${{background:'#ffa726',color:'#000',padding:'1px 5px',borderRadius:10,fontSize:10,fontWeight:800,marginLeft:4}}>${unansweredQ.length}</span>` : 'âš™ï¸ Admin',
+    admin: unansweredQ.length > 0 ? html`⚙️ Admin <span style=${{background:'#ffa726',color:'#000',padding:'1px 5px',borderRadius:10,fontSize:10,fontWeight:800,marginLeft:4}}>${unansweredQ.length}</span>` : '⚙️ Admin',
     hidden:`Hidden (${hidden.length})`
   };
   const showAgeNav=['depth','results','teams'].includes(view);
 
-  // â”€â”€ ALL REG â”€â”€
+  // ── ALL REG ──
   const [regQ,setRegQ]=useState('');
   const [addWu,setAddWu]=useState(false);
   const [wuForm,setWuForm]=useState({first:'',last:'',dob:'',division:'12 & Under',primaryPos:'Outside Hitter',altPos:'',phone:'',email:''});
@@ -1616,7 +1616,7 @@ function HeadCoach({athletes,setAthletes,onLogout}){
     setAddWu(false);
   };
 
-  // â”€â”€ DEPTH â”€â”€
+  // ── DEPTH ──
   const depthPool=useMemo(()=>{
     const pool = athletes.filter(a => a.ageGroup === age && !a.hidden);
     // Pre-calculate scores for sorting
@@ -1634,7 +1634,7 @@ function HeadCoach({athletes,setAthletes,onLogout}){
     return g;
   }, [athletes, age]);
 
-  // â”€â”€ RESULTS â”€â”€
+  // ── RESULTS ──
   const [resSort, setResSort] = useState('score');
   const resList = useMemo(() => {
     const l = athletes.filter(a => a.ageGroup === age && !a.hidden);
@@ -1650,7 +1650,7 @@ function HeadCoach({athletes,setAthletes,onLogout}){
     return l;
   }, [athletes, age, resSort]);
 
-  // â”€â”€ TEAMS â”€â”€
+  // ── TEAMS ──
   const [poolSort, setPoolSort] = useState('pos');
   const [showPool, setShowPool] = useState(true);
   const [dragOver, setDragOver] = useState(null);
@@ -1692,7 +1692,7 @@ function HeadCoach({athletes,setAthletes,onLogout}){
     <div style=${{minHeight:'100vh',background:'#0d1017',paddingBottom:20}}>
       <div class="sticky-header no-print">
         <div style=${{display:'flex',alignItems:'center',gap:10,flexWrap:'wrap',marginBottom:10}}>
-          <a href="../" style=${{color:'#546e7a',textDecoration:'none',fontSize:12}}>â† Hub</a>
+          <a href="../" style=${{color:'#546e7a',textDecoration:'none',fontSize:12}}>← Hub</a>
           <span style=${{color:'#2a2e38'}}>|</span>
           <h1 style=${{margin:0,fontSize:18,fontWeight:800}}><span style=${{color:'#f0a500'}}>MID TN</span> VBC Tryout Manager</h1>
           <div style=${{flex:1}}/>
@@ -1710,8 +1710,8 @@ function HeadCoach({athletes,setAthletes,onLogout}){
           ${showAgeNav&&html`
             <div style=${{display:'flex',gap:2,background:'#12151c',borderRadius:6,padding:2}}>
               ${AGES.map(a=>html`<button key=${a} class=${'age-tab'+(age===a?' active':'')} onClick=${()=>setAge(a)}>${a}s</button>`)}</div>`}
-          ${view==='allteams'&&html`
-            <${Btn} sm onClick=${()=>exportCSV([['Age','Team','TO#','First','Last','POS','Coach POS','Score','Drill','Height','Reach','Vertical','Shuttle','Status','Phone','Email','Notes','WontAccept'],...athletes.filter(a=>a.teamAssignment&&!a.hidden).map(a=>[a.ageGroup+'s',a.teamAssignment,a.to,a.first,a.last,a.primaryPos,a.coachPos,totalScore(a.metrics, a.drillScore)||'',a.drillScore||'',(a.metrics?.s1?.[0]||''),(a.metrics?.s1?.[1]||''),(a.metrics?.s1?.[2]||''),(a.metrics?.s2?.[0]||''),a.status,a.phone,a.email,a.notes,a.wontAccept])],'MidTN_Teams.csv')} color="#66bb6a" outline>Export CSV<//>
+          ${['teams','allteams'].includes(view)&&html`
+            <${Btn} sm onClick=${()=>exportCSV([['Age Group','Team','TO#','First','Last','POS','Coach POS','Score','Drill','Height','Reach','Vertical','Shuttle','Status','Phone','Email','Notes','WontAccept'],...athletes.filter(a=>a.teamAssignment&&!a.hidden&&(view==='allteams'||a.ageGroup===age)).map(a=>[a.ageGroup+'s',a.teamAssignment,a.to,a.first,a.last,a.primaryPos,a.coachPos,totalScore(a.metrics, a.drillScore)||'',a.drillScore||'',(a.metrics?.s1?.[0]||''),(a.metrics?.s1?.[1]||''),(a.metrics?.s1?.[2]||''),(a.metrics?.s2?.[0]||''),a.status,a.phone,a.email,a.notes,a.wontAccept])],view==='allteams'?'MidTN_All_Teams.csv':`MidTN_${age}s_Teams.csv`)} color="#66bb6a" outline>Export CSV<//>
             <${Btn} sm onClick=${()=>window.print()} color="#4fc3f7" outline>Print<//>
           `}
         </div>
@@ -1746,7 +1746,7 @@ function HeadCoach({athletes,setAthletes,onLogout}){
                       ${['N/A','Outside Hitter','Middle Hitter','Setter','Right Side Hitter','Defensive Specialist','Libero'].map(p=>html`<option>${p}</option>`)}</select></div>
                 </div>
                 <div style=${{display:'flex',gap:8}}><${Btn} sm onClick=${()=>setAddWu(false)} color="#2a2e38">Cancel<//>
-                  <${Btn} sm onClick=${submitWu} color="#f0a500" disabled=${!(wuForm.first.trim() && wuForm.last.trim() && (wuForm.phone||'').trim().length >= 7 && (wuForm.email||'').trim().includes('@'))}>Add & Check In âœ“<//></div>
+                  <${Btn} sm onClick=${submitWu} color="#f0a500" disabled=${!(wuForm.first.trim() && wuForm.last.trim() && (wuForm.phone||'').trim().length >= 7 && (wuForm.email||'').trim().includes('@'))}>Add & Check In ✓<//></div>
               </div>`}
             <div style=${{overflowX:'auto',maxHeight:'calc(100vh - 280px)'}}>
               <table>
@@ -1765,12 +1765,12 @@ function HeadCoach({athletes,setAthletes,onLogout}){
                           onInput=${e=>upd(a.id,{drillScore:e.target.value})}
                           style=${{width:45,padding:'2px 4px',background:'#12151c',border:'1px solid #f0a50088',borderRadius:4,color:'#e8eaed',fontSize:12,textAlign:'center',fontWeight:700}}/>
                       </td>
-                      <td style=${{fontFamily:'monospace',fontWeight:700,color:totalScore(a.metrics, a.drillScore)?scoreColor(totalScore(a.metrics, a.drillScore)):'#444'}}>${totalScore(a.metrics, a.drillScore)||'â€”'}</td>
+                      <td style=${{fontFamily:'monospace',fontWeight:700,color:totalScore(a.metrics, a.drillScore)?scoreColor(totalScore(a.metrics, a.drillScore)):'#444'}}>${totalScore(a.metrics, a.drillScore)||'—'}</td>
                       <td onClick=${()=>setSelAth(a)}><${SBadge} status=${a.status}/></td>
-                      <td>${a.arrived?html`<${Badge} c="#26c6da" sm>âœ“<//>`
+                      <td>${a.arrived?html`<${Badge} c="#26c6da" sm>✓<//>`
                         :html`<${Btn} sm onClick=${e=>{e.stopPropagation();doArrive(a);}} color="#26c6da" outline>Check In<//>`}</td>
-                      <td onClick=${()=>setSelAth(a)}>${a.notes&&html`<span title=${'NOTES: ' + a.notes}>ðŸ“</span>`}${a.wontAccept&&html`<span title=${'RESTRICTIONS: ' + a.wontAccept} style=${{marginLeft:4}}>âš ï¸</span>`}</td>
-                      <td onClick=${()=>setSelAth(a)} style=${{fontSize:14,textAlign:'center'}}>âœï¸</td>
+                      <td onClick=${()=>setSelAth(a)}>${a.notes&&html`<span title=${'NOTES: ' + a.notes}>📝</span>`}${a.wontAccept&&html`<span title=${'RESTRICTIONS: ' + a.wontAccept} style=${{marginLeft:4}}>⚠️</span>`}</td>
+                      <td onClick=${()=>setSelAth(a)} style=${{fontSize:14,textAlign:'center'}}>📝</td>
                       <td onClick=${()=>setSelAth(a)} style=${{color:'#78909c',whiteSpace:'nowrap',fontSize:11}}>${a.phone}</td>
                       <td style=${{color:'#78909c',maxWidth:140,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap',fontSize:11}}>${a.email}</td>
                     </tr>`)}</tbody></table>
@@ -1780,7 +1780,7 @@ function HeadCoach({athletes,setAthletes,onLogout}){
 
         ${view==='depth'&&html`
           <div>
-            <h2 style=${{fontSize:17,fontWeight:700,margin:'0 0 14px'}}>${age}'s Depth Chart <span style=${{fontSize:12,color:'#78909c',fontWeight:400}}>primary ranking Â· secondary visible</span></h2>
+            <h2 style=${{fontSize:17,fontWeight:700,margin:'0 0 14px'}}>${age}'s Depth Chart <span style=${{fontSize:12,color:'#78909c',fontWeight:400}}>primary ranking · secondary visible</span></h2>
             <div style=${{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(240px,1fr))',gap:14}}>
               ${[...POS_CATS,{key:'unsorted',label:'Unsorted'}].map(cat=>{
                 const list=depthPool[cat.key]||[];
@@ -1790,18 +1790,26 @@ function HeadCoach({athletes,setAthletes,onLogout}){
                       <span style=${{fontWeight:700,fontSize:13,color:cat.key==='unsorted'?'#ffa726':'#4fc3f7'}}>${cat.label}</span>
                       <span style=${{fontSize:11,color:'#546e7a'}}>${list.length}</span>
                     </div>
+
                     <div style=${{padding:8,overflowY:'auto',maxHeight:420}}>
-                      ${list.map((a,i)=>html`
+                      ${list.map((a,i)=>{
+                        const isPri = classifyPos(a.primaryPos) === cat.key;
+                        const otherPos = isPri ? a.altPos : a.primaryPos;
+                        const label = isPri ? 'Alt' : 'Pri';
+                        return html`
                         <div key=${a.id} onClick=${()=>setSelAth(a)} style=${{display:'flex',alignItems:'center',gap:6,padding:'6px 8px',background:'#1a1d24',borderRadius:6,marginBottom:4,cursor:'pointer'}}>
                           <span style=${{fontSize:11,color:'#546e7a',minWidth:16,textAlign:'right'}}>${i+1}</span>
                           <span style=${{fontFamily:'monospace',fontSize:10,color:'#4fc3f7',minWidth:24}}>#${a.to}</span>
                           <span style=${{flex:1,fontSize:12,fontWeight:600}}>${a.first} ${a.last}</span>
-                          <span style=${{fontSize:10,color:'#4fc3f7',background:'rgba(79,195,247,0.1)',padding:'1px 4px',borderRadius:4,marginRight:4,border:'1px solid rgba(79,195,247,0.2)'}}>Sec: ${posAbbr(a.altPos)}</span>
+                          ${otherPos && otherPos !== 'N/A' && otherPos !== 'none' && html`
+                            <span style=${{fontSize:10,color:'#4fc3f7',background:'rgba(79,195,247,0.1)',padding:'1px 4px',borderRadius:4,marginRight:4,border:'1px solid rgba(79,195,247,0.2)'}}>${label}: ${posAbbr(otherPos)}</span>
+                          `}
                           ${totalScore(a.metrics, a.drillScore)&&html`<${Badge} c=${scoreColor(totalScore(a.metrics, a.drillScore))} sm>${totalScore(a.metrics, a.drillScore)}<//>`}
-                          ${a.wontAccept&&html`<span title=${'WON\'T ACCEPT: ' + a.wontAccept}>âš ï¸</span>`}
-                          ${a.notes&&html`<span title=${'NOTES: ' + a.notes}>ðŸ“</span>`}
-                        </div>`)}
-                      ${list.length===0&&html`<div style=${{padding:20,textAlign:'center',color:'#333',fontSize:12}}>None</div>`}
+                          ${a.wontAccept&&html`<span title=${'WON\'T ACCEPT: ' + a.wontAccept} aria-label=${'Restriction: ' + a.wontAccept}>⚠️</span>`}
+                          ${a.notes&&html`<span title=${'NOTES: ' + a.notes} aria-label=${'Notes: ' + a.notes}>📝</span>`}
+                        </div>`;
+                      })}
+${list.length===0&&html`<div style=${{padding:20,textAlign:'center',color:'#333',fontSize:12}}>None</div>`}
                     </div>
                   </div>`;})}</div></div>`}
 
@@ -1832,13 +1840,13 @@ function HeadCoach({athletes,setAthletes,onLogout}){
                         <input type="number" value=${vs[idx]||''} onClick=${e=>e.stopPropagation()}
                           onInput=${e=>{const nv=[...(a.metrics?.[st.key]||st.metrics.map(()=>''))];nv[idx]=e.target.value;updMetric(a.id,st.key,nv);}}
                           style=${{width:50,padding:'2px 4px',background:'#12151c',border:'1px solid #2a2e38',borderRadius:4,color:'#e8eaed',fontSize:12,textAlign:'center'}}/></td>`; }))}
-                    ${STATIONS.filter(s=>!s.isCheckin).map(s=>{const av=sAvg(a.metrics,s.key);return html`<td key=${s.key+'a'} style=${{color:'#ffa726',fontWeight:700,fontFamily:'monospace'}}>${av!==null?av.toFixed(1):'â€”'}</td>`;})}
+                    ${STATIONS.filter(s=>!s.isCheckin).map(s=>{const av=sAvg(a.metrics,s.key);return html`<td key=${s.key+'a'} style=${{color:'#ffa726',fontWeight:700,fontFamily:'monospace'}}>${av!==null?av.toFixed(1):'—'}</td>`;})}
                     <td style=${{color:'#f0a500',fontWeight:700,fontFamily:'monospace'}}>
                       <input type="number" min="0" max="10" step="0.5" value=${a.drillScore||''} onClick=${e=>e.stopPropagation()}
                         onInput=${e=>upd(a.id,{drillScore:e.target.value})}
                         style=${{width:50,padding:'2px 4px',background:'#12151c',border:'1px solid #f0a50088',borderRadius:4,color:'#e8eaed',fontSize:12,textAlign:'center',fontWeight:700}}/>
                     </td>
-                    <td style=${{fontWeight:800,fontFamily:'monospace',color:sc?scoreColor(sc):'#444'}}>${sc||'â€”'}</td>
+                    <td style=${{fontWeight:800,fontFamily:'monospace',color:sc?scoreColor(sc):'#444'}}>${sc||'—'}</td>
                     <td><${SBadge} status=${a.status}/></td>
                   </tr>`;})}
                 </tbody></table>
@@ -1865,7 +1873,7 @@ function HeadCoach({athletes,setAthletes,onLogout}){
                         <option value="score">Score</option><option value="pos">Depth Chart</option><option value="name">Name</option></select>
                     </div>
                   </div>
-                  <div style=${{fontSize:11,color:'#546e7a'}}>Drag into teams â†’</div>
+                  <div style=${{fontSize:11,color:'#546e7a'}}>Drag into teams →</div>
                 </div>
                 <div style=${{overflow:'auto',flex:1,padding:8}}>
                   ${poolSort==='pos'
@@ -1915,14 +1923,14 @@ function HeadCoach({athletes,setAthletes,onLogout}){
                       style=${{background:ts.bg,borderColor:isLocked?'#f0a500':ts.border}}>
                       <div style=${{padding:'10px 14px',background:ts.hdr,display:'flex',justifyContent:'space-between',alignItems:'center'}}>
                         <div style=${{display:'flex',alignItems:'center',gap:8}}>
-                          ${isLocked&&html`<span>ðŸ”’</span>`}
+                          ${isLocked&&html`<span>🔒</span>`}
                           <span style=${{fontWeight:800,fontSize:14,color:'#fff'}}>${age} ${lvl}</span>
                           <span style=${{fontSize:11,color:'rgba(255,255,255,.5)',background:'rgba(255,255,255,.1)',padding:'2px 7px',borderRadius:10}}>${roster.length}/12</span>
                         </div>
                         <${Btn} sm onClick=${()=>roster.forEach(a=>upd(a.id,{teamLocked:!isLocked}))}
                           disabled=${roster.length===0}
                           color=${isLocked?'#ef5350':'#f0a500'} outline>
-                          ${isLocked?'ðŸ”“ Unlock':'ðŸ”’ Finalize'}<//>
+                          ${isLocked?'🔓 Unlock':'🔒 Finalize'}<//>
                       </div>
                       <div class=${'drop-zone'+(dragOver===key?' drag-over':'')}
                         onDragOver=${e=>{e.preventDefault();setDragOver(key);}}
@@ -1935,7 +1943,7 @@ function HeadCoach({athletes,setAthletes,onLogout}){
                           <div key=${a.id} style=${{position:'relative'}}>
                             <${PCard} athlete=${a} onClick=${setSelAth} compact showScore teamKey=${key}/>
                             ${!isLocked&&html`<button onClick=${()=>upd(a.id,{teamAssignment:null,teamLocked:false})}
-                              style=${{position:'absolute',right:4,top:'50%',transform:'translateY(-50%)',background:'#ef535033',border:'none',borderRadius:4,color:'#ef5350',cursor:'pointer',fontSize:10,padding:'2px 5px'}}>Ã—</button>`}
+                              style=${{position:'absolute',right:4,top:'50%',transform:'translateY(-50%)',background:'#ef535033',border:'none',borderRadius:4,color:'#ef5350',cursor:'pointer',fontSize:10,padding:'2px 5px'}}>×</button>`}
                           </div>`)}
                         ${declined.length>0&&html`
                           <div style=${{marginTop:6,borderTop:'1px solid rgba(255,255,255,.08)',paddingTop:6}}>
@@ -1945,7 +1953,7 @@ function HeadCoach({athletes,setAthletes,onLogout}){
                       ${roster.length>0&&html`
                         <${Btn} sm onClick=${()=>setTeamOfferKey(key)}
                           style=${{width:'100%',background:ts.hdr,border:`1px solid ${ts.border}66`,color:'#fff',cursor:'pointer'}}>
-                          ðŸ“¬ Manage Offers (${roster.filter(a=>!['offered','accepted','declined'].includes(a.status)).length} pending)
+                          📩 Manage Offers (${roster.filter(a=>!['offered','accepted','declined'].includes(a.status)).length} pending)
                         <//>`}
                     </div>`;
                 })}
@@ -1970,7 +1978,7 @@ function HeadCoach({athletes,setAthletes,onLogout}){
                       return html`
                         <div key=${lvl} class="team-card team-print" style=${{background:ts.bg,borderColor:isLocked?'#f0a500':ts.border}}>
                           <div style=${{padding:'8px 12px',background:ts.hdr,display:'flex',justifyContent:'space-between'}}>
-                            <span style=${{fontWeight:800,fontSize:13,color:'#fff'}}>${isLocked?'ðŸ”’ ':''}${ag} ${lvl}</span>
+                            <span style=${{fontWeight:800,fontSize:13,color:'#fff'}}>${isLocked?'🔒 ':''}${ag} ${lvl}</span>
                             <span style=${{fontSize:11,color:'rgba(255,255,255,.5)'}}>${roster.length}</span>
                           </div>
                           <div style=${{padding:8}}>
@@ -1990,7 +1998,7 @@ function HeadCoach({athletes,setAthletes,onLogout}){
               
               <!-- Email Config Card -->
               <div class="card" style=${{padding:20,border:'1px solid #f0a50033'}}>
-                <h3 style=${{color:'#f0a500',fontSize:14,fontWeight:800,marginBottom:14,textTransform:'uppercase',letterSpacing:'0.5px'}}>âš™ï¸ Email Service Settings</h3>
+                <h3 style=${{color:'#f0a500',fontSize:14,fontWeight:800,marginBottom:14,textTransform:'uppercase',letterSpacing:'0.5px'}}>⚙️ Email Service Settings</h3>
                 
                 <div style=${{marginBottom:12}}><label class="label">Sending Method</label>
                   <select class="select" value=${emailConfig.method || 'mailto'} 
@@ -2042,7 +2050,7 @@ function HeadCoach({athletes,setAthletes,onLogout}){
 
               <!-- AI Chatbot Model Settings Card -->
               <div class="card" style=${{padding:20,border:'1px solid #f0a50033'}}>
-                <h3 style=${{color:'#f0a500',fontSize:14,fontWeight:800,marginBottom:14,textTransform:'uppercase',letterSpacing:'0.5px'}}>ðŸ¤– AI Chatbot Model Settings</h3>
+                <h3 style=${{color:'#f0a500',fontSize:14,fontWeight:800,marginBottom:14,textTransform:'uppercase',letterSpacing:'0.5px'}}>🤖 AI Chatbot Model Settings</h3>
                 
                 <div style=${{marginBottom:12}}><label class="label">AI Model Provider</label>
                   <select class="select" value=${chatbotSettings.provider} 
@@ -2073,7 +2081,7 @@ function HeadCoach({athletes,setAthletes,onLogout}){
 
               <!-- Linked Folder / AI Training Card -->
               <div class="card" style=${{padding:20,border:'1px solid #f0a50033'}}>
-                <h3 style=${{color:'#f0a500',fontSize:14,fontWeight:800,marginBottom:14,textTransform:'uppercase',letterSpacing:'0.5px'}}>ðŸ“ Linked Folders & AI Training Docs</h3>
+                <h3 style=${{color:'#f0a500',fontSize:14,fontWeight:800,marginBottom:14,textTransform:'uppercase',letterSpacing:'0.5px'}}>📁 Linked Folders & AI Training Docs</h3>
                 <p style=${{fontSize:11,color:'#78909c',marginBottom:12}}>Link local directories containing club handbooks or rules, or import text documents directly into the chatbot knowledge base.</p>
                 
                 <!-- Linked folders list -->
@@ -2094,7 +2102,7 @@ function HeadCoach({athletes,setAthletes,onLogout}){
                     ${linkedFolders.map((f,idx)=>html`
                       <div key=${idx} style=${{display:'flex',justifyContent:'space-between',alignItems:'center',fontSize:12,padding:'3px 0',borderBottom:'1px solid #1e222b'}}>
                         <span style=${{fontFamily:'monospace',wordBreak:'break-all'}}>${f}</span>
-                        <button onClick=${()=>saveLinkedFolders(linkedFolders.filter((_,i)=>i!==idx))} style=${{background:'none',border:'none',color:'#ef5350',cursor:'pointer',fontSize:12}}>âœ•</button>
+                        <button onClick=${()=>saveLinkedFolders(linkedFolders.filter((_,i)=>i!==idx))} style=${{background:'none',border:'none',color:'#ef5350',cursor:'pointer',fontSize:12}}>✕</button>
                       </div>
                     `)}
                     ${!linkedFolders.length && html`<div style=${{color:'#444',textAlign:'center',padding:10}}>No directories linked</div>`}
@@ -2128,11 +2136,11 @@ function HeadCoach({athletes,setAthletes,onLogout}){
                     <div style=${{maxHeight:120,overflowY:'auto',background:'#12151c',borderRadius:6,border:'1px solid #2a2e38',padding:8}}>
                       ${kb?.active_documents?.map((doc,idx)=>html`
                         <div key=${idx} style=${{display:'flex',justifyContent:'space-between',alignItems:'center',fontSize:12,padding:'4px 0',borderBottom:'1px solid #1e222b'}}>
-                          <span style=${{overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap',maxWidth:'80%'}}>ðŸ“„ ${doc.name} (${doc.content.length} chars)</span>
+                          <span style=${{overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap',maxWidth:'80%'}}>📄 ${doc.name} (${doc.content.length} chars)</span>
                           <button onClick=${()=>{
                             const docs = kb.active_documents.filter((_,i)=>i!==idx);
                             saveKb({ ...kb, active_documents: docs });
-                          }} style=${{background:'none',border:'none',color:'#ef5350',cursor:'pointer',fontSize:12}}>âœ•</button>
+                          }} style=${{background:'none',border:'none',color:'#ef5350',cursor:'pointer',fontSize:12}}>✕</button>
                         </div>
                       `)}
                       ${(!kb?.active_documents || !kb?.active_documents?.length) && html`<div style=${{color:'#444',textAlign:'center',padding:10}}>No active training documents loaded</div>`}
@@ -2147,7 +2155,7 @@ function HeadCoach({athletes,setAthletes,onLogout}){
             <div style=${{display:'flex',flexDirection:'column',gap:20}}>
               
               <div class="card" style=${{padding:20,border:'1px solid #f0a50033'}}>
-                <h3 style=${{color:'#f0a500',fontSize:14,fontWeight:800,marginBottom:14,textTransform:'uppercase',letterSpacing:'0.5px'}}>ðŸ¤– AI Chatbot Knowledge Base Editor</h3>
+                <h3 style=${{color:'#f0a500',fontSize:14,fontWeight:800,marginBottom:14,textTransform:'uppercase',letterSpacing:'0.5px'}}>🤖 AI Chatbot Knowledge Base Editor</h3>
                 <p style=${{fontSize:11,color:'#78909c',marginBottom:12}}>Directly modify FAQs and rule highlights the chatbot answers on the home page and tryouts dashboard.</p>
                 
                 ${kb ? html`
@@ -2183,7 +2191,7 @@ function HeadCoach({athletes,setAthletes,onLogout}){
                                 const next = {...kb};
                                 next.faq = next.faq.filter((_,i)=>i!==idx);
                                 saveKb(next);
-                              }} style=${{background:'none',border:'none',color:'#ef5350',cursor:'pointer',fontSize:11}}>âœ• Remove</button>
+                              }} style=${{background:'none',border:'none',color:'#ef5350',cursor:'pointer',fontSize:11}}>✕ Remove</button>
                             </div>
                             <input class="input" placeholder="Question" value=${item.question}
                               onInput=${e=>{
@@ -2224,7 +2232,7 @@ function HeadCoach({athletes,setAthletes,onLogout}){
 
               <!-- AI Retraining Portal Card -->
               <div class="card" style=${{padding:20,border:'1px solid #f0a50033'}}>
-                <h3 style=${{color:'#f0a500',fontSize:14,fontWeight:800,marginBottom:14,textTransform:'uppercase',letterSpacing:'0.5px'}}>ðŸŽ“ AI Retraining Portal</h3>
+                <h3 style=${{color:'#f0a500',fontSize:14,fontWeight:800,marginBottom:14,textTransform:'uppercase',letterSpacing:'0.5px'}}>🎓 AI Retraining Portal</h3>
                 <p style=${{fontSize:11,color:'#78909c',marginBottom:12}}>Review unanswered user questions here. Provide an answer and click train to add it to the chatbot's FAQs.</p>
                 
                 <div style=${{display:'flex',flexDirection:'column',gap:12,maxHeight:340,overflowY:'auto'}}>
@@ -2267,13 +2275,13 @@ function HeadCoach({athletes,setAthletes,onLogout}){
                           setUnansweredQ(nextUnanswered);
                           localStorage.setItem('midtn_unanswered_questions', JSON.stringify(nextUnanswered));
                           alert("AI trained successfully! Volley AI can now answer this question.");
-                        }} disabled=${!q.answer || !q.answer.trim()} color="#66bb6a">Add to FAQ & Train âœ“<//>
+                        }} disabled=${!q.answer || !q.answer.trim()} color="#66bb6a">Add to FAQ & Train ✓<//>
                       </div>
                     </div>
                   `)}
                   ${!unansweredQ.length && html`
                     <div style=${{color:'#66bb6a',textAlign:'center',padding:20,fontSize:12,fontWeight:600}}>
-                      ðŸŽ‰ All user questions are answered! Volley AI is fully trained.
+                      🎉 All user questions are answered! Volley AI is fully trained.
                     </div>
                   `}
                 </div>
@@ -2285,7 +2293,7 @@ function HeadCoach({athletes,setAthletes,onLogout}){
           <!-- Email Sent Log Table -->
           <div class="card" style=${{padding:20,marginTop:20}}>
             <div style=${{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:14}}>
-              <h3 style=${{color:'#f0a500',fontSize:14,fontWeight:800,margin:0,textTransform:'uppercase',letterSpacing:'0.5px'}}>ðŸ“Š Outbound Email Log</h3>
+              <h3 style=${{color:'#f0a500',fontSize:14,fontWeight:800,margin:0,textTransform:'uppercase',letterSpacing:'0.5px'}}>📊 Outbound Email Log</h3>
               <${Btn} sm onClick=${()=>{
                 if(confirm("Clear email history?")) {
                   localStorage.removeItem('midtn_email_logs');
@@ -2356,15 +2364,15 @@ function TeamOfferModal({teamKey,athletes,onClose,onSendOffer}){
     <div class="modal-overlay" onClick=${onClose}>
       <div class="modal-box" style=${{width:500}} onClick=${e=>e.stopPropagation()}>
         <div style=${{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:16}}>
-          <h3 style=${{margin:0}}>${age} ${lvl} â€” Send Offers</h3>
-          <button onClick=${onClose} style=${{background:'none',border:'none',color:'#666',fontSize:24,cursor:'pointer'}}>Ã—</button>
+          <h3 style=${{margin:0}}>${age} ${lvl} — Send Offers</h3>
+          <button onClick=${onClose} style=${{background:'none',border:'none',color:'#666',fontSize:24,cursor:'pointer'}}>×</button>
         </div>
         <div style=${{maxHeight:400,overflowY:'auto',marginBottom:16}}>
           ${roster.map(a=>html`
             <div key=${a.id} style=${{display:'flex',alignItems:'center',gap:10,padding:'10px 0',borderBottom:'1px solid #2a2e38'}}>
               <div style=${{flex:1}}>
                 <div style=${{fontWeight:700}}>${a.first} ${a.last}</div>
-                <div style=${{fontSize:11,color:'#78909c'}}>${posAbbr(a.primaryPos)} Â· ${a.status}</div>
+                <div style=${{fontSize:11,color:'#78909c'}}>${posAbbr(a.primaryPos)} · ${a.status}</div>
               </div>
               ${['accepted','declined','offered'].includes(a.status)
                 ? html`<${Badge} c=${a.status==='accepted'?'#66bb6a':a.status==='declined'?'#ef5350':'#42a5f5'} sm>${a.status}<//>`
@@ -2376,7 +2384,7 @@ function TeamOfferModal({teamKey,athletes,onClose,onSendOffer}){
     </div>`;
 }
 
-// â”€â”€ ROOT â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── ROOT ───────────────────────────────────────────────────────────
 function App(){
   const [user,setUser]=useState(null);
   const [athletes,setAthletes]=useState(()=>{
