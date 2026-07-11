@@ -213,6 +213,9 @@
             <div class="card">
                 <h3>Follow Us</h3>
                 <p>Get daily updates, photos, and highlights from our teams.</p>
+                <div id="social-container" style="margin-top: 1rem; font-size: 0.9rem; color: #78909c;">
+                    <!-- Sourced from KB -->
+                </div>
                 <div class="socials" style="margin-top: 2rem; justify-content: flex-start;">
                     <a href="https://www.facebook.com/midtnvbc"><i class="fab fa-facebook"></i></a>
                     <a href="https://www.instagram.com/midtnvbc/"><i class="fab fa-instagram"></i></a>
@@ -454,6 +457,14 @@
                 const usavContainer = document.getElementById('usav-news-container');
                 if (data.rules_and_regulations && data.rules_and_regulations.usa_volleyball) {
                     usavContainer.innerHTML = `<p>${data.rules_and_regulations.usa_volleyball.expert_note}</p>`;
+                }
+
+                const socialContainer = document.getElementById('social-container');
+                if (data.social_updates) {
+                    socialContainer.innerHTML = `
+                        <p style="margin-bottom: 0.5rem;"><i class="fab fa-instagram" style="color: var(--primary-color);"></i> ${data.social_updates.instagram}</p>
+                        <p><i class="fab fa-facebook" style="color: var(--primary-color);"></i> ${data.social_updates.facebook}</p>
+                    `;
                 }
             })
             .catch(err => console.error('Error loading news:', err));

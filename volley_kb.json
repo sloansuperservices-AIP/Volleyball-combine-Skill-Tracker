@@ -74,18 +74,19 @@
   ],
   "rules_and_regulations": {
     "usa_volleyball": {
-      "expert_note": "2025-2027 Rule Highlights: Jewelry (studs and small hoops) is now allowed during play; a re-serve is permitted for a tossing error (limited to once per service turn); the Libero is now allowed to be the team or game captain; Coaches are allowed to stand and walk in the free zone up to the attack line extension. Screening is strictly monitored\u2014players must not hide the server or the flight path of the ball. Uniforms must have clearly contrasting numbers centered on the front and back.",
+      "expert_note": "2025-2027 Rule Highlights: Jewelry (studs and small hoops) is now allowed during play; a re-serve is permitted for a tossing error (limited to once per service turn); the Libero is now allowed to be the team or game captain; Coaches are allowed to stand and walk in the free zone up to the attack line extension. Screening is strictly monitored\u2014players must not hide the server or the flight path of the ball. Uniforms must have clearly contrasting numbers centered on the front and back. Pursuit rule: If a ball is retrieved from the opponent's free zone, it must be returned outside the antennas.",
       "link": "https://usavolleyball.org/resources-for-officials/rulebooks-and-interpretations/"
     },
     "srva": {
-      "expert_note": "SRVA Policies: Valid USAV membership (Tryout or Full) required before stepping on court. Offers accepted via SportsEngine are binding. Max tryout fee $75. Athletes must bring a printed and signed USAV Medical Release form to tryouts. Notarization is required for Medical Release forms at certain regional/national events.",
+      "expert_note": "SRVA Policies: Valid USAV membership (Tryout or Full) required before stepping on court. Offers accepted via SportsEngine are binding. Max tryout fee $75. Athletes must bring a printed and signed USAV Medical Release form to tryouts. Offers: Once an offer is made via SportsEngine, athletes typically have until the SRVA 'Offer Date' (often 10 days after tryouts start) to accept or decline, though clubs may set earlier internal deadlines for roster management.",
       "link": "https://www.srva.org"
     },
     "highlights": [
       "Libero can now officially serve in one position in the rotation and may also be the team or game captain (2025-2027 USAV Rules).",
       "Uniform numbers must be clearly contrasting and centered (front and back).",
       "Medical Release forms are required for every tournament and must be printed, signed, and occasionally notarized.",
-      "Re-serve rule: One tossing error per service turn is allowed without loss of rally (ball must drop to floor)."
+      "Re-serve rule: One tossing error per service turn is allowed without loss of rally (ball must drop to floor).",
+      "SRVA Offer Policy: Offers are made through the SportsEngine portal and are considered binding once accepted."
     ]
   },
   "faq": [
@@ -104,13 +105,17 @@
     {
       "question": "Who are the sponsors?",
       "answer": "Our official sponsors are Cerina Craig (Real Estate) and Shane Electric."
+    },
+    {
+      "question": "When will we know about team offers?",
+      "answer": "Initial offers are typically made within 24-48 hours after the conclusion of tryouts for your age group via email/SportsEngine."
     }
   ],
   "social_updates": {
     "instagram": "Latest social media updates are currently unavailable; please visit our Instagram page.",
     "facebook": "Latest social media updates are currently unavailable; please visit our Facebook page."
   },
-  "last_agent_run": "2026-07-10 14:42:09",
+  "last_agent_run": "2026-07-11 14:38:08",
   "active_documents": [
     {
       "name": "MidTN VBC",
