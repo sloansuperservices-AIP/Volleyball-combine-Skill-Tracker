@@ -204,8 +204,8 @@ function Chatbot() {
         // 2. Offline Client-side RAG Engine (runs as fallback, or if no API settings are configured)
         if (response === fallbackText && kb) {
             // 0. Priority "Expert Rule" match
-            if (q.includes('rule') || q.includes('jewelry') || q.includes('libero') || q.includes('medical form') || q.includes('re-serve') || q.includes('captain')) {
-                if (q.includes('srva') || q.includes('medical') || q.includes('notar')) {
+            if (q.includes('rule') || q.includes('jewelry') || q.includes('libero') || q.includes('medical form') || q.includes('re-serve') || q.includes('captain') || q.includes('pursuit')) {
+                if (q.includes('srva') || q.includes('medical') || q.includes('notar') || q.includes('offer') || q.includes('10-day')) {
                     response = kb.rules_and_regulations?.srva?.expert_note || response;
                 } else {
                     response = kb.rules_and_regulations?.usa_volleyball?.expert_note || response;
@@ -217,6 +217,7 @@ function Chatbot() {
                                (q.includes('jewelry') && hl.includes('jewelry')) ||
                                (q.includes('re-serve') && hl.includes('re-serve')) ||
                                (q.includes('uniform') && hl.includes('uniform')) ||
+                               (q.includes('pursuit') && hl.includes('pursuit')) ||
                                (q.includes('medical') && hl.includes('medical'));
                     });
                     if (hMatch) response = hMatch;
@@ -230,9 +231,9 @@ function Chatbot() {
                 response = kb.faq?.find(f => f.question.toLowerCase().includes('sign in'))?.answer || response;
             } else if (response === fallbackText && (q.includes('bring') || q.includes('ready') || q.includes('requirement'))) {
                 response = kb.faq?.find(f => f.question.toLowerCase().includes('ready'))?.answer || response;
-            } else if (response === fallbackText && (q.includes('rule') || q.includes('regulation') || q.includes('uniform'))) {
+            } else if (response === fallbackText && (q.includes('rule') || q.includes('regulation') || q.includes('uniform') || q.includes('pursuit'))) {
                 response = `USAV Expert Note: ${kb.rules_and_regulations?.usa_volleyball?.expert_note || ''}`;
-            } else if (response === fallbackText && q.includes('srva')) {
+            } else if (response === fallbackText && (q.includes('srva') || q.includes('10-day') || q.includes('offer'))) {
                 response = `SRVA Expert Note: ${kb.rules_and_regulations?.srva?.expert_note || ''}`;
             } else if (response === fallbackText && (q.includes('news') || q.includes('update'))) {
                 if (kb.news && kb.news[0]) {
@@ -240,10 +241,14 @@ function Chatbot() {
                 }
             } else if (q.includes('social') || q.includes('instagram') || q.includes('facebook')) {
                 response = `Social Media Updates: (IG) ${kb.social_updates?.instagram} (FB) ${kb.social_updates?.facebook}`;
-            } else if (q.includes('where') || q.includes('location') || q.includes('facility')) {
-                response = `We are based at Hooptown in Smyrna, TN (6910 Stroop Ln).`;
+            } else if (q.includes('where') || q.includes('location') || q.includes('facility') || q.includes('hooptown') || q.includes('sportscom')) {
+                response = `We are based at Hooptown in Smyrna, TN (6910 Stroop Ln) for indoor, and Sportscom in Murfreesboro for beach. Hooptown is in the Blue Building; look for the entrance under the porch between the two buildings.`;
             } else if (q.includes('offer') || q.includes('when will we know')) {
-                response = "Initial offers are typically made within 24-48 hours after the conclusion of tryouts for your age group via email/SportsEngine.";
+                response = "Initial offers are typically made within 24-48 hours after the conclusion of tryouts for your age group via email/SportsEngine. SRVA rules allow a commitment period for these offers.";
+            } else if (q.includes('sponsor')) {
+                response = "Our official sponsors are Cerina Craig (Real Estate) and Shane Electric. They provide amazing support for our athletes!";
+            } else if (q.includes('tots') || q.includes('jrs') || q.includes('youth') || q.includes('academy')) {
+                response = "We offer Volley Tots (ages 4-8) and Volley Jrs (ages 9-13) for youth development. We also have a League/Academy program that combines training with match play.";
             }
 
             // Custom trained FAQ match scan
