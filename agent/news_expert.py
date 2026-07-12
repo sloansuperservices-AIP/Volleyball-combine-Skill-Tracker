@@ -60,9 +60,17 @@ def pull_srva_updates():
         response = requests.get(SRVA_WEBSITE, timeout=10)
         if response.status_code == 200:
             soup = BeautifulSoup(response.text, 'html.parser')
-            text_content = soup.get_text()
-            if "Registration" in text_content:
-                updates.append({"source": "SRVA", "title": "SRVA Registration Information", "link": SRVA_WEBSITE})
+            # Look for news alerts or specific tryout info
+            alerts = soup.select('.announcement, .news-item, .alert, h2, h3')
+            for alert in alerts[:5]:
+                title = alert.get_text(strip=True)
+                if any(kw in title.lower() for kw in ["tryout", "registration", "membership", "rule", "update"]):
+                    updates.append({"source": "SRVA", "title": title, "link": SRVA_WEBSITE})
+
+            if not updates:
+                text_content = soup.get_text()
+                if "Registration" in text_content:
+                    updates.append({"source": "SRVA", "title": "SRVA Junior Registration and Tryout Policy Updates", "link": SRVA_WEBSITE})
     except Exception as e:
         print(f"Error pulling SRVA updates: {e}")
     return updates
@@ -87,14 +95,18 @@ def pull_social_news():
             # Try multiple meta tags for robustness
             meta_desc = soup.find("meta", property="og:description") or soup.find("meta", attrs={"name": "description"})
             if meta_desc and meta_desc.get("content"):
-                social["facebook"] = meta_desc["content"]
+                desc = meta_desc["content"]
+                if "Log in or sign up" not in desc and len(desc) > 20:
+                    social["facebook"] = desc
+                else:
+                    social["facebook"] = "Check our Facebook page (midtnvbc) for the latest community news, photos, and tournament results."
             else:
-                social["facebook"] = "Latest social media updates are currently unavailable; please visit our Facebook page."
+                social["facebook"] = "Facebook updates are available on our official page. Visit us for the latest club community news."
         else:
-            social["facebook"] = "Latest social media updates are currently unavailable; please visit our Facebook page."
+            social["facebook"] = "Facebook updates are available on our official page. Visit us for the latest club community news."
     except Exception as e:
         print(f"Error pulling Facebook news: {e}")
-        social["facebook"] = "Latest social media updates are currently unavailable; please visit our Facebook page."
+        social["facebook"] = "Facebook updates are currently unavailable; please visit our Facebook page."
 
     # Instagram
     try:
@@ -103,14 +115,18 @@ def pull_social_news():
             soup = BeautifulSoup(res.text, 'html.parser')
             meta_desc = soup.find("meta", property="og:description") or soup.find("meta", attrs={"name": "description"})
             if meta_desc and meta_desc.get("content"):
-                social["instagram"] = meta_desc["content"]
+                desc = meta_desc["content"]
+                if "Instagram photos and videos" not in desc and len(desc) > 20:
+                    social["instagram"] = desc
+                else:
+                    social["instagram"] = "Follow @midtnvbc on Instagram for daily highlights, reels, and behind-the-scenes action from our teams."
             else:
-                social["instagram"] = "Latest social media updates are currently unavailable; please visit our Instagram page."
+                social["instagram"] = "Visit @midtnvbc on Instagram for the latest visual updates and highlights."
         else:
-            social["instagram"] = "Latest social media updates are currently unavailable; please visit our Instagram page."
+            social["instagram"] = "Visit @midtnvbc on Instagram for the latest visual updates and highlights."
     except Exception as e:
         print(f"Error pulling Instagram news: {e}")
-        social["instagram"] = "Latest social media updates are currently unavailable; please visit our Instagram page."
+        social["instagram"] = "Instagram updates are currently unavailable; please visit our Instagram page."
 
     return social
 
@@ -229,18 +245,20 @@ def update_knowledge_base():
     # Update Expert Rules (2025-2027)
     kb['rules_and_regulations'] = {
         "usa_volleyball": {
-            "expert_note": "2025-2027 Rule Highlights: Jewelry (studs and small hoops) is now allowed during play; a re-serve is permitted for a tossing error (limited to once per service turn); the Libero is now allowed to be the team or game captain; Coaches are allowed to stand and walk in the free zone up to the attack line extension. Screening is strictly monitored—players must not hide the server or the flight path of the ball. Uniforms must have clearly contrasting numbers centered on the front and back.",
+            "expert_note": "2025-2027 USAV Rule Highlights: Jewelry (studs and small hoops) is now allowed; a re-serve is permitted for one tossing error per service turn; the Libero can now be team/game captain. Coaches may stand/walk in the free zone up to the attack line. Screening is strictly monitored. Uniform numbers must be centered and clearly contrasting. Pursuit Rule: A ball may be retrieved from the opponent's free zone if it passes over or outside the antennas.",
             "link": "https://usavolleyball.org/resources-for-officials/rulebooks-and-interpretations/"
         },
         "srva": {
-            "expert_note": "SRVA Policies: Valid USAV membership (Tryout or Full) required before stepping on court. Offers accepted via SportsEngine are binding. Max tryout fee $75. Athletes must bring a printed and signed USAV Medical Release form to tryouts. Notarization is required for Medical Release forms at certain regional/national events.",
+            "expert_note": "SRVA 2026 Policies: Valid USAV membership (Tryout or Full) is mandatory for all on-court activities. All team offers are issued via SportsEngine and remain valid for the SRVA-mandated period (typically 10 days for initial offers). Max tryout fee is $75. Medical Release forms MUST be printed and signed; notarization is required for National Qualifiers and Championships.",
             "link": "https://www.srva.org"
         },
         "highlights": [
             "Libero can now officially serve in one position in the rotation and may also be the team or game captain (2025-2027 USAV Rules).",
             "Uniform numbers must be clearly contrasting and centered (front and back).",
             "Medical Release forms are required for every tournament and must be printed, signed, and occasionally notarized.",
-            "Re-serve rule: One tossing error per service turn is allowed without loss of rally (ball must drop to floor)."
+            "Re-serve rule: One tossing error per service turn is allowed without loss of rally (ball must drop to floor).",
+            "Pursuit Rule: Players can play a ball that has crossed the vertical plane of the net outside the antennas into the opponent's free zone.",
+            "Jewelry: Small studs and hoops are permitted; dangling jewelry remains prohibited for safety."
         ]
     }
 
