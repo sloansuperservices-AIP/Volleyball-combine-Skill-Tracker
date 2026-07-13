@@ -240,10 +240,14 @@ function Chatbot() {
                 }
             } else if (q.includes('social') || q.includes('instagram') || q.includes('facebook')) {
                 response = `Social Media Updates: (IG) ${kb.social_updates?.instagram} (FB) ${kb.social_updates?.facebook}`;
-            } else if (q.includes('where') || q.includes('location') || q.includes('facility')) {
-                response = `We are based at Hooptown in Smyrna, TN (6910 Stroop Ln).`;
+            } else if (q.includes('where') || q.includes('location') || q.includes('facility') || q.includes('hooptown') || q.includes('sportscom')) {
+                response = `We are based at Hooptown in Smyrna, TN (6910 Stroop Ln). We also have a beach program at Sportscom in Murfreesboro.`;
             } else if (q.includes('offer') || q.includes('when will we know')) {
-                response = "Initial offers are typically made within 24-48 hours after the conclusion of tryouts for your age group via email/SportsEngine.";
+                response = kb.faq?.find(f => f.question.toLowerCase().includes('offers'))?.answer || "Initial offers are typically made within 24-48 hours after the conclusion of tryouts for your age group via email/SportsEngine.";
+            } else if (q.includes('sponsor') || q.includes('cerina') || q.includes('shane')) {
+                response = kb.faq?.find(f => f.question.toLowerCase().includes('sponsor'))?.answer || response;
+            } else if (q.includes('program') || q.includes('tots') || q.includes('jrs') || q.includes('youth') || q.includes('league')) {
+                response = kb.faq?.find(f => f.question.toLowerCase().includes('program'))?.answer || response;
             }
 
             // Custom trained FAQ match scan
@@ -313,6 +317,8 @@ function Chatbot() {
 
         if (q.includes('where am i') || q.includes('page') || q.includes('current section')) {
             response = `You are currently on the ${pageContext}. ${pageDescription}`;
+        } else if (pageContext === 'Tryout Manager' && (q.includes('sign in') || q.includes('station'))) {
+            response = "On this page, you can manage athlete check-ins and test results. Head Coach PIN is 0000, Staff is 1111, Check-In is 9999, and Station 2 is 2222.";
         }
 
         // 3. Log Unanswered Query for Training
