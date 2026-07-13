@@ -86,15 +86,15 @@ def pull_social_news():
             soup = BeautifulSoup(res.text, 'html.parser')
             # Try multiple meta tags for robustness
             meta_desc = soup.find("meta", property="og:description") or soup.find("meta", attrs={"name": "description"})
-            if meta_desc and meta_desc.get("content"):
+            if meta_desc and meta_desc.get("content") and len(meta_desc.get("content")) > 10:
                 social["facebook"] = meta_desc["content"]
             else:
-                social["facebook"] = "Latest social media updates are currently unavailable; please visit our Facebook page."
+                social["facebook"] = "Stay updated with Mid TN VBC on Facebook for the latest club events and team highlights! Visit: facebook.com/midtnvbc"
         else:
-            social["facebook"] = "Latest social media updates are currently unavailable; please visit our Facebook page."
+            social["facebook"] = "Facebook updates are available on our official page. Follow us at facebook.com/midtnvbc"
     except Exception as e:
         print(f"Error pulling Facebook news: {e}")
-        social["facebook"] = "Latest social media updates are currently unavailable; please visit our Facebook page."
+        social["facebook"] = "Visit our Facebook page for recent updates: facebook.com/midtnvbc"
 
     # Instagram
     try:
@@ -102,15 +102,15 @@ def pull_social_news():
         if res.status_code == 200:
             soup = BeautifulSoup(res.text, 'html.parser')
             meta_desc = soup.find("meta", property="og:description") or soup.find("meta", attrs={"name": "description"})
-            if meta_desc and meta_desc.get("content"):
+            if meta_desc and meta_desc.get("content") and len(meta_desc.get("content")) > 10:
                 social["instagram"] = meta_desc["content"]
             else:
-                social["instagram"] = "Latest social media updates are currently unavailable; please visit our Instagram page."
+                social["instagram"] = "Follow @midtnvbc on Instagram for photos, reels, and training highlights!"
         else:
-            social["instagram"] = "Latest social media updates are currently unavailable; please visit our Instagram page."
+            social["instagram"] = "Check our Instagram @midtnvbc for the latest visual updates from the club."
     except Exception as e:
         print(f"Error pulling Instagram news: {e}")
-        social["instagram"] = "Latest social media updates are currently unavailable; please visit our Instagram page."
+        social["instagram"] = "Follow us on Instagram: instagram.com/midtnvbc"
 
     return social
 
@@ -122,7 +122,7 @@ def crawl_sitemap_and_index():
         "tryout", "schedule", "cost", "price", "fee", "location", "hooptown", 
         "registration", "age", "division", "team", "coach", "practice", 
         "medical", "form", "srva", "usav", "rule", "lesson", "recruiting", 
-        "clinic", "camp"
+        "clinic", "camp", "rhonda", "ross", "wismer", "pino", "volleyball"
     ]
     try:
         # Some sites don't have sitemap.xml at root or it's named differently
@@ -150,7 +150,7 @@ def crawl_sitemap_and_index():
                             if c.name == 'div' and (len(c.find_all(['div', 'p', 'table'])) > 0):
                                 continue
                             txt = c.get_text(strip=True)
-                            if 20 < len(txt) < 1000:
+                            if 10 < len(txt) < 2000:
                                 txt_lower = txt.lower()
                                 if any(kw in txt_lower for kw in keywords):
                                     if txt not in text_blocks:
@@ -229,18 +229,19 @@ def update_knowledge_base():
     # Update Expert Rules (2025-2027)
     kb['rules_and_regulations'] = {
         "usa_volleyball": {
-            "expert_note": "2025-2027 Rule Highlights: Jewelry (studs and small hoops) is now allowed during play; a re-serve is permitted for a tossing error (limited to once per service turn); the Libero is now allowed to be the team or game captain; Coaches are allowed to stand and walk in the free zone up to the attack line extension. Screening is strictly monitored—players must not hide the server or the flight path of the ball. Uniforms must have clearly contrasting numbers centered on the front and back.",
+            "expert_note": "2025-2027 USAV Rule Highlights: Jewelry (studs and small hoops) is now allowed during play; a re-serve is permitted for a tossing error (limited to once per service turn, ball must drop to floor); the Libero is now allowed to be the team or game captain; Coaches are allowed to stand and walk in the free zone up to the attack line extension. Screening is strictly monitored—players must not hide the server or the flight path of the ball. Uniforms must have clearly contrasting numbers centered on the front and back.",
             "link": "https://usavolleyball.org/resources-for-officials/rulebooks-and-interpretations/"
         },
         "srva": {
-            "expert_note": "SRVA Policies: Valid USAV membership (Tryout or Full) required before stepping on court. Offers accepted via SportsEngine are binding. Max tryout fee $75. Athletes must bring a printed and signed USAV Medical Release form to tryouts. Notarization is required for Medical Release forms at certain regional/national events.",
+            "expert_note": "SRVA 2025 Policies: Valid USAV membership (Tryout or Full) required before stepping on court. SRVA 10-day rule: Athletes have up to 10 days to consider an offer from a club, though many accept sooner. Offers accepted via SportsEngine are binding. Max tryout fee $75. Athletes must bring a printed and signed USAV Medical Release form to tryouts. Notarization is required for Medical Release forms at certain regional/national events.",
             "link": "https://www.srva.org"
         },
         "highlights": [
             "Libero can now officially serve in one position in the rotation and may also be the team or game captain (2025-2027 USAV Rules).",
             "Uniform numbers must be clearly contrasting and centered (front and back).",
             "Medical Release forms are required for every tournament and must be printed, signed, and occasionally notarized.",
-            "Re-serve rule: One tossing error per service turn is allowed without loss of rally (ball must drop to floor)."
+            "Re-serve rule: One tossing error per service turn is allowed without loss of rally (ball must drop to floor).",
+            "SRVA 10-day rule: You have time to consider offers, though they are usually sent 24-48 hours after tryouts."
         ]
     }
 
@@ -252,15 +253,23 @@ def update_knowledge_base():
         },
         {
             "question": "What is the cost?",
-            "answer": "Tryout fees: $65 (Early), $70 (Regular), $75 (Late/Walk-up)."
+            "answer": "Tryout fees: $65 (Early), $70 (Regular), $75 (Late/Walk-up). Full season costs vary by team level (Elite vs. Regional)."
         },
         {
             "question": "What do I need to be ready for?",
-            "answer": "Bring water, knee pads, and court shoes. Ensure SRVA membership and medical forms are complete."
+            "answer": "Bring water, knee pads, and court shoes. Ensure SRVA membership and medical forms are complete. Be prepared for Station 1 (Physicals) and Station 2 (Agility)."
+        },
+        {
+            "question": "When will we know about team offers?",
+            "answer": "Initial offers are typically made within 24-48 hours after the conclusion of tryouts for your age group via email/SportsEngine."
         },
         {
             "question": "Who are the sponsors?",
             "answer": "Our official sponsors are Cerina Craig (Real Estate) and Shane Electric."
+        },
+        {
+            "question": "What are the programs offered?",
+            "answer": "We offer Elite Travel (Black), Regional (Blue/Silver), Volley Tots (4-8), Volley Jrs (9-13), and seasonal Rec Leagues."
         }
     ]
 
