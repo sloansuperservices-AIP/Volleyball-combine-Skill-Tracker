@@ -80,37 +80,38 @@ def pull_social_news():
     }
 
     # Facebook
+    fb_fallback = "Follow Mid TN VBC on Facebook for the latest club news, event photos, and community updates!"
     try:
         res = requests.get("https://www.facebook.com/midtnvbc", headers=headers, timeout=10)
         if res.status_code == 200:
             soup = BeautifulSoup(res.text, 'html.parser')
-            # Try multiple meta tags for robustness
             meta_desc = soup.find("meta", property="og:description") or soup.find("meta", attrs={"name": "description"})
-            if meta_desc and meta_desc.get("content"):
+            if meta_desc and meta_desc.get("content") and len(meta_desc["content"]) > 10:
                 social["facebook"] = meta_desc["content"]
             else:
-                social["facebook"] = "Latest social media updates are currently unavailable; please visit our Facebook page."
+                social["facebook"] = fb_fallback
         else:
-            social["facebook"] = "Latest social media updates are currently unavailable; please visit our Facebook page."
+            social["facebook"] = fb_fallback
     except Exception as e:
         print(f"Error pulling Facebook news: {e}")
-        social["facebook"] = "Latest social media updates are currently unavailable; please visit our Facebook page."
+        social["facebook"] = fb_fallback
 
     # Instagram
+    ig_fallback = "Check out @midtnvbc on Instagram for training highlights, reels, and behind-the-scenes action!"
     try:
         res = requests.get("https://www.instagram.com/midtnvbc/", headers=headers, timeout=10)
         if res.status_code == 200:
             soup = BeautifulSoup(res.text, 'html.parser')
             meta_desc = soup.find("meta", property="og:description") or soup.find("meta", attrs={"name": "description"})
-            if meta_desc and meta_desc.get("content"):
+            if meta_desc and meta_desc.get("content") and len(meta_desc["content"]) > 10:
                 social["instagram"] = meta_desc["content"]
             else:
-                social["instagram"] = "Latest social media updates are currently unavailable; please visit our Instagram page."
+                social["instagram"] = ig_fallback
         else:
-            social["instagram"] = "Latest social media updates are currently unavailable; please visit our Instagram page."
+            social["instagram"] = ig_fallback
     except Exception as e:
         print(f"Error pulling Instagram news: {e}")
-        social["instagram"] = "Latest social media updates are currently unavailable; please visit our Instagram page."
+        social["instagram"] = ig_fallback
 
     return social
 
@@ -122,7 +123,7 @@ def crawl_sitemap_and_index():
         "tryout", "schedule", "cost", "price", "fee", "location", "hooptown", 
         "registration", "age", "division", "team", "coach", "practice", 
         "medical", "form", "srva", "usav", "rule", "lesson", "recruiting", 
-        "clinic", "camp"
+        "clinic", "camp", "rhonda ross", "jeff wismer", "jess pino"
     ]
     try:
         # Some sites don't have sitemap.xml at root or it's named differently
@@ -150,7 +151,7 @@ def crawl_sitemap_and_index():
                             if c.name == 'div' and (len(c.find_all(['div', 'p', 'table'])) > 0):
                                 continue
                             txt = c.get_text(strip=True)
-                            if 20 < len(txt) < 1000:
+                            if 10 < len(txt) < 2000:
                                 txt_lower = txt.lower()
                                 if any(kw in txt_lower for kw in keywords):
                                     if txt not in text_blocks:
@@ -229,18 +230,20 @@ def update_knowledge_base():
     # Update Expert Rules (2025-2027)
     kb['rules_and_regulations'] = {
         "usa_volleyball": {
-            "expert_note": "2025-2027 Rule Highlights: Jewelry (studs and small hoops) is now allowed during play; a re-serve is permitted for a tossing error (limited to once per service turn); the Libero is now allowed to be the team or game captain; Coaches are allowed to stand and walk in the free zone up to the attack line extension. Screening is strictly monitored—players must not hide the server or the flight path of the ball. Uniforms must have clearly contrasting numbers centered on the front and back.",
+            "expert_note": "2025-2027 USAV DCR Highlights: 1. Jewelry (studs and small hoops) is now permitted during play. 2. A re-serve is allowed for a tossing error (once per service turn) if the ball drops to the floor. 3. The Libero can now be the team or game captain. 4. Coaches can stand and walk in the free zone up to the attack line extension. 5. Pursuit Rule: A ball that crosses the net plane outside the antennas can be recovered from the opponent's free zone and played back outside the antenna. 6. Net Contact: Only contact with the net between the antennas while in the action of playing the ball is a fault.",
             "link": "https://usavolleyball.org/resources-for-officials/rulebooks-and-interpretations/"
         },
         "srva": {
-            "expert_note": "SRVA Policies: Valid USAV membership (Tryout or Full) required before stepping on court. Offers accepted via SportsEngine are binding. Max tryout fee $75. Athletes must bring a printed and signed USAV Medical Release form to tryouts. Notarization is required for Medical Release forms at certain regional/national events.",
+            "expert_note": "SRVA Regional Policies: 1. A valid USAV membership (Tryout or Full) is mandatory before participating in any on-court activity. 2. Offers are made via SportsEngine and are binding once accepted. 3. The 10-Day Rule: Offers must generally remain open for athletes to consider unless a specific regional deadline has passed. 4. Medical Release: A signed USAV Medical Release form must be present at all events. Notarization is required for specific USAV National Qualifiers.",
             "link": "https://www.srva.org"
         },
         "highlights": [
-            "Libero can now officially serve in one position in the rotation and may also be the team or game captain (2025-2027 USAV Rules).",
-            "Uniform numbers must be clearly contrasting and centered (front and back).",
-            "Medical Release forms are required for every tournament and must be printed, signed, and occasionally notarized.",
-            "Re-serve rule: One tossing error per service turn is allowed without loss of rally (ball must drop to floor)."
+            "Libero Captaincy: The Libero is now permitted to be the team or game captain (2025-2027).",
+            "Jewelry Rule: Small studs and hoops are permitted; dangling jewelry remains prohibited for safety.",
+            "Pursuit Rule: Athletes may pursue a ball that crosses the net plane outside the antenna into the opponent's free zone.",
+            "SRVA 10-Day Rule: Ensures families have adequate time to weigh multiple offers before committing.",
+            "Re-serve Rule: One tossing error allowed per service turn—the ball must hit the floor without the server touching it.",
+            "Coach Movement: Head coaches may stand and move during play within the designated coach's zone up to the attack line."
         ]
     }
 
