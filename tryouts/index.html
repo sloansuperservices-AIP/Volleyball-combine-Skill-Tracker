@@ -1675,6 +1675,21 @@ function HeadCoach({athletes,setAthletes,onLogout}){
     }
     return l;
   }, [ageAths, poolSort, showAllPool]);
+
+  // Pre-calculate and sort position-specific lists to avoid O(N log N) overhead in render
+  const poolByCat = useMemo(() => {
+    if (poolSort !== 'pos') return {};
+    const g = {};
+    [...POS_CATS, { key: 'unsorted' }].forEach(c => g[c.key] = []);
+    // Since 'pool' is already sorted by score (if poolSort is 'pos'), we don't need to re-sort here.
+    pool.forEach(a => {
+      (a.posCategories || [a.posCategory || 'unsorted']).forEach(cat => {
+        if (g[cat]) g[cat].push(a);
+        else if (g.unsorted) g.unsorted.push(a);
+      });
+    });
+    return g;
+  }, [pool, poolSort]);
   const drop=(e,teamKey)=>{
     e.preventDefault();
     const id=e.dataTransfer.getData('text/plain');
@@ -1879,8 +1894,7 @@ ${list.length===0&&html`<div style=${{padding:20,textAlign:'center',color:'#333'
                   ${poolSort==='pos'
                     ? html`<div>
                         ${[...POS_CATS,{key:'unsorted',label:'Unsorted'}].map(cat => {
-                          const listByCat = pool.filter(a => (a.posCategories || [a.posCategory]).includes(cat.key))
-                                           .sort((a,b)=>(Number(totalScore(b.metrics, b.drillScore))||0)-(Number(totalScore(a.metrics, a.drillScore))||0));
+                          const listByCat = poolByCat[cat.key] || [];
                           if(listByCat.length === 0) return null;
                           return html`
                             <div key=${cat.key} style=${{marginBottom:12,borderBottom:'1px solid #1e222b',paddingBottom:8}}>
