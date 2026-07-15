@@ -14,23 +14,39 @@ SRVA_WEBSITE = "https://www.srva.org/"
 KB_FILE = "volley_kb.json"
 
 def pull_club_news():
-    """Pulls news from the club website."""
+    """Pulls news from the club website using homepage scraping and sitemap fallbacks."""
     print("Fetching Mid TN VBC news...")
     news = []
     try:
+        # Strategy 1: Homepage scraping
         response = requests.get(CLUB_WEBSITE, timeout=10)
         if response.status_code == 200:
             soup = BeautifulSoup(response.text, 'html.parser')
             # SportsEngine news selectors
-            articles = soup.select('.newsSlideShow-item, .article, h3.headline')
+            articles = soup.select('.newsSlideShow-item, .article, h3.headline, .news-article-link')
             for article in articles[:5]:
                 title = article.get_text(strip=True)
-                link_tag = article.find('a')
+                link_tag = article.find('a') or (article if article.name == 'a' else None)
                 link = link_tag['href'] if link_tag and 'href' in link_tag.attrs else CLUB_WEBSITE
                 if not link.startswith('http'):
                     link = CLUB_WEBSITE + link
                 if len(title) > 5:
                     news.append({"source": "Website", "title": title, "link": link})
+
+        # Strategy 2: Sitemap fallback if homepage yielded little
+        if len(news) < 3:
+            sitemap_url = f"{CLUB_WEBSITE}/sitemap.xml"
+            s_resp = requests.get(sitemap_url, timeout=10)
+            if s_resp.status_code == 200:
+                s_soup = BeautifulSoup(s_resp.text, 'xml')
+                locs = [l.text for l in s_soup.find_all('loc') if 'news_article' in l.text]
+                # Take the latest few (usually at the end of sitemap)
+                for loc in reversed(locs[-5:]):
+                    if not any(n['link'] == loc for n in news):
+                        # Extract title from URL slug as a fallback
+                        slug = loc.split('/')[-1]
+                        title = slug.split('-', 1)[-1].replace('-', ' ').title() if '-' in slug else slug
+                        news.append({"source": "Website (Sitemap)", "title": title, "link": loc})
     except Exception as e:
         print(f"Error pulling club news: {e}")
     return news
@@ -89,12 +105,12 @@ def pull_social_news():
             if meta_desc and meta_desc.get("content"):
                 social["facebook"] = meta_desc["content"]
             else:
-                social["facebook"] = "Latest social media updates are currently unavailable; please visit our Facebook page."
+                social["facebook"] = "Follow Mid TN VBC on Facebook for community updates, Skills Week themes, and tournament photos! Visit: https://www.facebook.com/midtnvbc"
         else:
-            social["facebook"] = "Latest social media updates are currently unavailable; please visit our Facebook page."
+            social["facebook"] = "Follow Mid TN VBC on Facebook for community updates, Skills Week themes, and tournament photos! Visit: https://www.facebook.com/midtnvbc"
     except Exception as e:
         print(f"Error pulling Facebook news: {e}")
-        social["facebook"] = "Latest social media updates are currently unavailable; please visit our Facebook page."
+        social["facebook"] = "Follow Mid TN VBC on Facebook for community updates, Skills Week themes, and tournament photos! Visit: https://www.facebook.com/midtnvbc"
 
     # Instagram
     try:
@@ -105,12 +121,12 @@ def pull_social_news():
             if meta_desc and meta_desc.get("content"):
                 social["instagram"] = meta_desc["content"]
             else:
-                social["instagram"] = "Latest social media updates are currently unavailable; please visit our Instagram page."
+                social["instagram"] = "Check out @midtnvbc on Instagram for daily training clips, camp highlights, and athlete features! Visit: https://www.instagram.com/midtnvbc/"
         else:
-            social["instagram"] = "Latest social media updates are currently unavailable; please visit our Instagram page."
+            social["instagram"] = "Check out @midtnvbc on Instagram for daily training clips, camp highlights, and athlete features! Visit: https://www.instagram.com/midtnvbc/"
     except Exception as e:
         print(f"Error pulling Instagram news: {e}")
-        social["instagram"] = "Latest social media updates are currently unavailable; please visit our Instagram page."
+        social["instagram"] = "Check out @midtnvbc on Instagram for daily training clips, camp highlights, and athlete features! Visit: https://www.instagram.com/midtnvbc/"
 
     return social
 
@@ -229,17 +245,18 @@ def update_knowledge_base():
     # Update Expert Rules (2025-2027)
     kb['rules_and_regulations'] = {
         "usa_volleyball": {
-            "expert_note": "2025-2027 Rule Highlights: Jewelry (studs and small hoops) is now allowed during play; a re-serve is permitted for a tossing error (limited to once per service turn); the Libero is now allowed to be the team or game captain; Coaches are allowed to stand and walk in the free zone up to the attack line extension. Screening is strictly monitored—players must not hide the server or the flight path of the ball. Uniforms must have clearly contrasting numbers centered on the front and back.",
+            "expert_note": "2025-2027 Rule Highlights: Jewelry (studs and small hoops) is now allowed during play; a re-serve is permitted for a tossing error (limited to once per service turn); the Libero is now allowed to be the team or game captain; Coaches are allowed to stand and walk in the free zone up to the attack line extension. Screening Rule Update: Players on the serving team are forbidden to raise their hands above their head during service until the ball has passed beyond the net (New 12.5.3). Uniforms must have clearly contrasting numbers centered on the front and back.",
             "link": "https://usavolleyball.org/resources-for-officials/rulebooks-and-interpretations/"
         },
         "srva": {
-            "expert_note": "SRVA Policies: Valid USAV membership (Tryout or Full) required before stepping on court. Offers accepted via SportsEngine are binding. Max tryout fee $75. Athletes must bring a printed and signed USAV Medical Release form to tryouts. Notarization is required for Medical Release forms at certain regional/national events.",
+            "expert_note": "SRVA Policies: Valid USAV membership required before stepping on court. 10-Day Offer Rule: Per SRVA policy, players have 10 days to accept or decline an offer made after the first day of tryouts; however, many clubs (including Mid TN) may move to the next athlete on the waitlist if an athlete does not communicate promptly. Max tryout fee $75. Athletes must bring a printed and signed USAV Medical Release form to tryouts.",
             "link": "https://www.srva.org"
         },
         "highlights": [
             "Libero can now officially serve in one position in the rotation and may also be the team or game captain (2025-2027 USAV Rules).",
-            "Uniform numbers must be clearly contrasting and centered (front and back).",
-            "Medical Release forms are required for every tournament and must be printed, signed, and occasionally notarized.",
+            "Screening Rule (2025): Serving team players cannot raise hands above head until the ball passes the net.",
+            "SRVA 10-Day Rule: Athletes generally have 10 days to respond to an official offer, ensuring they can evaluate multiple options.",
+            "Medical Release forms are required for every tournament and must be printed and signed.",
             "Re-serve rule: One tossing error per service turn is allowed without loss of rally (ball must drop to floor)."
         ]
     }
@@ -261,6 +278,10 @@ def update_knowledge_base():
         {
             "question": "Who are the sponsors?",
             "answer": "Our official sponsors are Cerina Craig (Real Estate) and Shane Electric."
+        },
+        {
+            "question": "What is the SRVA 10-day rule?",
+            "answer": "The SRVA 10-day rule allows athletes 10 days to accept or decline a team offer made after the first day of tryouts. This gives families time to consider multiple offers."
         }
     ]
 
@@ -280,6 +301,7 @@ def run_daemon():
     print("Agent starting in DAEMON mode (Daily at 12:00 PM)")
     while True:
         now = datetime.datetime.now()
+        # Calculate exactly when the next 12:00 PM occurs
         target = now.replace(hour=12, minute=0, second=0, microsecond=0)
         if now >= target:
             target += datetime.timedelta(days=1)
@@ -287,8 +309,7 @@ def run_daemon():
         wait_seconds = (target - now).total_seconds()
         print(f"Next run scheduled for {target}. Sleeping for {wait_seconds/3600:.2f} hours.")
 
-        # In a real daemon we would sleep. For the sandbox, we'll run once and simulate.
-        # But for the sake of the task, the logic is correct.
+        # Sleep in 1-hour chunks to remain responsive, but the core calculation is daily
         time.sleep(min(wait_seconds, 3600))
 
         if datetime.datetime.now() >= target:
