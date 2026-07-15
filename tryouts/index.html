@@ -1587,6 +1587,7 @@ function HeadCoach({athletes,setAthletes,onLogout}){
   const assigned=athletes.filter(a=>a.teamAssignment&&!a.hidden).length;
   const accepted=athletes.filter(a=>a.status==='accepted'&&!a.hidden).length;
   const walkups=athletes.filter(a=>a.isWalkup&&!a.hidden).length;
+  const ageAths = useMemo(() => athletes.filter(a => a.ageGroup === age && !a.hidden), [athletes, age]);
   const VIEWS=['allreg','depth','results','teams','allteams','admin','hidden'];
   const VLABELS={
     allreg:'All Reg',
@@ -1618,13 +1619,12 @@ function HeadCoach({athletes,setAthletes,onLogout}){
 
   // ── DEPTH ──
   const depthPool=useMemo(()=>{
-    const pool = athletes.filter(a => a.ageGroup === age && !a.hidden);
     // Pre-calculate scores for sorting
     const scores = new Map();
-    pool.forEach(a => scores.set(a.id, Number(totalScore(a.metrics, a.drillScore)) || 0));
+    ageAths.forEach(a => scores.set(a.id, Number(totalScore(a.metrics, a.drillScore)) || 0));
 
     const g = { setter: [], middle: [], outside: [], defense: [], unsorted: [] };
-    pool.forEach(a => {
+    ageAths.forEach(a => {
       (a.posCategories || [a.posCategory || 'unsorted']).forEach(cat => {
         if (g[cat]) g[cat].push(a);
         else g.unsorted.push(a);
@@ -1632,12 +1632,12 @@ function HeadCoach({athletes,setAthletes,onLogout}){
     });
     Object.keys(g).forEach(k => g[k].sort((a, b) => scores.get(b.id) - scores.get(a.id)));
     return g;
-  }, [athletes, age]);
+  }, [ageAths]);
 
   // ── RESULTS ──
   const [resSort, setResSort] = useState('score');
   const resList = useMemo(() => {
-    const l = athletes.filter(a => a.ageGroup === age && !a.hidden);
+    const l = [...ageAths];
     if (resSort === 'score') {
       const scores = new Map();
       l.forEach(a => scores.set(a.id, Number(totalScore(a.metrics, a.drillScore)) || 0));
@@ -1648,14 +1648,13 @@ function HeadCoach({athletes,setAthletes,onLogout}){
       l.sort((a, b) => (sAvg(b.metrics, resSort) || 0) - (sAvg(a.metrics, resSort) || 0));
     }
     return l;
-  }, [athletes, age, resSort]);
+  }, [ageAths, resSort]);
 
   // ── TEAMS ──
   const [poolSort, setPoolSort] = useState('pos');
   const [showPool, setShowPool] = useState(true);
   const [dragOver, setDragOver] = useState(null);
   const [showAllPool, setShowAllPool] = useState(true);
-  const ageAths = athletes.filter(a => a.ageGroup === age && !a.hidden);
   const pool = useMemo(() => {
     let l = showAllPool ? [...ageAths] : ageAths.filter(a => !a.teamAssignment);
     if (poolSort === 'score') {
@@ -1675,6 +1674,25 @@ function HeadCoach({athletes,setAthletes,onLogout}){
     }
     return l;
   }, [ageAths, poolSort, showAllPool]);
+
+  // ⚡ Optimization: Pre-calculate grouped and sorted pool to avoid redundant render-loop filtering/sorting
+  const poolByCat = useMemo(() => {
+    if (poolSort !== 'pos') return null;
+    const scores = new Map();
+    pool.forEach(a => scores.set(a.id, Number(totalScore(a.metrics, a.drillScore)) || 0));
+
+    // Sort entire pool once by score to simplify categorization
+    const sorted = [...pool].sort((a, b) => scores.get(b.id) - scores.get(a.id));
+
+    const groups = {};
+    [...POS_CATS, { key: 'unsorted' }].forEach(c => groups[c.key] = []);
+
+    sorted.forEach(a => {
+      const cats = a.posCategories || [a.posCategory || 'unsorted'];
+      cats.forEach(c => { if (groups[c]) groups[c].push(a); });
+    });
+    return groups;
+  }, [pool, poolSort]);
   const drop=(e,teamKey)=>{
     e.preventDefault();
     const id=e.dataTransfer.getData('text/plain');
@@ -1879,8 +1897,7 @@ ${list.length===0&&html`<div style=${{padding:20,textAlign:'center',color:'#333'
                   ${poolSort==='pos'
                     ? html`<div>
                         ${[...POS_CATS,{key:'unsorted',label:'Unsorted'}].map(cat => {
-                          const listByCat = pool.filter(a => (a.posCategories || [a.posCategory]).includes(cat.key))
-                                           .sort((a,b)=>(Number(totalScore(b.metrics, b.drillScore))||0)-(Number(totalScore(a.metrics, a.drillScore))||0));
+                          const listByCat = poolByCat[cat.key] || [];
                           if(listByCat.length === 0) return null;
                           return html`
                             <div key=${cat.key} style=${{marginBottom:12,borderBottom:'1px solid #1e222b',paddingBottom:8}}>
