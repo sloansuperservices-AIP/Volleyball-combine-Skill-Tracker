@@ -220,10 +220,16 @@
                 <p><strong>Instagram:</strong> @midtnvbc</p>
                 <p><strong>Facebook:</strong> Mid TN VBC</p>
             </div>
-            <div class="card">
-                <h3>USAV & SRVA News</h3>
+            <div class="card" id="rules">
+                <h3>USAV & SRVA Rule Expert</h3>
                 <div id="usav-news-container">
-                    <p>The 2025-2027 USAV Indoor Rulebook is now in effect. All players and coaches must maintain an active SRVA membership.</p>
+                    <p>Loading rules updates...</p>
+                </div>
+                <div style="margin-top: 1rem; font-size: 0.85rem; color: #78909c;">
+                    <ul id="rules-highlights" style="list-style-position: inside; display: flex; flex-direction: column; gap: 0.5rem;">
+                        <li>Libero captaincy & jewelry permitted (2025).</li>
+                        <li>SRVA 10-Day Offer Rule in effect.</li>
+                    </ul>
                 </div>
             </div>
         </div>
@@ -246,13 +252,13 @@
             </div>
             <div class="card">
                 <h3>Training & Lessons</h3>
-                <p><strong>Private Lessons:</strong> 1-hour sessions at Hooptown with experienced staff. Available up to 2 weeks in advance. Payment is required upon booking. No-shows will be charged the full amount, and cancellations within 24 hours are subject to a fee.</p>
+                <p><strong>Private Lessons:</strong> 1-hour sessions at Hooptown with experienced staff. Available up to 2 weeks in advance. Payment is required upon booking. <strong>No-shows will be charged the full amount</strong>, and <strong>cancellations within 24 hours are subject to a fee</strong>.</p>
                 <br>
                 <p><strong>Summer Camps:</strong>
                     <br>• All Skills: 6/8-11, 6/15-18, 7/27-30
                     <br>• Tryout Tune-Ups: 6/22-7/8
                     <br>• Fun with Fundamentals: 7/20-23
-                    <br>• Skills Week (6/22-25):
+                    <br>• <strong>Skills Week (6/22-25):</strong>
                         <br>&nbsp;&nbsp;Day 1: Setting + Attacking
                         <br>&nbsp;&nbsp;Day 2: Serving + Serve Receive + Defense
                         <br>&nbsp;&nbsp;Day 3: Dig-to-Attack
@@ -413,6 +419,10 @@
                 <h4>When will we know about team offers?</h4>
                 <p>Initial offers are typically made within 24-48 hours after the conclusion of tryouts for your age group via email/SportsEngine.</p>
             </div>
+            <div class="faq-item">
+                <h4>What is the SRVA 10-Day Rule for offers?</h4>
+                <p>Per SRVA policy, athletes generally have up to 10 days to accept or decline an official offer made after the first day of tryouts. This ensures families have time to evaluate their options across different clubs. However, we encourage prompt communication so waitlisted athletes can be notified of their status.</p>
+            </div>
         </div>
     </section>
 
@@ -452,8 +462,19 @@
                 }
 
                 const usavContainer = document.getElementById('usav-news-container');
-                if (data.rules_and_regulations && data.rules_and_regulations.usa_volleyball) {
-                    usavContainer.innerHTML = `<p>${data.rules_and_regulations.usa_volleyball.expert_note}</p>`;
+                if (data.rules_and_regulations) {
+                    if (data.rules_and_regulations.usa_volleyball) {
+                        usavContainer.innerHTML = `<p>${data.rules_and_regulations.usa_volleyball.expert_note}</p>`;
+                    }
+                    if (data.rules_and_regulations.highlights) {
+                        const hlContainer = document.getElementById('rules-highlights');
+                        hlContainer.innerHTML = '';
+                        data.rules_and_regulations.highlights.forEach(hl => {
+                            const li = document.createElement('li');
+                            li.textContent = hl;
+                            hlContainer.appendChild(li);
+                        });
+                    }
                 }
             })
             .catch(err => console.error('Error loading news:', err));
