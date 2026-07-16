@@ -7,6 +7,26 @@
   },
   "news": [
     {
+      "title": "U.S. Women\u2019s Sitting Defeats Italy in 2026 World Championship Quarterfinals",
+      "date": "2026-07-16",
+      "summary": "Source: USA Volleyball. Link: https://usavolleyball.org/story/u-s-womens-sitting-defeats-italy-in-2026-world-championship-quarterfinals/"
+    },
+    {
+      "title": "USA Volleyball Announces 2026 Boys U17 National Team",
+      "date": "2026-07-16",
+      "summary": "Source: USA Volleyball. Link: https://usavolleyball.org/story/usa-volleyball-announces-2026-boys-u17-national-team/"
+    },
+    {
+      "title": "U.S. Begins 2026 VNL Week Three at Home with Sweep of China",
+      "date": "2026-07-16",
+      "summary": "Source: USA Volleyball. Link: https://usavolleyball.org/story/u-s-begins-2026-vnl-week-three-at-home-with-sweep-of-china/"
+    },
+    {
+      "title": "U.S. Women\u2019s Sitting to Play for 2026 World Championship Gold",
+      "date": "2026-07-16",
+      "summary": "Source: USA Volleyball. Link: https://usavolleyball.org/story/u-s-womens-sitting-to-play-for-2026-world-championship-gold/"
+    },
+    {
       "title": "U.S. Upends Canada to Reach Semifinals at 2026 Women\u2019s U21 Pan American Cup",
       "date": "2026-07-10",
       "summary": "Source: USA Volleyball. Link: https://usavolleyball.org/story/u-s-upends-canada-to-reach-semifinals-at-2026-womens-u21-pan-american-cup/"
@@ -74,17 +94,19 @@
   ],
   "rules_and_regulations": {
     "usa_volleyball": {
-      "expert_note": "2025-2027 Rule Highlights: Jewelry (studs and small hoops) is now allowed during play; a re-serve is permitted for a tossing error (limited to once per service turn); the Libero is now allowed to be the team or game captain; Coaches are allowed to stand and walk in the free zone up to the attack line extension. Screening is strictly monitored\u2014players must not hide the server or the flight path of the ball. Uniforms must have clearly contrasting numbers centered on the front and back.",
+      "expert_note": "2025-2027 Rule Highlights: Jewelry (studs and small hoops) is now allowed during play; a re-serve is permitted for a tossing error (limited to once per service turn); the Libero is now allowed to be the team or game captain; Coaches are allowed to stand and walk in the free zone up to the attack line extension. Pursuit Rule is in effect (athletes can retrieve a ball that passes over or outside the antennae to the opponent's free zone). Screening is strictly monitored\u2014players must not hide the server or the flight path of the ball (blockers should keep hands below head until the ball is served). Any net contact between antennae during the action of playing the ball is a fault.",
       "link": "https://usavolleyball.org/resources-for-officials/rulebooks-and-interpretations/"
     },
     "srva": {
-      "expert_note": "SRVA Policies: Valid USAV membership (Tryout or Full) required before stepping on court. Offers accepted via SportsEngine are binding. Max tryout fee $75. Athletes must bring a printed and signed USAV Medical Release form to tryouts. Notarization is required for Medical Release forms at certain regional/national events.",
+      "expert_note": "SRVA Policies: Valid USAV membership (Tryout or Full) required before stepping on court. 10-Day Rule: Offers made to athletes are valid for 10 days before they can be withdrawn, providing families time to consider. Offers accepted via SportsEngine are binding. Max tryout fee $75. Athletes must bring a printed and signed USAV Medical Release form to all tryouts and events.",
       "link": "https://www.srva.org"
     },
     "highlights": [
       "Libero can now officially serve in one position in the rotation and may also be the team or game captain (2025-2027 USAV Rules).",
-      "Uniform numbers must be clearly contrasting and centered (front and back).",
-      "Medical Release forms are required for every tournament and must be printed, signed, and occasionally notarized.",
+      "Pursuit Rule: Athletes may retrieve a ball that has crossed the net plane outside the antennae.",
+      "Net Contact: Any contact with the net by a player between the antennae during the action of playing the ball is a fault.",
+      "SRVA 10-Day Rule: Offers to athletes must remain open for 10 days to allow families to make an informed decision.",
+      "Medical Release forms are mandatory for every tournament and must be printed and signed.",
       "Re-serve rule: One tossing error per service turn is allowed without loss of rally (ball must drop to floor)."
     ]
   },
@@ -107,10 +129,10 @@
     }
   ],
   "social_updates": {
-    "instagram": "Latest social media updates are currently unavailable; please visit our Instagram page.",
-    "facebook": "Latest social media updates are currently unavailable; please visit our Facebook page."
+    "instagram": "Follow @midtnvbc on Instagram (instagram.com/midtnvbc) for daily Skills Week themes, training reels, and athlete highlights!",
+    "facebook": "Follow Mid TN VBC on Facebook (facebook.com/midtnvbc) for tournament photos, event live-streams, and community updates!"
   },
-  "last_agent_run": "2026-07-10 14:42:09",
+  "last_agent_run": "2026-07-16 13:43:51",
   "active_documents": [
     {
       "name": "MidTN VBC",
