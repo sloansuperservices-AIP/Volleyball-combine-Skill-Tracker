@@ -1259,7 +1259,15 @@ function getPerformanceReportBody(athlete) {
 
 function EmailModal({athlete,team,onClose,onSend,initialType='offer'}){
   const [emailType, setEmailType] = useState(initialType);
+  const [copied, setCopied] = useState(false);
+  const copyTimeoutRef = useRef(null);
   
+  useEffect(() => {
+    return () => {
+      if (copyTimeoutRef.current) clearTimeout(copyTimeoutRef.current);
+    };
+  }, []);
+
   const offerTpl = useMemo(() => {
     return `Hello,\n\nWe are pleased to offer ${athlete?.first||''} ${athlete?.last||''} a roster spot on Mid TN VBC${team?' — '+team:''} for the 2026-2027 season.\n\nDetails at www.midtnvbc.com/clubtryouts\n\nPlease reply:\n  1. Accept\n  2. Request a call\n  3. Decline\n\nThank you!\nMid TN VBC`;
   }, [athlete, team]);
@@ -1317,7 +1325,19 @@ function EmailModal({athlete,team,onClose,onSend,initialType='offer'}){
           value=${body} onInput=${e=>setBody(e.target.value)}></textarea>
         <div style=${{display:'flex',gap:8}}>
           <${Btn} onClick=${onClose} color="#2a2e38">Cancel<//>
-          <${Btn} onClick=${()=>navigator.clipboard?.writeText(body)} color="#ffa726" outline>Copy Text<//>
+          <${Btn} onClick=${()=>{
+            if (!navigator.clipboard) {
+              // Fallback if clipboard API is not available
+              setCopied(true);
+              copyTimeoutRef.current = setTimeout(()=>setCopied(false), 2000);
+              return;
+            }
+            navigator.clipboard.writeText(body).then(() => {
+              setCopied(true);
+              if (copyTimeoutRef.current) clearTimeout(copyTimeoutRef.current);
+              copyTimeoutRef.current = setTimeout(()=>setCopied(false), 2000);
+            });
+          }} color="#ffa726" outline>${copied ? 'Copied! ✓' : 'Copy Text'}<//>
           <${Btn} onClick=${()=>{onSend(athlete,body,team,emailType);onClose();}} color="#66bb6a" style=${{flex:1}}>
             ${athlete.email ? (deliveryMethod === 'mailto' ? 'Open Mail App ✓' : 'Send via Web API ✓') : 'Copy & Mark Contacted'}
           <//>
