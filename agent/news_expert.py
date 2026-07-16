@@ -70,9 +70,13 @@ def pull_srva_updates():
 def pull_social_news():
     """Attempts to pull updates from Facebook and Instagram meta tags."""
     print("Fetching Social Media news via meta tags...")
+
+    fb_fallback = "Follow Mid TN VBC on Facebook (facebook.com/midtnvbc) for tournament photos, event live-streams, and community updates!"
+    ig_fallback = "Follow @midtnvbc on Instagram (instagram.com/midtnvbc) for daily Skills Week themes, training reels, and athlete highlights!"
+
     social = {
-        "instagram": "Check @midtnvbc on Instagram for latest photos and reels from training!",
-        "facebook": "Visit Mid TN VBC on Facebook for community updates and event photos."
+        "instagram": ig_fallback,
+        "facebook": fb_fallback
     }
 
     headers = {
@@ -89,12 +93,12 @@ def pull_social_news():
             if meta_desc and meta_desc.get("content"):
                 social["facebook"] = meta_desc["content"]
             else:
-                social["facebook"] = "Latest social media updates are currently unavailable; please visit our Facebook page."
+                social["facebook"] = fb_fallback
         else:
-            social["facebook"] = "Latest social media updates are currently unavailable; please visit our Facebook page."
+            social["facebook"] = fb_fallback
     except Exception as e:
         print(f"Error pulling Facebook news: {e}")
-        social["facebook"] = "Latest social media updates are currently unavailable; please visit our Facebook page."
+        social["facebook"] = fb_fallback
 
     # Instagram
     try:
@@ -105,12 +109,12 @@ def pull_social_news():
             if meta_desc and meta_desc.get("content"):
                 social["instagram"] = meta_desc["content"]
             else:
-                social["instagram"] = "Latest social media updates are currently unavailable; please visit our Instagram page."
+                social["instagram"] = ig_fallback
         else:
-            social["instagram"] = "Latest social media updates are currently unavailable; please visit our Instagram page."
+            social["instagram"] = ig_fallback
     except Exception as e:
         print(f"Error pulling Instagram news: {e}")
-        social["instagram"] = "Latest social media updates are currently unavailable; please visit our Instagram page."
+        social["instagram"] = ig_fallback
 
     return social
 
@@ -229,17 +233,19 @@ def update_knowledge_base():
     # Update Expert Rules (2025-2027)
     kb['rules_and_regulations'] = {
         "usa_volleyball": {
-            "expert_note": "2025-2027 Rule Highlights: Jewelry (studs and small hoops) is now allowed during play; a re-serve is permitted for a tossing error (limited to once per service turn); the Libero is now allowed to be the team or game captain; Coaches are allowed to stand and walk in the free zone up to the attack line extension. Screening is strictly monitored—players must not hide the server or the flight path of the ball. Uniforms must have clearly contrasting numbers centered on the front and back.",
+            "expert_note": "2025-2027 Rule Highlights: Jewelry (studs and small hoops) is now allowed during play; a re-serve is permitted for a tossing error (limited to once per service turn); the Libero is now allowed to be the team or game captain; Coaches are allowed to stand and walk in the free zone up to the attack line extension. Pursuit Rule is in effect (athletes can retrieve a ball that passes over or outside the antennae to the opponent's free zone). Screening is strictly monitored—players must not hide the server or the flight path of the ball (blockers should keep hands below head until the ball is served). Any net contact between antennae during the action of playing the ball is a fault.",
             "link": "https://usavolleyball.org/resources-for-officials/rulebooks-and-interpretations/"
         },
         "srva": {
-            "expert_note": "SRVA Policies: Valid USAV membership (Tryout or Full) required before stepping on court. Offers accepted via SportsEngine are binding. Max tryout fee $75. Athletes must bring a printed and signed USAV Medical Release form to tryouts. Notarization is required for Medical Release forms at certain regional/national events.",
+            "expert_note": "SRVA Policies: Valid USAV membership (Tryout or Full) required before stepping on court. 10-Day Rule: Offers made to athletes are valid for 10 days before they can be withdrawn, providing families time to consider. Offers accepted via SportsEngine are binding. Max tryout fee $75. Athletes must bring a printed and signed USAV Medical Release form to all tryouts and events.",
             "link": "https://www.srva.org"
         },
         "highlights": [
             "Libero can now officially serve in one position in the rotation and may also be the team or game captain (2025-2027 USAV Rules).",
-            "Uniform numbers must be clearly contrasting and centered (front and back).",
-            "Medical Release forms are required for every tournament and must be printed, signed, and occasionally notarized.",
+            "Pursuit Rule: Athletes may retrieve a ball that has crossed the net plane outside the antennae.",
+            "Net Contact: Any contact with the net by a player between the antennae during the action of playing the ball is a fault.",
+            "SRVA 10-Day Rule: Offers to athletes must remain open for 10 days to allow families to make an informed decision.",
+            "Medical Release forms are mandatory for every tournament and must be printed and signed.",
             "Re-serve rule: One tossing error per service turn is allowed without loss of rally (ball must drop to floor)."
         ]
     }
