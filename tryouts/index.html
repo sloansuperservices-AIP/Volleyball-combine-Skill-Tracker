@@ -72,7 +72,17 @@ tr:hover td{background:#1a1d24;cursor:pointer}
 .team-card.finalized{border-color:#f0a500!important}
 .drop-zone{padding:10px;min-height:120px}
 .drop-zone.drag-over{background:rgba(240,165,0,.05);border-radius:8px}
-@media print{.no-print{display:none!important}body{background:#fff;color:#000}.team-print{border:1px solid #ccc!important;border-radius:8px;margin-bottom:12px;break-inside:avoid}}
+@media print {
+  .no-print { display: none !important; }
+  body { background: #fff; color: #000; padding: 0; }
+  .card, .team-card, .depth-col { border: 1px solid #000 !important; background: #fff !important; color: #000 !important; break-inside: avoid; margin-bottom: 20px; }
+  .player-card { border: 1px solid #eee !important; background: #fff !important; color: #000 !important; }
+  .badge { border: 1px solid #000 !important; color: #000 !important; background: #eee !important; }
+  th { background: #eee !important; color: #000 !important; border-bottom: 1px solid #000 !important; }
+  td { border-bottom: 1px solid #eee !important; }
+  .team-print { break-after: page; }
+  h1, h2, h3 { color: #000 !important; }
+}
 </style>
 </head>
 <body>
@@ -873,10 +883,14 @@ function StaffDashboard({athletes, setAthletes, onArrive, onAddWalkup, onMetric,
                     if(!isWuValid) return;
                     const id=`wu-${Date.now()}`;
                     const toN = String(200+athletes.filter(a=>a.isWalkup).length);
-                    onAddWalkup({...walkupForm,id,to:toN,isWalkup:true,arrived:true,status:'arrived'});
-                    setRecentCheckins(p=>[{...walkupForm,to:toN,isWalkup:true},...p].slice(0,6));
+                    const newAth = {...walkupForm,id,to:toN,isWalkup:true,arrived:true,status:'arrived'};
+                    onAddWalkup(newAth);
+                    setRecentCheckins(p=>[newAth,...p].slice(0,6));
                     setWalkupForm({first:'',last:'',dob:'',division:'12 & Under',primaryPos:'Outside Hitter',altPos:'N/A',phone:'',email:''});
                     setShowWalkup(false);
+                    if(confirm("Walkup registered! Switch to Physical Station (S1) for this athlete?")) {
+                      handleGlobalAction(newAth, 's1');
+                    }
                   }} disabled=${!(walkupForm.first.trim() && walkupForm.last.trim() && walkupForm.phone.trim().length >= 7 && walkupForm.email.trim().includes('@'))} style=${{width:'100%',padding:10}}>Register & Check In ✓<//>
                 </div>
               ` : html`
@@ -1034,55 +1048,6 @@ function StaffDashboard({athletes, setAthletes, onArrive, onAddWalkup, onMetric,
             </div>
           `}
 
-          ${activeTab === 'drills' && html`
-            <div>
-              <h2 style=${{fontSize:16,fontWeight:800,marginBottom:12,color:'#66bb6a'}}>Drills Station</h2>
-              
-              ${activeAthlete ? html`
-                <div class="card" style=${{padding:16,marginBottom:16}}>
-                  <div style=${{display:'flex',justifyContent:'space-between',alignItems:'flex-start',marginBottom:12}}>
-                    <div>
-                      <h3 style=${{margin:0,fontSize:16,fontWeight:800,display:'flex',alignItems:'center',gap:6}}>
-                        ${activeAthlete.first} ${activeAthlete.last}
-                        ${!activeAthlete.arrived && html`<span style=${{color:'#ffa726',fontSize:11,background:'rgba(240,165,0,0.1)',padding:'2px 6px',borderRadius:4}}>⚠️ Not Checked In</span>`}
-                      </h3>
-                      <div style=${{fontSize:11,color:'#78909c',marginTop:2}}>TO# ${activeAthlete.to} · ${activeAthlete.division} · ${posAbbr(activeAthlete.primaryPos)}</div>
-                    </div>
-                    <${Btn} sm onClick=${()=>setSelAth(activeAthlete)} color="#4fc3f7" outline>Profile 📋<//>
-                  </div>
-                  
-                  <div style=${{marginBottom:14}}>
-                    <label class="label">Drill Score (1-10)</label>
-                    <input type="number" min="0" max="10" step="0.5" value=${drillVal} onInput=${e=>setDrillVal(e.target.value)}
-                      style=${{width:'100%',padding:10,background:'#12151c',border:'1px solid #2a2e38',borderRadius:8,color:'#e8eaed',fontSize:24,textAlign:'center',fontFamily:'monospace',fontWeight:700}}/>
-                  </div>
-                  
-                  <div style=${{display:'flex',gap:8}}>
-                    <${Btn} onClick=${()=>setActiveAthlete(null)} color="#2a2e38" style=${{flex:1}}>Cancel<//>
-                    <${Btn} onClick=${handleSaveDrill} color="#66bb6a" style=${{flex:2}}>Save & Load Next ✓<//>
-                  </div>
-                </div>
-              ` : html`
-                <div class="card" style=${{padding:16,marginBottom:16,textAlign:'center'}}>
-                  <div style=${{color:'#78909c',fontSize:12,marginBottom:12}}>Select any registered player below to input drill scores:</div>
-                  <div style=${{maxHeight:360,overflowY:'auto',textAlign:'left'}}>
-                    ${allAthletesSorted.map(a => {
-                      const comp = getCompletion(a).drills;
-                      return html`
-                        <div key=${a.id} onClick=${()=>loadAthleteForTab(a)} style=${{display:'flex',alignItems:'center',gap:8,padding:'8px 10px',background:'#1a1d24',borderRadius:8,marginBottom:4,cursor:'pointer',border:comp?'1px solid #66bb6a22':'1px solid #2a2e38'}}>
-                          <span style=${{fontFamily:'monospace',color:'#4fc3f7',fontSize:11}}>#${a.to}</span>
-                          <div style=${{flex:1}}>
-                            <span style=${{fontSize:13,fontWeight:600}}>${a.first} ${a.last}</span>
-                            ${!a.arrived && html`<span style=${{color:'#ffa726',fontSize:9,marginLeft:6}}>⚠️ Not Checked In</span>`}
-                          </div>
-                          ${comp ? html`<${Badge} c="#66bb6a" sm>Completed<//>` : html`<${Badge} c="#ef5350" sm>Pending<//>`}
-                        </div>`;
-                    })}
-                  </div>
-                </div>
-              `}
-            </div>
-          `}
         </div>
       </div>
 
@@ -1616,65 +1581,90 @@ function HeadCoach({athletes,setAthletes,onLogout}){
     setAddWu(false);
   };
 
-  // ── DEPTH ──
-  const depthPool=useMemo(()=>{
-    const pool = athletes.filter(a => a.ageGroup === age && !a.hidden);
-    // Pre-calculate scores for sorting
-    const scores = new Map();
-    pool.forEach(a => scores.set(a.id, Number(totalScore(a.metrics, a.drillScore)) || 0));
+  const ageAths = useMemo(() => athletes.filter(a => a.ageGroup === age && !a.hidden), [athletes, age]);
+  const ageScores = useMemo(() => {
+    const m = new Map();
+    ageAths.forEach(a => m.set(a.id, Number(totalScore(a.metrics, a.drillScore)) || 0));
+    return m;
+  }, [ageAths]);
 
+  // ── DEPTH ──
+  const depthPool = useMemo(() => {
     const g = { setter: [], middle: [], outside: [], defense: [], unsorted: [] };
-    pool.forEach(a => {
+    ageAths.forEach(a => {
       (a.posCategories || [a.posCategory || 'unsorted']).forEach(cat => {
         if (g[cat]) g[cat].push(a);
         else g.unsorted.push(a);
       });
     });
-    Object.keys(g).forEach(k => g[k].sort((a, b) => scores.get(b.id) - scores.get(a.id)));
+    // Sort within each category: Primary first (if primary matches category), then by score
+    Object.keys(g).forEach(k => {
+      g[k].sort((a, b) => {
+        const aIsPri = classifyPos(a.primaryPos) === k;
+        const bIsPri = classifyPos(b.primaryPos) === k;
+        if (aIsPri !== bIsPri) return aIsPri ? -1 : 1;
+        return ageScores.get(b.id) - ageScores.get(a.id);
+      });
+    });
     return g;
-  }, [athletes, age]);
+  }, [ageAths, ageScores]);
 
   // ── RESULTS ──
   const [resSort, setResSort] = useState('score');
   const resList = useMemo(() => {
-    const l = athletes.filter(a => a.ageGroup === age && !a.hidden);
+    let l = [...ageAths];
     if (resSort === 'score') {
-      const scores = new Map();
-      l.forEach(a => scores.set(a.id, Number(totalScore(a.metrics, a.drillScore)) || 0));
-      l.sort((a, b) => scores.get(b.id) - scores.get(a.id));
+      l.sort((a, b) => ageScores.get(b.id) - ageScores.get(a.id));
     } else if (resSort === 'name') {
       l.sort((a, b) => a.last.localeCompare(b.last));
     } else {
       l.sort((a, b) => (sAvg(b.metrics, resSort) || 0) - (sAvg(a.metrics, resSort) || 0));
     }
     return l;
-  }, [athletes, age, resSort]);
+  }, [ageAths, ageScores, resSort]);
 
   // ── TEAMS ──
   const [poolSort, setPoolSort] = useState('pos');
   const [showPool, setShowPool] = useState(true);
   const [dragOver, setDragOver] = useState(null);
   const [showAllPool, setShowAllPool] = useState(true);
-  const ageAths = athletes.filter(a => a.ageGroup === age && !a.hidden);
+
   const pool = useMemo(() => {
     let l = showAllPool ? [...ageAths] : ageAths.filter(a => !a.teamAssignment);
     if (poolSort === 'score') {
-      const scores = new Map();
-      l.forEach(a => scores.set(a.id, Number(totalScore(a.metrics, a.drillScore)) || 0));
-      l.sort((a, b) => scores.get(b.id) - scores.get(a.id));
+      l.sort((a, b) => ageScores.get(b.id) - ageScores.get(a.id));
     } else if (poolSort === 'name') {
       l.sort((a, b) => a.last.localeCompare(b.last));
     } else if (poolSort === 'pos') {
       const order = { setter: 1, middle: 2, outside: 3, defense: 4, unsorted: 5 };
-      const scores = new Map();
-      l.forEach(a => scores.set(a.id, Number(totalScore(a.metrics, a.drillScore)) || 0));
       l.sort((a, b) => {
         if (a.posCategory !== b.posCategory) return (order[a.posCategory] || 99) - (order[b.posCategory] || 99);
-        return scores.get(b.id) - scores.get(a.id);
+        return ageScores.get(b.id) - ageScores.get(a.id);
       });
     }
     return l;
-  }, [ageAths, poolSort, showAllPool]);
+  }, [ageAths, ageScores, poolSort, showAllPool]);
+
+  const poolByCat = useMemo(() => {
+    const g = { setter: [], middle: [], outside: [], defense: [], unsorted: [] };
+    pool.forEach(a => {
+      const cats = a.posCategories || [a.posCategory || 'unsorted'];
+      cats.forEach(c => {
+        if (g[c]) { if (!g[c].includes(a)) g[c].push(a); }
+        else { if (!g.unsorted.includes(a)) g.unsorted.push(a); }
+      });
+    });
+    // Sort: Primary matches category first, then by score
+    Object.keys(g).forEach(k => {
+      g[k].sort((a, b) => {
+        const aIsPri = classifyPos(a.primaryPos) === k;
+        const bIsPri = classifyPos(b.primaryPos) === k;
+        if (aIsPri !== bIsPri) return aIsPri ? -1 : 1;
+        return ageScores.get(b.id) - ageScores.get(a.id);
+      });
+    });
+    return g;
+  }, [pool, ageScores]);
   const drop=(e,teamKey)=>{
     e.preventDefault();
     const id=e.dataTransfer.getData('text/plain');
@@ -1796,11 +1786,13 @@ function HeadCoach({athletes,setAthletes,onLogout}){
                         const isPri = classifyPos(a.primaryPos) === cat.key;
                         const otherPos = isPri ? a.altPos : a.primaryPos;
                         const label = isPri ? 'Alt' : 'Pri';
+                        const priLabel = isPri ? 'Pri' : 'Alt';
                         return html`
                         <div key=${a.id} onClick=${()=>setSelAth(a)} style=${{display:'flex',alignItems:'center',gap:6,padding:'6px 8px',background:'#1a1d24',borderRadius:6,marginBottom:4,cursor:'pointer'}}>
                           <span style=${{fontSize:11,color:'#546e7a',minWidth:16,textAlign:'right'}}>${i+1}</span>
                           <span style=${{fontFamily:'monospace',fontSize:10,color:'#4fc3f7',minWidth:24}}>#${a.to}</span>
                           <span style=${{flex:1,fontSize:12,fontWeight:600}}>${a.first} ${a.last}</span>
+                          <span style=${{fontSize:9,fontWeight:700,color:isPri?'#66bb6a':'#ffa726',background:isPri?'rgba(102,187,106,0.1)':'rgba(255,167,38,0.1)',padding:'1px 4px',borderRadius:4,border:isPri?'1px solid rgba(102,187,106,0.2)':'1px solid rgba(255,167,38,0.2)'}}>${priLabel}</span>
                           ${otherPos && otherPos !== 'N/A' && otherPos !== 'none' && html`
                             <span style=${{fontSize:10,color:'#4fc3f7',background:'rgba(79,195,247,0.1)',padding:'1px 4px',borderRadius:4,marginRight:4,border:'1px solid rgba(79,195,247,0.2)'}}>${label}: ${posAbbr(otherPos)}</span>
                           `}
@@ -1877,10 +1869,9 @@ ${list.length===0&&html`<div style=${{padding:20,textAlign:'center',color:'#333'
                 </div>
                 <div style=${{overflow:'auto',flex:1,padding:8}}>
                   ${poolSort==='pos'
-                    ? html`<div>
+                    ? html`<div style=${{ display: widePool ? 'grid' : 'block', gridTemplateColumns: widePool ? 'repeat(auto-fill, minmax(240px, 1fr))' : 'none', gap: 12 }}>
                         ${[...POS_CATS,{key:'unsorted',label:'Unsorted'}].map(cat => {
-                          const listByCat = pool.filter(a => (a.posCategories || [a.posCategory]).includes(cat.key))
-                                           .sort((a,b)=>(Number(totalScore(b.metrics, b.drillScore))||0)-(Number(totalScore(a.metrics, a.drillScore))||0));
+                          const listByCat = poolByCat[cat.key] || [];
                           if(listByCat.length === 0) return null;
                           return html`
                             <div key=${cat.key} style=${{marginBottom:12,borderBottom:'1px solid #1e222b',paddingBottom:8}}>
@@ -1898,10 +1889,12 @@ ${list.length===0&&html`<div style=${{padding:20,textAlign:'center',color:'#333'
                             </div>`;
                         })}
                       </div>`
-                    : pool.map(a=>html`
+                    : html`<div style=${{ display: widePool ? 'grid' : 'block', gridTemplateColumns: widePool ? 'repeat(auto-fill, minmax(240px, 1fr))' : 'none', gap: 4 }}>
+                        ${pool.map(a=>html`
                         <div style=${{opacity:a.teamAssignment?.length?0.35:1,pointerEvents:a.teamAssignment?.length?'none':'auto',marginBottom:2}}>
                           <${PCard} key=${a.id} athlete=${a} onClick=${setSelAth} compact showScore/>
-                        </div>`)
+                        </div>`)}
+                      </div>`
                   }
                   ${pool.length===0&&html`<div style=${{padding:24,textAlign:'center',color:'#444',fontSize:12}}>All assigned</div>`}
                 </div>
@@ -2375,7 +2368,10 @@ function TeamOfferModal({teamKey,athletes,onClose,onSendOffer}){
                 <div style=${{fontSize:11,color:'#78909c'}}>${posAbbr(a.primaryPos)} · ${a.status}</div>
               </div>
               ${['accepted','declined','offered'].includes(a.status)
-                ? html`<${Badge} c=${a.status==='accepted'?'#66bb6a':a.status==='declined'?'#ef5350':'#42a5f5'} sm>${a.status}<//>`
+                ? html`<div style=${{display:'flex',gap:6,alignItems:'center'}}>
+                    <${Badge} c=${a.status==='accepted'?'#66bb6a':a.status==='declined'?'#ef5350':'#42a5f5'} sm>${a.status}<//>
+                    <${Btn} sm onClick=${()=>onSendOffer(a)} color="#78909c" outline style=${{fontSize:9,padding:'2px 5px'}}>Resend<//>
+                  </div>`
                 : html`<${Btn} sm onClick=${()=>onSendOffer(a)} color="#f0a500">Send Offer<//>`}
             </div>`)}
         </div>
