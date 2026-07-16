@@ -216,7 +216,7 @@ function totalScore(metrics, drillScore) {
     s += Number(drillScore);
     c++;
   }
-  return c > 0 ? (s / c).toFixed(1) : null;
+  return c > 0 ? (s / c) : null;
 }
 function scoreColor(sc){return Number(sc)>=7?'#66bb6a':Number(sc)>=5?'#ffa726':'#ef5350';}
 let toN=100;
@@ -1099,7 +1099,7 @@ function StaffDashboard({athletes, setAthletes, onArrive, onAddWalkup, onMetric,
 function AthleteModal({athlete,onClose,onChange,onHide,onUnhide,onEmail}){
   if(!athlete) return null;
   const locked = athlete.teamLocked || athlete.status === 'accepted';
-  const sc = totalScore(athlete.metrics, athlete.drillScore);
+  const sc = athlete._score || totalScore(athlete.metrics, athlete.drillScore);
   const [ef,setEf]=useState(null);
   const [ev,setEv]=useState('');
   const [showStopwatch, setShowStopwatch] = useState(false);
@@ -1210,7 +1210,7 @@ function AthleteModal({athlete,onClose,onChange,onHide,onUnhide,onEmail}){
                 onInput=${e=>onChange(athlete.id,{drillScore:e.target.value})}
                 style=${{width:60,padding:'5px',background:'#12151c',border:'1px solid #f0a50088',borderRadius:4,color:'#e8eaed',fontSize:15,textAlign:'center',fontWeight:700}}/>
             </div>
-            ${sc&&html`<div style=${{textAlign:'right',fontWeight:800,fontSize:15,color:'#66bb6a'}}>Total Score: ${sc}</div>`}
+            ${sc&&html`<div style=${{textAlign:'right',fontWeight:800,fontSize:15,color:'#66bb6a'}}>Total Score: ${sc.toFixed(1)}</div>`}
           </div>
         </div>
         <div style=${{display:'flex',gap:8,flexWrap:'wrap',alignItems:'center'}}>
@@ -1235,7 +1235,8 @@ function AthleteModal({athlete,onClose,onChange,onHide,onUnhide,onEmail}){
 
 // ── EMAIL MODAL ────────────────────────────────────────────────────
 function getPerformanceReportBody(athlete) {
-  const sc = totalScore(athlete.metrics, athlete.drillScore);
+  const sc = athlete._score || totalScore(athlete.metrics, athlete.drillScore);
+  const scFormatted = sc ? (typeof sc === 'number' ? sc.toFixed(1) : sc) : '—';
   const s1Val = athlete.metrics?.s1 || [];
   const s2Val = athlete.metrics?.s2 || [];
   
@@ -1250,7 +1251,7 @@ function getPerformanceReportBody(athlete) {
          `- Vertical: ${s1Val[2] || '—'} in\n` +
          `- Agility (Shuttle Run): ${s2Val[0] || '—'} sec\n` +
          `- Coach Drill Score: ${athlete.drillScore || '—'} / 10\n\n` +
-         `Overall Tryout Score: ${sc || '—'} / 10\n` +
+         `Overall Tryout Score: ${scFormatted} / 10\n` +
          `Roster Status: ${athlete.status.toUpperCase()}\n\n` +
          `If you have any questions or want to discuss your results, please feel free to reply to this email.\n\n` +
          `Thank you,\n` +
@@ -1350,7 +1351,7 @@ function HideModal({athlete,onClose,onHide}){
 
 // ── PLAYER CARD ────────────────────────────────────────────────────
 function PCard({athlete,onClick,compact,showScore,teamKey}){
-  const sc=totalScore(athlete.metrics, athlete.drillScore);
+  const sc=(athlete._score !== undefined) ? athlete._score : totalScore(athlete.metrics, athlete.drillScore);
   const locked=athlete.teamLocked||athlete.status==='accepted';
   return html`
     <div class=${'player-card'+(athlete.status==='declined'?' declined':'')+(locked?' locked':'')}
@@ -1363,7 +1364,7 @@ function PCard({athlete,onClick,compact,showScore,teamKey}){
       ${athlete.altPos&&athlete.altPos!==athlete.primaryPos&&html`<${Badge} c="#3a3f47" sm>${posAbbr(athlete.altPos)}<//>`}
       ${athlete.wontAccept&&html`<span title=${'WON\'T ACCEPT / RESTRICTION: '+athlete.wontAccept} style=${{fontSize:16,cursor:'help',filter:'drop-shadow(0 0 2px #ffa726)'}}>⚠️</span>`}
       ${athlete.notes&&html`<span title=${'TRYOUT NOTES: '+athlete.notes} style=${{fontSize:16,cursor:'help',filter:'drop-shadow(0 0 2px #4fc3f7)'}}>📝</span>`}
-      ${showScore&&sc&&html`<${Badge} c=${scoreColor(sc)} sm>${sc}<//>`}
+      ${showScore && sc !== null && html`<${Badge} c=${scoreColor(sc)} sm>${sc.toFixed(1)}<//>`}
       <${SBadge} status=${athlete.status}/>
     </div>`;
 }
@@ -1574,11 +1575,15 @@ function HeadCoach({athletes,setAthletes,onLogout}){
 
   const exportToCSV=()=>{
     const headers=['TO#','First','Last','Age','Primary','Alt','Coach','Status','Team','Score','Drill','Height','Reach','Vertical','Shuttle','Arrived','Notes','WontAccept','Phone','Email'];
-    const data=athletes.filter(a=>!a.hidden).map(a=>[
-      a.to,a.first,a.last,a.ageGroup+'s',a.primaryPos,a.altPos,a.coachPos,a.status,a.teamAssignment||'',totalScore(a.metrics, a.drillScore)||'',
-      a.drillScore||'',(a.metrics?.s1?.[0]||''),(a.metrics?.s1?.[1]||''),(a.metrics?.s1?.[2]||''),(a.metrics?.s2?.[0]||''),
-      a.arrived?'YES':'NO',a.notes,a.wontAccept,a.phone,a.email
-    ]);
+    const data=athletes.filter(a=>!a.hidden).map(a=>{
+      const sc = totalScore(a.metrics, a.drillScore);
+      return [
+        a.to,a.first,a.last,a.ageGroup+'s',a.primaryPos,a.altPos,a.coachPos,a.status,a.teamAssignment||'',
+        sc ? sc.toFixed(1) : '',
+        a.drillScore||'',(a.metrics?.s1?.[0]||''),(a.metrics?.s1?.[1]||''),(a.metrics?.s1?.[2]||''),(a.metrics?.s2?.[0]||''),
+        a.arrived?'YES':'NO',a.notes,a.wontAccept,a.phone,a.email
+      ];
+    });
     exportCSV([headers,...data], `midtn_tryouts_export_${new Date().toISOString().slice(0,10)}.csv`);
   };
 
@@ -1599,12 +1604,24 @@ function HeadCoach({athletes,setAthletes,onLogout}){
   };
   const showAgeNav=['depth','results','teams'].includes(view);
 
+  // ── MEMOIZED DATA SLICES ──
+  // ageAths must be first to be available for other derived hooks
+  const ageAths = useMemo(() => {
+    return athletes.filter(a => a.ageGroup === age && !a.hidden).map(a => {
+      const s = totalScore(a.metrics, a.drillScore);
+      return { ...a, _score: s !== null ? Number(s) : null };
+    });
+  }, [athletes, age]);
+
   // ── ALL REG ──
   const [regQ,setRegQ]=useState('');
   const [addWu,setAddWu]=useState(false);
   const [wuForm,setWuForm]=useState({first:'',last:'',dob:'',division:'12 & Under',primaryPos:'Outside Hitter',altPos:'',phone:'',email:''});
   const regList=useMemo(()=>{
-    let l=athletes.filter(a=>!a.hidden);
+    let l=athletes.filter(a=>!a.hidden).map(a => {
+      const s = totalScore(a.metrics, a.drillScore);
+      return { ...a, _score: s !== null ? Number(s) : null };
+    });
     if(regQ){const s=regQ.toLowerCase();l=l.filter(a=>a.first.toLowerCase().includes(s)||a.last.toLowerCase().includes(s)||a.to.includes(regQ)||(a.division||'').toLowerCase().includes(s)||(a.primaryPos||'').toLowerCase().includes(s));}
     return l;
   },[athletes,regQ]);
@@ -1618,63 +1635,65 @@ function HeadCoach({athletes,setAthletes,onLogout}){
 
   // ── DEPTH ──
   const depthPool=useMemo(()=>{
-    const pool = athletes.filter(a => a.ageGroup === age && !a.hidden);
-    // Pre-calculate scores for sorting
-    const scores = new Map();
-    pool.forEach(a => scores.set(a.id, Number(totalScore(a.metrics, a.drillScore)) || 0));
-
     const g = { setter: [], middle: [], outside: [], defense: [], unsorted: [] };
-    pool.forEach(a => {
+    ageAths.forEach(a => {
       (a.posCategories || [a.posCategory || 'unsorted']).forEach(cat => {
         if (g[cat]) g[cat].push(a);
         else g.unsorted.push(a);
       });
     });
-    Object.keys(g).forEach(k => g[k].sort((a, b) => scores.get(b.id) - scores.get(a.id)));
+    Object.keys(g).forEach(k => g[k].sort((a, b) => (b._score || 0) - (a._score || 0)));
     return g;
-  }, [athletes, age]);
+  }, [ageAths]);
 
   // ── RESULTS ──
   const [resSort, setResSort] = useState('score');
   const resList = useMemo(() => {
-    const l = athletes.filter(a => a.ageGroup === age && !a.hidden);
+    const l = [...ageAths];
     if (resSort === 'score') {
-      const scores = new Map();
-      l.forEach(a => scores.set(a.id, Number(totalScore(a.metrics, a.drillScore)) || 0));
-      l.sort((a, b) => scores.get(b.id) - scores.get(a.id));
+      l.sort((a, b) => (b._score || 0) - (a._score || 0));
     } else if (resSort === 'name') {
       l.sort((a, b) => a.last.localeCompare(b.last));
     } else {
       l.sort((a, b) => (sAvg(b.metrics, resSort) || 0) - (sAvg(a.metrics, resSort) || 0));
     }
     return l;
-  }, [athletes, age, resSort]);
+  }, [ageAths, resSort]);
 
   // ── TEAMS ──
   const [poolSort, setPoolSort] = useState('pos');
   const [showPool, setShowPool] = useState(true);
   const [dragOver, setDragOver] = useState(null);
   const [showAllPool, setShowAllPool] = useState(true);
-  const ageAths = athletes.filter(a => a.ageGroup === age && !a.hidden);
   const pool = useMemo(() => {
     let l = showAllPool ? [...ageAths] : ageAths.filter(a => !a.teamAssignment);
     if (poolSort === 'score') {
-      const scores = new Map();
-      l.forEach(a => scores.set(a.id, Number(totalScore(a.metrics, a.drillScore)) || 0));
-      l.sort((a, b) => scores.get(b.id) - scores.get(a.id));
+      l.sort((a, b) => (b._score || 0) - (a._score || 0));
     } else if (poolSort === 'name') {
       l.sort((a, b) => a.last.localeCompare(b.last));
     } else if (poolSort === 'pos') {
       const order = { setter: 1, middle: 2, outside: 3, defense: 4, unsorted: 5 };
-      const scores = new Map();
-      l.forEach(a => scores.set(a.id, Number(totalScore(a.metrics, a.drillScore)) || 0));
       l.sort((a, b) => {
         if (a.posCategory !== b.posCategory) return (order[a.posCategory] || 99) - (order[b.posCategory] || 99);
-        return scores.get(b.id) - scores.get(a.id);
+        return (b._score || 0) - (a._score || 0);
       });
     }
     return l;
   }, [ageAths, poolSort, showAllPool]);
+
+  // Grouped pool for Team Builder position columns
+  const poolByCat = useMemo(() => {
+    const g = { setter: [], middle: [], outside: [], defense: [], unsorted: [] };
+    // pool is already sorted by score (or name/pos) based on poolSort
+    pool.forEach(a => {
+      (a.posCategories || [a.posCategory || 'unsorted']).forEach(cat => {
+        if (g[cat]) g[cat].push(a);
+        else g.unsorted.push(a);
+      });
+    });
+    return g;
+  }, [pool]);
+
   const drop=(e,teamKey)=>{
     e.preventDefault();
     const id=e.dataTransfer.getData('text/plain');
@@ -1711,7 +1730,14 @@ function HeadCoach({athletes,setAthletes,onLogout}){
             <div style=${{display:'flex',gap:2,background:'#12151c',borderRadius:6,padding:2}}>
               ${AGES.map(a=>html`<button key=${a} class=${'age-tab'+(age===a?' active':'')} onClick=${()=>setAge(a)}>${a}s</button>`)}</div>`}
           ${['teams','allteams'].includes(view)&&html`
-            <${Btn} sm onClick=${()=>exportCSV([['Age Group','Team','TO#','First','Last','POS','Coach POS','Score','Drill','Height','Reach','Vertical','Shuttle','Status','Phone','Email','Notes','WontAccept'],...athletes.filter(a=>a.teamAssignment&&!a.hidden&&(view==='allteams'||a.ageGroup===age)).map(a=>[a.ageGroup+'s',a.teamAssignment,a.to,a.first,a.last,a.primaryPos,a.coachPos,totalScore(a.metrics, a.drillScore)||'',a.drillScore||'',(a.metrics?.s1?.[0]||''),(a.metrics?.s1?.[1]||''),(a.metrics?.s1?.[2]||''),(a.metrics?.s2?.[0]||''),a.status,a.phone,a.email,a.notes,a.wontAccept])],view==='allteams'?'MidTN_All_Teams.csv':`MidTN_${age}s_Teams.csv`)} color="#66bb6a" outline>Export CSV<//>
+            <${Btn} sm onClick=${()=>{
+              const headers=['Age Group','Team','TO#','First','Last','POS','Coach POS','Score','Drill','Height','Reach','Vertical','Shuttle','Status','Phone','Email','Notes','WontAccept'];
+              const data=athletes.filter(a=>a.teamAssignment&&!a.hidden&&(view==='allteams'||a.ageGroup===age)).map(a=>{
+                const sc = totalScore(a.metrics, a.drillScore);
+                return [a.ageGroup+'s',a.teamAssignment,a.to,a.first,a.last,a.primaryPos,a.coachPos,sc ? sc.toFixed(1) : '',a.drillScore||'',(a.metrics?.s1?.[0]||''),(a.metrics?.s1?.[1]||''),(a.metrics?.s1?.[2]||''),(a.metrics?.s2?.[0]||''),a.status,a.phone,a.email,a.notes,a.wontAccept];
+              });
+              exportCSV([headers,...data], view==='allteams'?'MidTN_All_Teams.csv':`MidTN_${age}s_Teams.csv`);
+            }} color="#66bb6a" outline>Export CSV<//>
             <${Btn} sm onClick=${()=>window.print()} color="#4fc3f7" outline>Print<//>
           `}
         </div>
@@ -1727,7 +1753,14 @@ function HeadCoach({athletes,setAthletes,onLogout}){
               <${Badge} c="#26c6da">${regList.filter(a=>a.arrived).length} Arrived<//>
               <${Badge} c="#78909c">${regList.length} Total<//>
               <${Btn} sm onClick=${()=>setAddWu(p=>!p)} color="#f0a500" style=${{border:'2px solid #f0a500',boxShadow:'0 0 10px rgba(240,165,0,0.3)'}}>+ Add Walkup<//>
-              <${Btn} sm onClick=${()=>exportCSV([['TO#','First','Last','Division','Primary','Alt','Coach','Score','Drill','Height','Reach','Vertical','Shuttle','Status','Arrived','Walkup','Phone','Email','Notes','WontAccept'],...athletes.filter(a=>!a.hidden).map(a=>[a.to,a.first,a.last,a.division,a.primaryPos,a.altPos,a.coachPos,totalScore(a.metrics, a.drillScore)||'',a.drillScore||'',(a.metrics?.s1?.[0]||''),(a.metrics?.s1?.[1]||''),(a.metrics?.s1?.[2]||''),(a.metrics?.s2?.[0]||''),a.status,a.arrived?'Yes':'',a.isWalkup?'Yes':'',a.phone,a.email,a.notes,a.wontAccept])],'MidTN_Reg.csv')} color="#4fc3f7" outline>Export CSV<//>
+              <${Btn} sm onClick=${()=>{
+                const headers=['TO#','First','Last','Division','Primary','Alt','Coach','Score','Drill','Height','Reach','Vertical','Shuttle','Status','Arrived','Walkup','Phone','Email','Notes','WontAccept'];
+                const data=athletes.filter(a=>!a.hidden).map(a=>{
+                  const sc = totalScore(a.metrics, a.drillScore);
+                  return [a.to,a.first,a.last,a.division,a.primaryPos,a.altPos,a.coachPos,sc ? sc.toFixed(1) : '',a.drillScore||'',(a.metrics?.s1?.[0]||''),(a.metrics?.s1?.[1]||''),(a.metrics?.s1?.[2]||''),(a.metrics?.s2?.[0]||''),a.status,a.arrived?'Yes':'',a.isWalkup?'Yes':'',a.phone,a.email,a.notes,a.wontAccept];
+                });
+                exportCSV([headers,...data],'MidTN_Reg.csv');
+              }} color="#4fc3f7" outline>Export CSV<//>
             </div>
             ${addWu&&html`
               <div class="card" style=${{padding:16,marginBottom:14,border:'1px solid #f0a50033'}}>
@@ -1765,7 +1798,7 @@ function HeadCoach({athletes,setAthletes,onLogout}){
                           onInput=${e=>upd(a.id,{drillScore:e.target.value})}
                           style=${{width:45,padding:'2px 4px',background:'#12151c',border:'1px solid #f0a50088',borderRadius:4,color:'#e8eaed',fontSize:12,textAlign:'center',fontWeight:700}}/>
                       </td>
-                      <td style=${{fontFamily:'monospace',fontWeight:700,color:totalScore(a.metrics, a.drillScore)?scoreColor(totalScore(a.metrics, a.drillScore)):'#444'}}>${totalScore(a.metrics, a.drillScore)||'—'}</td>
+                      <td style=${{fontFamily:'monospace',fontWeight:700,color:a._score !== null ? scoreColor(a._score) : '#444'}}>${a._score !== null ? a._score.toFixed(1) : '—'}</td>
                       <td onClick=${()=>setSelAth(a)}><${SBadge} status=${a.status}/></td>
                       <td>${a.arrived?html`<${Badge} c="#26c6da" sm>✓<//>`
                         :html`<${Btn} sm onClick=${e=>{e.stopPropagation();doArrive(a);}} color="#26c6da" outline>Check In<//>`}</td>
@@ -1804,7 +1837,7 @@ function HeadCoach({athletes,setAthletes,onLogout}){
                           ${otherPos && otherPos !== 'N/A' && otherPos !== 'none' && html`
                             <span style=${{fontSize:10,color:'#4fc3f7',background:'rgba(79,195,247,0.1)',padding:'1px 4px',borderRadius:4,marginRight:4,border:'1px solid rgba(79,195,247,0.2)'}}>${label}: ${posAbbr(otherPos)}</span>
                           `}
-                          ${totalScore(a.metrics, a.drillScore)&&html`<${Badge} c=${scoreColor(totalScore(a.metrics, a.drillScore))} sm>${totalScore(a.metrics, a.drillScore)}<//>`}
+                          ${a._score !== null && html`<${Badge} c=${scoreColor(a._score)} sm>${a._score.toFixed(1)}<//>`}
                           ${a.wontAccept&&html`<span title=${'WON\'T ACCEPT: ' + a.wontAccept} aria-label=${'Restriction: ' + a.wontAccept}>⚠️</span>`}
                           ${a.notes&&html`<span title=${'NOTES: ' + a.notes} aria-label=${'Notes: ' + a.notes}>📝</span>`}
                         </div>`;
@@ -1828,7 +1861,7 @@ ${list.length===0&&html`<div style=${{padding:20,textAlign:'center',color:'#333'
                   ${STATIONS.filter(s=>!s.isCheckin).map(s=>html`<th key=${s.key+'a'} style=${{color:'#ffa726'}}>Avg</th>`)}
                   <th style=${{color:'#f0a500'}}>Drill</th>
                   <th style=${{color:'#66bb6a'}}>Total</th><th>Status</th></tr></thead>
-                <tbody>${resList.map((a,ri)=>{const sc=totalScore(a.metrics, a.drillScore);return html`
+                <tbody>${resList.map((a,ri)=>{const sc=a._score;return html`
                   <tr key=${a.id} onClick=${()=>setSelAth(a)} style=${{background:ri%2===0?'transparent':'#0a0d12'}}>
                     <td style=${{fontFamily:'monospace',color:'#4fc3f7'}}>${a.to}</td>
                     <td style=${{fontWeight:600}}>${a.first} ${a.last}${a.isWalkup&&html`<span style=${{marginLeft:4,fontSize:10,color:'#ffa726'}}>WU</span>`}</td>
@@ -1846,7 +1879,7 @@ ${list.length===0&&html`<div style=${{padding:20,textAlign:'center',color:'#333'
                         onInput=${e=>upd(a.id,{drillScore:e.target.value})}
                         style=${{width:50,padding:'2px 4px',background:'#12151c',border:'1px solid #f0a50088',borderRadius:4,color:'#e8eaed',fontSize:12,textAlign:'center',fontWeight:700}}/>
                     </td>
-                    <td style=${{fontWeight:800,fontFamily:'monospace',color:sc?scoreColor(sc):'#444'}}>${sc||'—'}</td>
+                    <td style=${{fontWeight:800,fontFamily:'monospace',color:sc?scoreColor(sc):'#444'}}>${sc?sc.toFixed(1):'—'}</td>
                     <td><${SBadge} status=${a.status}/></td>
                   </tr>`;})}
                 </tbody></table>
@@ -1879,8 +1912,7 @@ ${list.length===0&&html`<div style=${{padding:20,textAlign:'center',color:'#333'
                   ${poolSort==='pos'
                     ? html`<div>
                         ${[...POS_CATS,{key:'unsorted',label:'Unsorted'}].map(cat => {
-                          const listByCat = pool.filter(a => (a.posCategories || [a.posCategory]).includes(cat.key))
-                                           .sort((a,b)=>(Number(totalScore(b.metrics, b.drillScore))||0)-(Number(totalScore(a.metrics, a.drillScore))||0));
+                          const listByCat = poolByCat[cat.key] || [];
                           if(listByCat.length === 0) return null;
                           return html`
                             <div key=${cat.key} style=${{marginBottom:12,borderBottom:'1px solid #1e222b',paddingBottom:8}}>
