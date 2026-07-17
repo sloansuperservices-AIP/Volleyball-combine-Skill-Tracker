@@ -229,18 +229,22 @@ def update_knowledge_base():
     # Update Expert Rules (2025-2027)
     kb['rules_and_regulations'] = {
         "usa_volleyball": {
-            "expert_note": "2025-2027 Rule Highlights: Jewelry (studs and small hoops) is now allowed during play; a re-serve is permitted for a tossing error (limited to once per service turn); the Libero is now allowed to be the team or game captain; Coaches are allowed to stand and walk in the free zone up to the attack line extension. Screening is strictly monitored—players must not hide the server or the flight path of the ball. Uniforms must have clearly contrasting numbers centered on the front and back.",
+            "expert_note": "2025-2027 Rule Highlights: Jewelry permission is granted (studs and small hoops are now allowed during play). Re-serve on toss error is permitted (one tossing error per service turn without loss of rally, ball must drop to floor). Libero captaincy is now officially allowed (the Libero can be the team or game captain). Screening rule/hands below head restricts players from hiding the server or the flight path of the ball; players cannot make a screen with hands below their head. Under the Pursuit rule, players are allowed to pursue and play the ball over or around the net/posts from the opponent's free zone under strict conditions. Clarified net contact faults state that contact with the net is only a fault if it interferes with play or is on the top band during the action of playing the ball.",
             "link": "https://usavolleyball.org/resources-for-officials/rulebooks-and-interpretations/"
         },
         "srva": {
-            "expert_note": "SRVA Policies: Valid USAV membership (Tryout or Full) required before stepping on court. Offers accepted via SportsEngine are binding. Max tryout fee $75. Athletes must bring a printed and signed USAV Medical Release form to tryouts. Notarization is required for Medical Release forms at certain regional/national events.",
+            "expert_note": "SRVA Policies: Valid USAV membership (Tryout or Full) is required before stepping on court. Offers accepted via SportsEngine are binding. Max tryout fee is $75. Mandatory medical release forms must be printed, signed, and brought to tryouts (notarization required for certain regional/national events). The SRVA 10-day offer rule guarantees that offers must remain open for up to 10 days before an athlete is required to accept or decline.",
             "link": "https://www.srva.org"
         },
         "highlights": [
-            "Libero can now officially serve in one position in the rotation and may also be the team or game captain (2025-2027 USAV Rules).",
-            "Uniform numbers must be clearly contrasting and centered (front and back).",
-            "Medical Release forms are required for every tournament and must be printed, signed, and occasionally notarized.",
-            "Re-serve rule: One tossing error per service turn is allowed without loss of rally (ball must drop to floor)."
+            "Libero captaincy is now officially allowed: the Libero can serve and also be the team or game captain (2025-2027 USAV Rules).",
+            "Jewelry permission: Jewelry (studs and small hoops) is now allowed during play.",
+            "Re-serve on toss error rule: One tossing error per service turn is allowed without loss of rally (ball must drop to floor).",
+            "Screening rule/hands below head: Strict monitoring on screening; players must not hide the server, and hands must not be below head while forming a potential screen.",
+            "Pursuit rule: Players can pursue the ball into the opponent's free zone to play it back over or around the net/posts.",
+            "Clarified net contact faults: Contact with the net is only a fault if it interferes with play or is on the top band.",
+            "Mandatory medical release forms: Printed, signed USAV Medical Release forms are required at tryouts.",
+            "SRVA 10-day offer rule: Offers must remain open for up to 10 days before an athlete is required to accept or decline."
         ]
     }
 
