@@ -1088,9 +1088,29 @@ function StaffDashboard({athletes, setAthletes, onArrive, onAddWalkup, onMetric,
 
       <${CheckInConfirmModal} athlete=${confirmCheckInAth} onClose=${()=>setConfirmCheckInAth(null)} onConfirm=${handleConfirmCheckIn}/>
       <${AthleteModal} athlete=${selAth} onClose=${()=>setSelAth(null)} onChange=${(id, updates)=>{
-        setAthletes(prev => prev.map(a => a.id === id ? { ...a, ...updates } : a));
-        if (selAth && selAth.id === id) setSelAth(p => ({ ...p, ...updates }));
-        if (activeAthlete && activeAthlete.id === id) setActiveAthlete(p => ({ ...p, ...updates }));
+        setAthletes(prev => prev.map(a => {
+          if (a.id !== id) return a;
+          let next = { ...a, ...updates };
+          if (updates.status === 'accepted') next.teamLocked = true;
+          else if (updates.status && a.status === 'accepted') next.teamLocked = false;
+          return next;
+        }));
+        if (selAth && selAth.id === id) {
+          setSelAth(p => {
+            let next = { ...p, ...updates };
+            if (updates.status === 'accepted') next.teamLocked = true;
+            else if (updates.status && p.status === 'accepted') next.teamLocked = false;
+            return next;
+          });
+        }
+        if (activeAthlete && activeAthlete.id === id) {
+          setActiveAthlete(p => {
+            let next = { ...p, ...updates };
+            if (updates.status === 'accepted') next.teamLocked = true;
+            else if (updates.status && p.status === 'accepted') next.teamLocked = false;
+            return next;
+          });
+        }
       }} onHide=${a=>{setSelAth(null);setHideAth(a);}} onUnhide=${doUnhide} onEmail=${a=>{setSelAth(null);setEmailAth(a);setEmailTeam(a.teamAssignment||'');}}/>
     </div>`;
 }
@@ -2374,9 +2394,16 @@ function TeamOfferModal({teamKey,athletes,onClose,onSendOffer}){
                 <div style=${{fontWeight:700}}>${a.first} ${a.last}</div>
                 <div style=${{fontSize:11,color:'#78909c'}}>${posAbbr(a.primaryPos)} · ${a.status}</div>
               </div>
-              ${['accepted','declined','offered'].includes(a.status)
-                ? html`<${Badge} c=${a.status==='accepted'?'#66bb6a':a.status==='declined'?'#ef5350':'#42a5f5'} sm>${a.status}<//>`
-                : html`<${Btn} sm onClick=${()=>onSendOffer(a)} color="#f0a500">Send Offer<//>`}
+              ${a.status === 'accepted'
+                ? html`<${Badge} c="#66bb6a" sm>Accepted (Locked)<//>`
+                : html`
+                    <div style=${{display:'flex',gap:6,alignItems:'center'}}>
+                      ${['offered','declined'].includes(a.status) && html`<${Badge} c=${a.status==='declined'?'#ef5350':'#42a5f5'} sm>${a.status}<//>`}
+                      <${Btn} sm onClick=${()=>onSendOffer(a)} color="#ffa726">
+                        ${['offered','declined'].includes(a.status) ? 'Resend Offer' : 'Send Offer'}
+                      <//>
+                    </div>
+                  `}
             </div>`)}
         </div>
         <${Btn} onClick=${onClose} style=${{width:'100%'}} color="#2a2e38">Done<//>
