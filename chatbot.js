@@ -203,9 +203,9 @@ function Chatbot() {
 
         // 2. Offline Client-side RAG Engine (runs as fallback, or if no API settings are configured)
         if (response === fallbackText && kb) {
-            // 0. Priority "Expert Rule" match
-            if (q.includes('rule') || q.includes('jewelry') || q.includes('libero') || q.includes('medical form') || q.includes('re-serve') || q.includes('captain')) {
-                if (q.includes('srva') || q.includes('medical') || q.includes('notar')) {
+            // 0. Priority "Expert Rule" match with prioritized keywords
+            if (q.includes('pursuit') || q.includes('net contact') || q.includes('screening') || q.includes('10-day') || q.includes('rule') || q.includes('jewelry') || q.includes('libero') || q.includes('medical form') || q.includes('re-serve') || q.includes('captain')) {
+                if (q.includes('srva') || q.includes('medical') || q.includes('notar') || q.includes('10-day') || q.includes('offer')) {
                     response = kb.rules_and_regulations?.srva?.expert_note || response;
                 } else {
                     response = kb.rules_and_regulations?.usa_volleyball?.expert_note || response;
@@ -213,7 +213,11 @@ function Chatbot() {
                 if (kb.rules_and_regulations?.highlights) {
                     const hMatch = kb.rules_and_regulations.highlights.find(h => {
                         const hl = h.toLowerCase();
-                        return (q.includes('libero') && hl.includes('libero')) ||
+                        return (q.includes('pursuit') && hl.includes('pursuit')) ||
+                               (q.includes('net contact') && hl.includes('net contact')) ||
+                               (q.includes('screening') && hl.includes('screening')) ||
+                               (q.includes('10-day') && hl.includes('10-day')) ||
+                               (q.includes('libero') && hl.includes('libero')) ||
                                (q.includes('jewelry') && hl.includes('jewelry')) ||
                                (q.includes('re-serve') && hl.includes('re-serve')) ||
                                (q.includes('uniform') && hl.includes('uniform')) ||
@@ -242,8 +246,8 @@ function Chatbot() {
                 response = `Social Media Updates: (IG) ${kb.social_updates?.instagram} (FB) ${kb.social_updates?.facebook}`;
             } else if (q.includes('where') || q.includes('location') || q.includes('facility')) {
                 response = `We are based at Hooptown in Smyrna, TN (6910 Stroop Ln).`;
-            } else if (q.includes('offer') || q.includes('when will we know')) {
-                response = "Initial offers are typically made within 24-48 hours after the conclusion of tryouts for your age group via email/SportsEngine.";
+            } else if (q.includes('offer') || q.includes('when will we know') || q.includes('10-day')) {
+                response = "SRVA 10-day offer rule: Offers must remain open for up to 10 days before an athlete is required to accept or decline. Initial offers are typically made within 24-48 hours after the conclusion of tryouts for your age group via email/SportsEngine.";
             }
 
             // Custom trained FAQ match scan
