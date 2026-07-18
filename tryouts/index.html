@@ -1599,6 +1599,19 @@ function HeadCoach({athletes,setAthletes,onLogout}){
   };
   const showAgeNav=['depth','results','teams'].includes(view);
 
+  // ── MEMOIZED DATA AND CACHE FOR ACTIVE AGE GROUP ──
+  const ageAths = useMemo(() => {
+    return athletes.filter(a => a.ageGroup === age && !a.hidden);
+  }, [athletes, age]);
+
+  const ageScores = useMemo(() => {
+    const map = new Map();
+    ageAths.forEach(a => {
+      map.set(a.id, Number(totalScore(a.metrics, a.drillScore)) || 0);
+    });
+    return map;
+  }, [ageAths]);
+
   // ── ALL REG ──
   const [regQ,setRegQ]=useState('');
   const [addWu,setAddWu]=useState(false);
@@ -1618,63 +1631,51 @@ function HeadCoach({athletes,setAthletes,onLogout}){
 
   // ── DEPTH ──
   const depthPool=useMemo(()=>{
-    const pool = athletes.filter(a => a.ageGroup === age && !a.hidden);
-    // Pre-calculate scores for sorting
-    const scores = new Map();
-    pool.forEach(a => scores.set(a.id, Number(totalScore(a.metrics, a.drillScore)) || 0));
-
     const g = { setter: [], middle: [], outside: [], defense: [], unsorted: [] };
-    pool.forEach(a => {
+    ageAths.forEach(a => {
       (a.posCategories || [a.posCategory || 'unsorted']).forEach(cat => {
         if (g[cat]) g[cat].push(a);
         else g.unsorted.push(a);
       });
     });
-    Object.keys(g).forEach(k => g[k].sort((a, b) => scores.get(b.id) - scores.get(a.id)));
+    Object.keys(g).forEach(k => g[k].sort((a, b) => ageScores.get(b.id) - ageScores.get(a.id)));
     return g;
-  }, [athletes, age]);
+  }, [ageAths, ageScores]);
 
   // ── RESULTS ──
   const [resSort, setResSort] = useState('score');
   const resList = useMemo(() => {
-    const l = athletes.filter(a => a.ageGroup === age && !a.hidden);
+    const l = [...ageAths];
     if (resSort === 'score') {
-      const scores = new Map();
-      l.forEach(a => scores.set(a.id, Number(totalScore(a.metrics, a.drillScore)) || 0));
-      l.sort((a, b) => scores.get(b.id) - scores.get(a.id));
+      l.sort((a, b) => ageScores.get(b.id) - ageScores.get(a.id));
     } else if (resSort === 'name') {
       l.sort((a, b) => a.last.localeCompare(b.last));
     } else {
       l.sort((a, b) => (sAvg(b.metrics, resSort) || 0) - (sAvg(a.metrics, resSort) || 0));
     }
     return l;
-  }, [athletes, age, resSort]);
+  }, [ageAths, ageScores, resSort]);
 
   // ── TEAMS ──
   const [poolSort, setPoolSort] = useState('pos');
   const [showPool, setShowPool] = useState(true);
   const [dragOver, setDragOver] = useState(null);
   const [showAllPool, setShowAllPool] = useState(true);
-  const ageAths = athletes.filter(a => a.ageGroup === age && !a.hidden);
   const pool = useMemo(() => {
     let l = showAllPool ? [...ageAths] : ageAths.filter(a => !a.teamAssignment);
     if (poolSort === 'score') {
-      const scores = new Map();
-      l.forEach(a => scores.set(a.id, Number(totalScore(a.metrics, a.drillScore)) || 0));
-      l.sort((a, b) => scores.get(b.id) - scores.get(a.id));
+      l.sort((a, b) => ageScores.get(b.id) - ageScores.get(a.id));
     } else if (poolSort === 'name') {
       l.sort((a, b) => a.last.localeCompare(b.last));
     } else if (poolSort === 'pos') {
       const order = { setter: 1, middle: 2, outside: 3, defense: 4, unsorted: 5 };
-      const scores = new Map();
-      l.forEach(a => scores.set(a.id, Number(totalScore(a.metrics, a.drillScore)) || 0));
       l.sort((a, b) => {
         if (a.posCategory !== b.posCategory) return (order[a.posCategory] || 99) - (order[b.posCategory] || 99);
-        return scores.get(b.id) - scores.get(a.id);
+        return ageScores.get(b.id) - ageScores.get(a.id);
       });
     }
     return l;
-  }, [ageAths, poolSort, showAllPool]);
+  }, [ageAths, ageScores, poolSort, showAllPool]);
   const drop=(e,teamKey)=>{
     e.preventDefault();
     const id=e.dataTransfer.getData('text/plain');
