@@ -1675,6 +1675,25 @@ function HeadCoach({athletes,setAthletes,onLogout}){
     }
     return l;
   }, [ageAths, poolSort, showAllPool]);
+
+  // Optimize Team Builder: Group pre-sorted pool athletes into categories in linear O(N) time
+  const poolByCat = useMemo(() => {
+    const g = {};
+    POS_CATS.forEach(c => { g[c.key] = []; });
+    g.unsorted = [];
+
+    // Since the source 'pool' is already pre-sorted by score within categories
+    // when poolSort === 'pos', we preserve that sorted order directly in O(N).
+    pool.forEach(a => {
+      const cats = a.posCategories || [a.posCategory || 'unsorted'];
+      cats.forEach(cat => {
+        if (g[cat]) g[cat].push(a);
+        else g.unsorted.push(a);
+      });
+    });
+    return g;
+  }, [pool]);
+
   const drop=(e,teamKey)=>{
     e.preventDefault();
     const id=e.dataTransfer.getData('text/plain');
@@ -1879,8 +1898,7 @@ ${list.length===0&&html`<div style=${{padding:20,textAlign:'center',color:'#333'
                   ${poolSort==='pos'
                     ? html`<div>
                         ${[...POS_CATS,{key:'unsorted',label:'Unsorted'}].map(cat => {
-                          const listByCat = pool.filter(a => (a.posCategories || [a.posCategory]).includes(cat.key))
-                                           .sort((a,b)=>(Number(totalScore(b.metrics, b.drillScore))||0)-(Number(totalScore(a.metrics, a.drillScore))||0));
+                          const listByCat = poolByCat[cat.key] || [];
                           if(listByCat.length === 0) return null;
                           return html`
                             <div key=${cat.key} style=${{marginBottom:12,borderBottom:'1px solid #1e222b',paddingBottom:8}}>
