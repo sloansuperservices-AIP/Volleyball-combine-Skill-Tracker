@@ -1380,6 +1380,12 @@ function HeadCoach({athletes,setAthletes,onLogout}){
   const [confirmCheckInAth,setConfirmCheckInAth]=useState(null);
   const [widePool,setWidePool]=useState(false);
 
+  // Memoize ageAths to prevent reference identity changes on every render of the HeadCoach component,
+  // and declare it before other hooks (depthPool, resList, etc.) to avoid initialization issues during component mounting.
+  const ageAths = useMemo(() => {
+    return athletes.filter(a => a.ageGroup === age && !a.hidden);
+  }, [athletes, age]);
+
   // ── ADMIN & CONFIG STATE ──────────────────────────────────────
   const [emailConfig, setEmailConfig] = useState(() => {
     try {
@@ -1618,13 +1624,12 @@ function HeadCoach({athletes,setAthletes,onLogout}){
 
   // ── DEPTH ──
   const depthPool=useMemo(()=>{
-    const pool = athletes.filter(a => a.ageGroup === age && !a.hidden);
     // Pre-calculate scores for sorting
     const scores = new Map();
-    pool.forEach(a => scores.set(a.id, Number(totalScore(a.metrics, a.drillScore)) || 0));
+    ageAths.forEach(a => scores.set(a.id, Number(totalScore(a.metrics, a.drillScore)) || 0));
 
     const g = { setter: [], middle: [], outside: [], defense: [], unsorted: [] };
-    pool.forEach(a => {
+    ageAths.forEach(a => {
       (a.posCategories || [a.posCategory || 'unsorted']).forEach(cat => {
         if (g[cat]) g[cat].push(a);
         else g.unsorted.push(a);
@@ -1632,12 +1637,12 @@ function HeadCoach({athletes,setAthletes,onLogout}){
     });
     Object.keys(g).forEach(k => g[k].sort((a, b) => scores.get(b.id) - scores.get(a.id)));
     return g;
-  }, [athletes, age]);
+  }, [ageAths]);
 
   // ── RESULTS ──
   const [resSort, setResSort] = useState('score');
   const resList = useMemo(() => {
-    const l = athletes.filter(a => a.ageGroup === age && !a.hidden);
+    const l = [...ageAths];
     if (resSort === 'score') {
       const scores = new Map();
       l.forEach(a => scores.set(a.id, Number(totalScore(a.metrics, a.drillScore)) || 0));
@@ -1648,14 +1653,13 @@ function HeadCoach({athletes,setAthletes,onLogout}){
       l.sort((a, b) => (sAvg(b.metrics, resSort) || 0) - (sAvg(a.metrics, resSort) || 0));
     }
     return l;
-  }, [athletes, age, resSort]);
+  }, [ageAths, resSort]);
 
   // ── TEAMS ──
   const [poolSort, setPoolSort] = useState('pos');
   const [showPool, setShowPool] = useState(true);
   const [dragOver, setDragOver] = useState(null);
   const [showAllPool, setShowAllPool] = useState(true);
-  const ageAths = athletes.filter(a => a.ageGroup === age && !a.hidden);
   const pool = useMemo(() => {
     let l = showAllPool ? [...ageAths] : ageAths.filter(a => !a.teamAssignment);
     if (poolSort === 'score') {
@@ -1675,6 +1679,29 @@ function HeadCoach({athletes,setAthletes,onLogout}){
     }
     return l;
   }, [ageAths, poolSort, showAllPool]);
+
+  // Schwartzian Transform based memoized categories for O(1) score lookups and linear overhead
+  const poolByCat = useMemo(() => {
+    if (poolSort !== 'pos') return {};
+    const scores = new Map();
+    pool.forEach(a => scores.set(a.id, Number(totalScore(a.metrics, a.drillScore)) || 0));
+
+    const g = { setter: [], middle: [], outside: [], defense: [], unsorted: [] };
+    pool.forEach(a => {
+      const cats = a.posCategories || [a.posCategory || 'unsorted'];
+      cats.forEach(cat => {
+        if (g[cat]) g[cat].push(a);
+        else g.unsorted.push(a);
+      });
+    });
+
+    Object.keys(g).forEach(k => {
+      g[k].sort((a, b) => scores.get(b.id) - scores.get(a.id));
+    });
+
+    return g;
+  }, [pool, poolSort]);
+
   const drop=(e,teamKey)=>{
     e.preventDefault();
     const id=e.dataTransfer.getData('text/plain');
@@ -1879,8 +1906,7 @@ ${list.length===0&&html`<div style=${{padding:20,textAlign:'center',color:'#333'
                   ${poolSort==='pos'
                     ? html`<div>
                         ${[...POS_CATS,{key:'unsorted',label:'Unsorted'}].map(cat => {
-                          const listByCat = pool.filter(a => (a.posCategories || [a.posCategory]).includes(cat.key))
-                                           .sort((a,b)=>(Number(totalScore(b.metrics, b.drillScore))||0)-(Number(totalScore(a.metrics, a.drillScore))||0));
+                          const listByCat = poolByCat[cat.key] || [];
                           if(listByCat.length === 0) return null;
                           return html`
                             <div key=${cat.key} style=${{marginBottom:12,borderBottom:'1px solid #1e222b',paddingBottom:8}}>
