@@ -595,10 +595,22 @@ function CheckInConfirmModal({ athlete, onClose, onConfirm }) {
   if (!athlete) return null;
   const [phone, setPhone] = useState(athlete.phone || '');
   const [email, setEmail] = useState(athlete.email || '');
+  const [drillScore, setDrillScore] = useState(athlete.drillScore || '');
+
+  // Keep state in sync with athlete when modal re-opens/changes
+  useEffect(() => {
+    setPhone(athlete.phone || '');
+    setEmail(athlete.email || '');
+    setDrillScore(athlete.drillScore || '');
+  }, [athlete]);
 
   const handleConfirm = () => {
     if (!phone.trim() || !email.trim()) return;
-    onConfirm(athlete.id, { phone: phone.trim(), email: email.trim() });
+    onConfirm(athlete.id, {
+      phone: phone.trim(),
+      email: email.trim(),
+      drillScore: drillScore.trim()
+    });
   };
 
   const isValid = phone.trim().length >= 7 && email.trim().includes('@');
@@ -616,9 +628,14 @@ function CheckInConfirmModal({ athlete, onClose, onConfirm }) {
           <input class="input" value=${phone} onInput=${e=>setPhone(e.target.value)} placeholder="e.g. 615-555-0199"/>
         </div>
         
-        <div style=${{marginBottom:20}}>
+        <div style=${{marginBottom:12}}>
           <label class="label">Email Address *</label>
           <input class="input" type="email" value=${email} onInput=${e=>setEmail(e.target.value)} placeholder="e.g. parent@email.com"/>
+        </div>
+
+        <div style=${{marginBottom:20}}>
+          <label class="label" style=${{color:'#f0a500'}}>Drill Score (optional, 1-10)</label>
+          <input class="input" type="number" min="0" max="10" step="0.5" value=${drillScore} onInput=${e=>setDrillScore(e.target.value)} placeholder="e.g. 8.5" style=${{borderColor:'#f0a50044',fontWeight:700}}/>
         </div>
         
         <div style=${{display:'flex',gap:10,justifyContent:'flex-end'}}>
@@ -873,10 +890,12 @@ function StaffDashboard({athletes, setAthletes, onArrive, onAddWalkup, onMetric,
                     if(!isWuValid) return;
                     const id=`wu-${Date.now()}`;
                     const toN = String(200+athletes.filter(a=>a.isWalkup).length);
-                    onAddWalkup({...walkupForm,id,to:toN,isWalkup:true,arrived:true,status:'arrived'});
-                    setRecentCheckins(p=>[{...walkupForm,to:toN,isWalkup:true},...p].slice(0,6));
+                    const newAth = {...walkupForm,id,to:toN,isWalkup:true,arrived:true,status:'arrived',metrics:{}};
+                    onAddWalkup(newAth);
+                    setRecentCheckins(p=>[newAth,...p].slice(0,6));
                     setWalkupForm({first:'',last:'',dob:'',division:'12 & Under',primaryPos:'Outside Hitter',altPos:'N/A',phone:'',email:''});
                     setShowWalkup(false);
+                    handleGlobalAction(newAth, 's1');
                   }} disabled=${!(walkupForm.first.trim() && walkupForm.last.trim() && walkupForm.phone.trim().length >= 7 && walkupForm.email.trim().includes('@'))} style=${{width:'100%',padding:10}}>Register & Check In ✓<//>
                 </div>
               ` : html`
@@ -1091,7 +1110,20 @@ function StaffDashboard({athletes, setAthletes, onArrive, onAddWalkup, onMetric,
         setAthletes(prev => prev.map(a => a.id === id ? { ...a, ...updates } : a));
         if (selAth && selAth.id === id) setSelAth(p => ({ ...p, ...updates }));
         if (activeAthlete && activeAthlete.id === id) setActiveAthlete(p => ({ ...p, ...updates }));
-      }} onHide=${a=>{setSelAth(null);setHideAth(a);}} onUnhide=${doUnhide} onEmail=${a=>{setSelAth(null);setEmailAth(a);setEmailTeam(a.teamAssignment||'');}}/>
+      }}
+      onHide=${a=>{
+        if(confirm(`Hide ${a.first} ${a.last}?`)) {
+          setAthletes(prev => prev.map(x => x.id === a.id ? { ...x, hidden: true, hideReason: 'Other', teamAssignment: null, teamLocked: false } : x));
+          setSelAth(null);
+        }
+      }}
+      onUnhide=${id=>{
+        setAthletes(prev => prev.map(x => x.id === id ? { ...x, hidden: false, hideReason: '', hideNote: '' } : x));
+        setSelAth(null);
+      }}
+      onEmail=${a=>{
+        alert("Emailing/Offer management is restricted to Head Coach.");
+      }}/>
     </div>`;
 }
 
@@ -1616,15 +1648,19 @@ function HeadCoach({athletes,setAthletes,onLogout}){
     setAddWu(false);
   };
 
+  // ── MEMOIZED AGE GROUP FILTER ──
+  const ageAths = useMemo(() => {
+    return athletes.filter(a => a.ageGroup === age && !a.hidden);
+  }, [athletes, age]);
+
   // ── DEPTH ──
-  const depthPool=useMemo(()=>{
-    const pool = athletes.filter(a => a.ageGroup === age && !a.hidden);
+  const depthPool = useMemo(() => {
     // Pre-calculate scores for sorting
     const scores = new Map();
-    pool.forEach(a => scores.set(a.id, Number(totalScore(a.metrics, a.drillScore)) || 0));
+    ageAths.forEach(a => scores.set(a.id, Number(totalScore(a.metrics, a.drillScore)) || 0));
 
     const g = { setter: [], middle: [], outside: [], defense: [], unsorted: [] };
-    pool.forEach(a => {
+    ageAths.forEach(a => {
       (a.posCategories || [a.posCategory || 'unsorted']).forEach(cat => {
         if (g[cat]) g[cat].push(a);
         else g.unsorted.push(a);
@@ -1632,12 +1668,12 @@ function HeadCoach({athletes,setAthletes,onLogout}){
     });
     Object.keys(g).forEach(k => g[k].sort((a, b) => scores.get(b.id) - scores.get(a.id)));
     return g;
-  }, [athletes, age]);
+  }, [ageAths]);
 
   // ── RESULTS ──
   const [resSort, setResSort] = useState('score');
   const resList = useMemo(() => {
-    const l = athletes.filter(a => a.ageGroup === age && !a.hidden);
+    const l = [...ageAths];
     if (resSort === 'score') {
       const scores = new Map();
       l.forEach(a => scores.set(a.id, Number(totalScore(a.metrics, a.drillScore)) || 0));
@@ -1648,33 +1684,43 @@ function HeadCoach({athletes,setAthletes,onLogout}){
       l.sort((a, b) => (sAvg(b.metrics, resSort) || 0) - (sAvg(a.metrics, resSort) || 0));
     }
     return l;
-  }, [athletes, age, resSort]);
+  }, [ageAths, resSort]);
 
   // ── TEAMS ──
   const [poolSort, setPoolSort] = useState('pos');
   const [showPool, setShowPool] = useState(true);
   const [dragOver, setDragOver] = useState(null);
   const [showAllPool, setShowAllPool] = useState(true);
-  const ageAths = athletes.filter(a => a.ageGroup === age && !a.hidden);
+
   const pool = useMemo(() => {
     let l = showAllPool ? [...ageAths] : ageAths.filter(a => !a.teamAssignment);
-    if (poolSort === 'score') {
+    if (poolSort === 'score' || poolSort === 'pos') {
       const scores = new Map();
       l.forEach(a => scores.set(a.id, Number(totalScore(a.metrics, a.drillScore)) || 0));
       l.sort((a, b) => scores.get(b.id) - scores.get(a.id));
     } else if (poolSort === 'name') {
       l.sort((a, b) => a.last.localeCompare(b.last));
-    } else if (poolSort === 'pos') {
-      const order = { setter: 1, middle: 2, outside: 3, defense: 4, unsorted: 5 };
-      const scores = new Map();
-      l.forEach(a => scores.set(a.id, Number(totalScore(a.metrics, a.drillScore)) || 0));
-      l.sort((a, b) => {
-        if (a.posCategory !== b.posCategory) return (order[a.posCategory] || 99) - (order[b.posCategory] || 99);
-        return scores.get(b.id) - scores.get(a.id);
-      });
     }
     return l;
   }, [ageAths, poolSort, showAllPool]);
+
+  const poolByCat = useMemo(() => {
+    const categories = {};
+    POS_CATS.forEach(c => { categories[c.key] = []; });
+    categories['unsorted'] = [];
+
+    pool.forEach(a => {
+      const cats = a.posCategories || [a.posCategory || 'unsorted'];
+      cats.forEach(cat => {
+        if (categories[cat]) {
+          categories[cat].push(a);
+        } else {
+          categories['unsorted'].push(a);
+        }
+      });
+    });
+    return categories;
+  }, [pool]);
   const drop=(e,teamKey)=>{
     e.preventDefault();
     const id=e.dataTransfer.getData('text/plain');
@@ -1879,8 +1925,7 @@ ${list.length===0&&html`<div style=${{padding:20,textAlign:'center',color:'#333'
                   ${poolSort==='pos'
                     ? html`<div>
                         ${[...POS_CATS,{key:'unsorted',label:'Unsorted'}].map(cat => {
-                          const listByCat = pool.filter(a => (a.posCategories || [a.posCategory]).includes(cat.key))
-                                           .sort((a,b)=>(Number(totalScore(b.metrics, b.drillScore))||0)-(Number(totalScore(a.metrics, a.drillScore))||0));
+                          const listByCat = poolByCat[cat.key] || [];
                           if(listByCat.length === 0) return null;
                           return html`
                             <div key=${cat.key} style=${{marginBottom:12,borderBottom:'1px solid #1e222b',paddingBottom:8}}>
