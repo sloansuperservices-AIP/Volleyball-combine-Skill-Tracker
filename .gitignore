@@ -1,0 +1,6 @@
+# Logs and temp files
+*.log
+temp_script_*
+.last-run.json
+test-results/
+.jules/
