@@ -1616,13 +1616,22 @@ function HeadCoach({athletes,setAthletes,onLogout}){
     setAddWu(false);
   };
 
+  // ── MEMOIZED ATHLETES BY AGE ──
+  const ageAths = useMemo(() => athletes.filter(a => a.ageGroup === age && !a.hidden), [athletes, age]);
+
+  // ── MEMOIZED ATHLETE SCORES BY AGE (Map cache) ──
+  const ageScores = useMemo(() => {
+    const scores = new Map();
+    for (let i = 0, len = ageAths.length; i < len; i++) {
+      const a = ageAths[i];
+      scores.set(a.id, totalScore(a.metrics, a.drillScore));
+    }
+    return scores;
+  }, [ageAths]);
+
   // ── DEPTH ──
   const depthPool=useMemo(()=>{
-    const pool = athletes.filter(a => a.ageGroup === age && !a.hidden);
-    // Pre-calculate scores for sorting
-    const scores = new Map();
-    pool.forEach(a => scores.set(a.id, Number(totalScore(a.metrics, a.drillScore)) || 0));
-
+    const pool = ageAths;
     const g = { setter: [], middle: [], outside: [], defense: [], unsorted: [] };
     pool.forEach(a => {
       (a.posCategories || [a.posCategory || 'unsorted']).forEach(cat => {
@@ -1630,51 +1639,58 @@ function HeadCoach({athletes,setAthletes,onLogout}){
         else g.unsorted.push(a);
       });
     });
-    Object.keys(g).forEach(k => g[k].sort((a, b) => scores.get(b.id) - scores.get(a.id)));
+    Object.keys(g).forEach(k => g[k].sort((a, b) => {
+      const scoreA = Number(ageScores.get(a.id)) || 0;
+      const scoreB = Number(ageScores.get(b.id)) || 0;
+      return scoreB - scoreA;
+    }));
     return g;
-  }, [athletes, age]);
+  }, [ageAths, ageScores]);
 
   // ── RESULTS ──
   const [resSort, setResSort] = useState('score');
   const resList = useMemo(() => {
-    const l = athletes.filter(a => a.ageGroup === age && !a.hidden);
+    const l = [...ageAths];
     if (resSort === 'score') {
-      const scores = new Map();
-      l.forEach(a => scores.set(a.id, Number(totalScore(a.metrics, a.drillScore)) || 0));
-      l.sort((a, b) => scores.get(b.id) - scores.get(a.id));
+      l.sort((a, b) => {
+        const scoreA = Number(ageScores.get(a.id)) || 0;
+        const scoreB = Number(ageScores.get(b.id)) || 0;
+        return scoreB - scoreA;
+      });
     } else if (resSort === 'name') {
       l.sort((a, b) => a.last.localeCompare(b.last));
     } else {
       l.sort((a, b) => (sAvg(b.metrics, resSort) || 0) - (sAvg(a.metrics, resSort) || 0));
     }
     return l;
-  }, [athletes, age, resSort]);
+  }, [ageAths, ageScores, resSort]);
 
   // ── TEAMS ──
   const [poolSort, setPoolSort] = useState('pos');
   const [showPool, setShowPool] = useState(true);
   const [dragOver, setDragOver] = useState(null);
   const [showAllPool, setShowAllPool] = useState(true);
-  const ageAths = athletes.filter(a => a.ageGroup === age && !a.hidden);
   const pool = useMemo(() => {
     let l = showAllPool ? [...ageAths] : ageAths.filter(a => !a.teamAssignment);
     if (poolSort === 'score') {
-      const scores = new Map();
-      l.forEach(a => scores.set(a.id, Number(totalScore(a.metrics, a.drillScore)) || 0));
-      l.sort((a, b) => scores.get(b.id) - scores.get(a.id));
+      l.sort((a, b) => {
+        const scoreA = Number(ageScores.get(a.id)) || 0;
+        const scoreB = Number(ageScores.get(b.id)) || 0;
+        return scoreB - scoreA;
+      });
     } else if (poolSort === 'name') {
       l.sort((a, b) => a.last.localeCompare(b.last));
     } else if (poolSort === 'pos') {
       const order = { setter: 1, middle: 2, outside: 3, defense: 4, unsorted: 5 };
-      const scores = new Map();
-      l.forEach(a => scores.set(a.id, Number(totalScore(a.metrics, a.drillScore)) || 0));
       l.sort((a, b) => {
         if (a.posCategory !== b.posCategory) return (order[a.posCategory] || 99) - (order[b.posCategory] || 99);
-        return scores.get(b.id) - scores.get(a.id);
+        const scoreA = Number(ageScores.get(a.id)) || 0;
+        const scoreB = Number(ageScores.get(b.id)) || 0;
+        return scoreB - scoreA;
       });
     }
     return l;
-  }, [ageAths, poolSort, showAllPool]);
+  }, [ageAths, ageScores, poolSort, showAllPool]);
   const drop=(e,teamKey)=>{
     e.preventDefault();
     const id=e.dataTransfer.getData('text/plain');
@@ -1804,7 +1820,10 @@ function HeadCoach({athletes,setAthletes,onLogout}){
                           ${otherPos && otherPos !== 'N/A' && otherPos !== 'none' && html`
                             <span style=${{fontSize:10,color:'#4fc3f7',background:'rgba(79,195,247,0.1)',padding:'1px 4px',borderRadius:4,marginRight:4,border:'1px solid rgba(79,195,247,0.2)'}}>${label}: ${posAbbr(otherPos)}</span>
                           `}
-                          ${totalScore(a.metrics, a.drillScore)&&html`<${Badge} c=${scoreColor(totalScore(a.metrics, a.drillScore))} sm>${totalScore(a.metrics, a.drillScore)}<//>`}
+                          ${(() => {
+                            const sc = ageScores.get(a.id);
+                            return sc && html`<${Badge} c=${scoreColor(sc)} sm>${sc}<//>`;
+                          })()}
                           ${a.wontAccept&&html`<span title=${'WON\'T ACCEPT: ' + a.wontAccept} aria-label=${'Restriction: ' + a.wontAccept}>⚠️</span>`}
                           ${a.notes&&html`<span title=${'NOTES: ' + a.notes} aria-label=${'Notes: ' + a.notes}>📝</span>`}
                         </div>`;
@@ -1828,7 +1847,7 @@ ${list.length===0&&html`<div style=${{padding:20,textAlign:'center',color:'#333'
                   ${STATIONS.filter(s=>!s.isCheckin).map(s=>html`<th key=${s.key+'a'} style=${{color:'#ffa726'}}>Avg</th>`)}
                   <th style=${{color:'#f0a500'}}>Drill</th>
                   <th style=${{color:'#66bb6a'}}>Total</th><th>Status</th></tr></thead>
-                <tbody>${resList.map((a,ri)=>{const sc=totalScore(a.metrics, a.drillScore);return html`
+                <tbody>${resList.map((a,ri)=>{const sc=ageScores.get(a.id);return html`
                   <tr key=${a.id} onClick=${()=>setSelAth(a)} style=${{background:ri%2===0?'transparent':'#0a0d12'}}>
                     <td style=${{fontFamily:'monospace',color:'#4fc3f7'}}>${a.to}</td>
                     <td style=${{fontWeight:600}}>${a.first} ${a.last}${a.isWalkup&&html`<span style=${{marginLeft:4,fontSize:10,color:'#ffa726'}}>WU</span>`}</td>
