@@ -1616,9 +1616,14 @@ function HeadCoach({athletes,setAthletes,onLogout}){
     setAddWu(false);
   };
 
+  // Memoized age-specific athletes to avoid redundant filtering and recalculating on unrelated renders
+  const ageAths = useMemo(() => {
+    return athletes.filter(a => a.ageGroup === age && !a.hidden);
+  }, [athletes, age]);
+
   // ── DEPTH ──
   const depthPool=useMemo(()=>{
-    const pool = athletes.filter(a => a.ageGroup === age && !a.hidden);
+    const pool = ageAths;
     // Pre-calculate scores for sorting
     const scores = new Map();
     pool.forEach(a => scores.set(a.id, Number(totalScore(a.metrics, a.drillScore)) || 0));
@@ -1632,12 +1637,13 @@ function HeadCoach({athletes,setAthletes,onLogout}){
     });
     Object.keys(g).forEach(k => g[k].sort((a, b) => scores.get(b.id) - scores.get(a.id)));
     return g;
-  }, [athletes, age]);
+  }, [ageAths]);
 
   // ── RESULTS ──
   const [resSort, setResSort] = useState('score');
   const resList = useMemo(() => {
-    const l = athletes.filter(a => a.ageGroup === age && !a.hidden);
+    // Clone ageAths to avoid mutating the memoized array when sorting in-place
+    const l = [...ageAths];
     if (resSort === 'score') {
       const scores = new Map();
       l.forEach(a => scores.set(a.id, Number(totalScore(a.metrics, a.drillScore)) || 0));
@@ -1648,14 +1654,13 @@ function HeadCoach({athletes,setAthletes,onLogout}){
       l.sort((a, b) => (sAvg(b.metrics, resSort) || 0) - (sAvg(a.metrics, resSort) || 0));
     }
     return l;
-  }, [athletes, age, resSort]);
+  }, [ageAths, resSort]);
 
   // ── TEAMS ──
   const [poolSort, setPoolSort] = useState('pos');
   const [showPool, setShowPool] = useState(true);
   const [dragOver, setDragOver] = useState(null);
   const [showAllPool, setShowAllPool] = useState(true);
-  const ageAths = athletes.filter(a => a.ageGroup === age && !a.hidden);
   const pool = useMemo(() => {
     let l = showAllPool ? [...ageAths] : ageAths.filter(a => !a.teamAssignment);
     if (poolSort === 'score') {
