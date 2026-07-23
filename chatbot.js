@@ -341,11 +341,14 @@ function Chatbot() {
     return html`
         <div style=${{ fontFamily: 'Inter, sans-serif' }}>
             ${!isOpen && html`
-                <button onClick=${() => setIsOpen(true)} id="volley-ai-trigger" style=${{
-                    width: '60px', height: '60px', borderRadius: '50%', backgroundColor: '#f0a500',
-                    border: 'none', color: '#000', fontSize: '24px', cursor: 'pointer',
-                    boxShadow: '0 4px 12px rgba(0,0,0,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center'
-                }}>🏐</button>
+                <button onClick=${() => setIsOpen(true)} id="volley-ai-trigger"
+                    aria-label="Open Volley AI Expert Chatbot"
+                    title="Open Volley AI Expert Chatbot"
+                    style=${{
+                        width: '60px', height: '60px', borderRadius: '50%', backgroundColor: '#f0a500',
+                        border: 'none', color: '#000', fontSize: '24px', cursor: 'pointer',
+                        boxShadow: '0 4px 12px rgba(0,0,0,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center'
+                    }}>🏐</button>
             `}
             ${isOpen && html`
                 <div id="chatbot-window" style=${{
@@ -358,9 +361,12 @@ function Chatbot() {
                         display: 'flex', justifySelf: 'stretch', justifyContent: 'space-between', alignItems: 'center'
                     }}>
                         <span>Volley AI Expert</span>
-                        <button onClick=${() => setIsOpen(false)} style=${{
-                            background: 'none', border: 'none', color: '#000', fontSize: '20px', cursor: 'pointer'
-                        }}>×</button>
+                        <button onClick=${() => setIsOpen(false)}
+                            aria-label="Close Volley AI Expert Chatbot"
+                            title="Close"
+                            style=${{
+                                background: 'none', border: 'none', color: '#000', fontSize: '20px', cursor: 'pointer'
+                            }}>×</button>
                     </div>
                     <div style=${{ flex: 1, padding: '16px', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '8px' }}>
                         <div style=${{ fontSize: '11px', color: '#78909c', textAlign: 'center', marginBottom: '8px' }}>

@@ -1133,7 +1133,7 @@ function AthleteModal({athlete,onClose,onChange,onHide,onUnhide,onEmail}){
               ${athlete.wontAccept&&html`<span title=${athlete.wontAccept}>⚠️</span>`}
             </div>
           </div>
-          <button onClick=${onClose} style=${{background:'none',border:'none',color:'#666',fontSize:24,cursor:'pointer'}}>×</button>
+          <button onClick=${onClose} aria-label="Close athlete details modal" title="Close" style=${{background:'none',border:'none',color:'#666',fontSize:24,cursor:'pointer'}}>×</button>
         </div>
         <div style=${{display:'grid',gridTemplateColumns:'1fr 1fr',gap:'12px 20px',marginBottom:16}}>
           ${F('First Name','first')}${F('Last Name','last')}
@@ -1292,7 +1292,7 @@ function EmailModal({athlete,team,onClose,onSend,initialType='offer'}){
       <div class="modal-box" style=${{width:560}} onClick=${e=>e.stopPropagation()}>
         <div style=${{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:12}}>
           <h3 style=${{margin:0,fontSize:16}}>Compose Email — ${athlete.first} ${athlete.last}</h3>
-          <button onClick=${onClose} style=${{background:'none',border:'none',color:'#666',fontSize:24,cursor:'pointer'}}>×</button>
+          <button onClick=${onClose} aria-label="Close compose email modal" title="Close" style=${{background:'none',border:'none',color:'#666',fontSize:24,cursor:'pointer'}}>×</button>
         </div>
         
         <div style=${{display:'grid',gridTemplateColumns:'1fr 1fr',gap:12,marginBottom:12}}>
@@ -1943,6 +1943,8 @@ ${list.length===0&&html`<div style=${{padding:20,textAlign:'center',color:'#333'
                           <div key=${a.id} style=${{position:'relative'}}>
                             <${PCard} athlete=${a} onClick=${setSelAth} compact showScore teamKey=${key}/>
                             ${!isLocked&&html`<button onClick=${()=>upd(a.id,{teamAssignment:null,teamLocked:false})}
+                              aria-label=${"Remove " + a.first + " " + a.last + " from roster"}
+                              title="Remove from roster"
                               style=${{position:'absolute',right:4,top:'50%',transform:'translateY(-50%)',background:'#ef535033',border:'none',borderRadius:4,color:'#ef5350',cursor:'pointer',fontSize:10,padding:'2px 5px'}}>×</button>`}
                           </div>`)}
                         ${declined.length>0&&html`
@@ -2102,7 +2104,10 @@ ${list.length===0&&html`<div style=${{padding:20,textAlign:'center',color:'#333'
                     ${linkedFolders.map((f,idx)=>html`
                       <div key=${idx} style=${{display:'flex',justifyContent:'space-between',alignItems:'center',fontSize:12,padding:'3px 0',borderBottom:'1px solid #1e222b'}}>
                         <span style=${{fontFamily:'monospace',wordBreak:'break-all'}}>${f}</span>
-                        <button onClick=${()=>saveLinkedFolders(linkedFolders.filter((_,i)=>i!==idx))} style=${{background:'none',border:'none',color:'#ef5350',cursor:'pointer',fontSize:12}}>✕</button>
+                        <button onClick=${()=>saveLinkedFolders(linkedFolders.filter((_,i)=>i!==idx))}
+                          aria-label=${"Unlink folder " + f}
+                          title="Unlink folder"
+                          style=${{background:'none',border:'none',color:'#ef5350',cursor:'pointer',fontSize:12}}>✕</button>
                       </div>
                     `)}
                     ${!linkedFolders.length && html`<div style=${{color:'#444',textAlign:'center',padding:10}}>No directories linked</div>`}
@@ -2140,7 +2145,10 @@ ${list.length===0&&html`<div style=${{padding:20,textAlign:'center',color:'#333'
                           <button onClick=${()=>{
                             const docs = kb.active_documents.filter((_,i)=>i!==idx);
                             saveKb({ ...kb, active_documents: docs });
-                          }} style=${{background:'none',border:'none',color:'#ef5350',cursor:'pointer',fontSize:12}}>✕</button>
+                          }}
+                            aria-label=${"Remove document " + doc.name}
+                            title="Remove document"
+                            style=${{background:'none',border:'none',color:'#ef5350',cursor:'pointer',fontSize:12}}>✕</button>
                         </div>
                       `)}
                       ${(!kb?.active_documents || !kb?.active_documents?.length) && html`<div style=${{color:'#444',textAlign:'center',padding:10}}>No active training documents loaded</div>`}
@@ -2191,7 +2199,10 @@ ${list.length===0&&html`<div style=${{padding:20,textAlign:'center',color:'#333'
                                 const next = {...kb};
                                 next.faq = next.faq.filter((_,i)=>i!==idx);
                                 saveKb(next);
-                              }} style=${{background:'none',border:'none',color:'#ef5350',cursor:'pointer',fontSize:11}}>✕ Remove</button>
+                              }}
+                                aria-label=${"Remove FAQ number " + (idx + 1)}
+                                title="Remove FAQ"
+                                style=${{background:'none',border:'none',color:'#ef5350',cursor:'pointer',fontSize:11}}>✕ Remove</button>
                             </div>
                             <input class="input" placeholder="Question" value=${item.question}
                               onInput=${e=>{
@@ -2365,7 +2376,7 @@ function TeamOfferModal({teamKey,athletes,onClose,onSendOffer}){
       <div class="modal-box" style=${{width:500}} onClick=${e=>e.stopPropagation()}>
         <div style=${{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:16}}>
           <h3 style=${{margin:0}}>${age} ${lvl} — Send Offers</h3>
-          <button onClick=${onClose} style=${{background:'none',border:'none',color:'#666',fontSize:24,cursor:'pointer'}}>×</button>
+          <button onClick=${onClose} aria-label="Close send offers modal" title="Close" style=${{background:'none',border:'none',color:'#666',fontSize:24,cursor:'pointer'}}>×</button>
         </div>
         <div style=${{maxHeight:400,overflowY:'auto',marginBottom:16}}>
           ${roster.map(a=>html`
