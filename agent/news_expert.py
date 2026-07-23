@@ -71,8 +71,8 @@ def pull_social_news():
     """Attempts to pull updates from Facebook and Instagram meta tags."""
     print("Fetching Social Media news via meta tags...")
     social = {
-        "instagram": "Check @midtnvbc on Instagram for latest photos and reels from training!",
-        "facebook": "Visit Mid TN VBC on Facebook for community updates and event photos."
+        "instagram": "Follow @midtnvbc on Instagram for Skills Week themes, camp highlights, and tournament action photos! Visit: https://www.instagram.com/midtnvbc/",
+        "facebook": "Follow Mid TN VBC on Facebook for important community updates, schedule changes, and event announcements! Visit: https://www.facebook.com/midtnvbc"
     }
 
     headers = {
@@ -88,13 +88,8 @@ def pull_social_news():
             meta_desc = soup.find("meta", property="og:description") or soup.find("meta", attrs={"name": "description"})
             if meta_desc and meta_desc.get("content"):
                 social["facebook"] = meta_desc["content"]
-            else:
-                social["facebook"] = "Latest social media updates are currently unavailable; please visit our Facebook page."
-        else:
-            social["facebook"] = "Latest social media updates are currently unavailable; please visit our Facebook page."
     except Exception as e:
         print(f"Error pulling Facebook news: {e}")
-        social["facebook"] = "Latest social media updates are currently unavailable; please visit our Facebook page."
 
     # Instagram
     try:
@@ -104,13 +99,8 @@ def pull_social_news():
             meta_desc = soup.find("meta", property="og:description") or soup.find("meta", attrs={"name": "description"})
             if meta_desc and meta_desc.get("content"):
                 social["instagram"] = meta_desc["content"]
-            else:
-                social["instagram"] = "Latest social media updates are currently unavailable; please visit our Instagram page."
-        else:
-            social["instagram"] = "Latest social media updates are currently unavailable; please visit our Instagram page."
     except Exception as e:
         print(f"Error pulling Instagram news: {e}")
-        social["instagram"] = "Latest social media updates are currently unavailable; please visit our Instagram page."
 
     return social
 
@@ -285,15 +275,19 @@ def run_daemon():
             target += datetime.timedelta(days=1)
 
         wait_seconds = (target - now).total_seconds()
-        print(f"Next run scheduled for {target}. Sleeping for {wait_seconds/3600:.2f} hours.")
+        print(f"Next run scheduled for {target}. Sleeping for {wait_seconds:.2f} seconds.")
 
-        # In a real daemon we would sleep. For the sandbox, we'll run once and simulate.
-        # But for the sake of the task, the logic is correct.
-        time.sleep(min(wait_seconds, 3600))
+        # Sleep until target time
+        while datetime.datetime.now() < target:
+            to_sleep = min((target - datetime.datetime.now()).total_seconds(), 3600)
+            if to_sleep > 0:
+                time.sleep(to_sleep)
 
-        if datetime.datetime.now() >= target:
-            print(f"Executing daily update at {datetime.datetime.now()}...")
+        print(f"Executing daily update at {datetime.datetime.now()}...")
+        try:
             update_knowledge_base()
+        except Exception as e:
+            print(f"Error during scheduled daily update: {e}")
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Mid TN VBC News Expert Agent")
