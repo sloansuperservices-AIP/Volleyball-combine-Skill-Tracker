@@ -7,6 +7,36 @@
   },
   "news": [
     {
+      "title": "U.S. Women Bow Out of 2026 VNL with Quarterfinal Loss to Host China",
+      "date": "2026-07-23",
+      "summary": "Source: USA Volleyball. Link: https://usavolleyball.org/story/u-s-women-bow-out-of-2026-vnl-with-quarterfinal-loss-to-host-china/"
+    },
+    {
+      "title": "U.S. Starts 2026 Women\u2019s U19 NORCECA Continental Championship with Win over Cuba",
+      "date": "2026-07-23",
+      "summary": "Source: USA Volleyball. Link: https://usavolleyball.org/story/u-s-starts-2026-womens-u19-norceca-continental-championship-with-win-over-cuba/"
+    },
+    {
+      "title": "U.S. Men Fall to No. 1 Poland to Finish 2026 VNL Week Three; Earn Fifth Seed for VNL Finals",
+      "date": "2026-07-23",
+      "summary": "Source: USA Volleyball. Link: https://usavolleyball.org/story/u-s-men-fall-to-no-1-poland-to-finish-2026-vnl-week-three-earn-fifth-seed-for-vnl-finals/"
+    },
+    {
+      "title": "USAV Announces 2026 Girls Indoor NTDP Summer Training Series",
+      "date": "2026-07-23",
+      "summary": "Source: USA Volleyball. Link: https://usavolleyball.org/story/usav-announces-2026-girls-indoor-ntdp-summer-training-series/"
+    },
+    {
+      "title": "U.S. Women\u2019s U19 Finishes 2026 Continental Champs Pool Play Undefeated",
+      "date": "2026-07-23",
+      "summary": "Source: USA Volleyball. Link: https://usavolleyball.org/story/u-s-womens-u19-finishes-2026-continental-champs-pool-play-undefeated/"
+    },
+    {
+      "title": "2026 Women\u2019s Volleyball Nations League Final",
+      "date": "2026-07-23",
+      "summary": "Source: USA Volleyball. Link: https://usavolleyball.org/event/2026-womens-volleyball-nations-league-final/"
+    },
+    {
       "title": "U.S. Upends Canada to Reach Semifinals at 2026 Women\u2019s U21 Pan American Cup",
       "date": "2026-07-10",
       "summary": "Source: USA Volleyball. Link: https://usavolleyball.org/story/u-s-upends-canada-to-reach-semifinals-at-2026-womens-u21-pan-american-cup/"
@@ -107,10 +137,10 @@
     }
   ],
   "social_updates": {
-    "instagram": "Latest social media updates are currently unavailable; please visit our Instagram page.",
-    "facebook": "Latest social media updates are currently unavailable; please visit our Facebook page."
+    "instagram": "Follow @midtnvbc on Instagram for Skills Week themes, camp highlights, and tournament action photos! Visit: https://www.instagram.com/midtnvbc/",
+    "facebook": "Follow Mid TN VBC on Facebook for important community updates, schedule changes, and event announcements! Visit: https://www.facebook.com/midtnvbc"
   },
-  "last_agent_run": "2026-07-10 14:42:09",
+  "last_agent_run": "2026-07-23 14:29:20",
   "active_documents": [
     {
       "name": "MidTN VBC",
