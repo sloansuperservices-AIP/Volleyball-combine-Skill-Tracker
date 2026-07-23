@@ -648,6 +648,83 @@ function StaffDashboard({athletes, setAthletes, onArrive, onAddWalkup, onMetric,
   const [walkupForm, setWalkupForm] = useState({first:'', last:'', dob:'', division:'12 & Under', primaryPos:'Outside Hitter', altPos:'N/A', phone:'', email:''});
   const [recentCheckins, setRecentCheckins] = useState([]);
   const [confirmCheckInAth, setConfirmCheckInAth] = useState(null);
+  const [hideAth, setHideAth] = useState(null);
+  const [emailAth, setEmailAth] = useState(null);
+  const [emailTeam, setEmailTeam] = useState('');
+
+  const doUnhide = (id) => {
+    setAthletes(prev => prev.map(a => a.id === id ? { ...a, hidden: false, hideReason: '', hideNote: '' } : a));
+  };
+  const doHide = (id, reason, note) => {
+    setAthletes(prev => prev.map(a => a.id === id ? { ...a, hidden: true, hideReason: reason, hideNote: note } : a));
+  };
+
+  const doEmail = (athlete, body, team, type) => {
+    let emailConfig = { method: 'mailto' };
+    try {
+      emailConfig = JSON.parse(localStorage.getItem('midtn_email_config') || '{"method":"mailto"}');
+    } catch (e) {}
+
+    setAthletes(prev => prev.map(a => {
+      if (a.id !== athlete.id) return a;
+      return { ...a, status: ['pending', 'arrived'].includes(a.status) ? 'contacted' : a.status };
+    }));
+
+    const subject = type === 'offer' ? `Mid TN VBC - Offer` + (team ? ` - ${team}` : ``) : `Mid TN VBC Tryout Performance Report`;
+
+    if (emailConfig.method === 'mailto') {
+      if (athlete.email) {
+        window.open(`mailto:${athlete.email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`, '_blank');
+      } else {
+        navigator.clipboard?.writeText(body);
+      }
+      logEmail(athlete.first + ' ' + athlete.last, athlete.email || 'N/A', type || 'offer', 'Copied/Opened Mailto', body);
+    } else {
+      const endpoint = emailConfig.api_endpoint || 'https://api.emailjs.com/api/v1.0/email/send';
+      let payload = {};
+      if (endpoint.includes('emailjs.com')) {
+        payload = {
+          service_id: emailConfig.emailjs_service,
+          template_id: emailConfig.emailjs_template,
+          user_id: emailConfig.emailjs_public_key,
+          template_params: {
+            to_email: athlete.email,
+            to_name: `${athlete.first} ${athlete.last}`,
+            message: body,
+            subject: subject
+          }
+        };
+      } else {
+        payload = {
+          to: athlete.email,
+          name: `${athlete.first} ${athlete.last}`,
+          subject: subject,
+          body: body
+        };
+      }
+
+      fetch(endpoint, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      })
+      .then(res => {
+        if (res.ok) {
+          logEmail(athlete.first + ' ' + athlete.last, athlete.email, type || 'offer', 'Sent (API)', body);
+          alert(`Email successfully sent via API to ${athlete.email}!`);
+        } else {
+          res.text().then(errText => {
+            logEmail(athlete.first + ' ' + athlete.last, athlete.email, type || 'offer', `Failed: ${res.status}`, body);
+            alert(`Failed to send email via API: ${res.status} - ${errText}`);
+          });
+        }
+      })
+      .catch(err => {
+        logEmail(athlete.first + ' ' + athlete.last, athlete.email, type || 'offer', 'Failed (Network Error)', body);
+        alert(`Network error sending email: ${err.message}`);
+      });
+    }
+  };
 
   const handleConfirmCheckIn = (id, contactInfo) => {
     onArrive(id, contactInfo);
@@ -1092,6 +1169,8 @@ function StaffDashboard({athletes, setAthletes, onArrive, onAddWalkup, onMetric,
         if (selAth && selAth.id === id) setSelAth(p => ({ ...p, ...updates }));
         if (activeAthlete && activeAthlete.id === id) setActiveAthlete(p => ({ ...p, ...updates }));
       }} onHide=${a=>{setSelAth(null);setHideAth(a);}} onUnhide=${doUnhide} onEmail=${a=>{setSelAth(null);setEmailAth(a);setEmailTeam(a.teamAssignment||'');}}/>
+      <${EmailModal} athlete=${emailAth} team=${emailTeam} onClose=${()=>{setEmailAth(null);setEmailTeam('');}} onSend=${doEmail}/>
+      <${HideModal} athlete=${hideAth} onClose=${()=>setHideAth(null)} onHide=${doHide}/>
     </div>`;
 }
 
@@ -1630,7 +1709,14 @@ function HeadCoach({athletes,setAthletes,onLogout}){
         else g.unsorted.push(a);
       });
     });
-    Object.keys(g).forEach(k => g[k].sort((a, b) => scores.get(b.id) - scores.get(a.id)));
+    Object.keys(g).forEach(k => g[k].sort((a, b) => {
+      const aIsPri = classifyPos(a.primaryPos) === k;
+      const bIsPri = classifyPos(b.primaryPos) === k;
+      if (aIsPri !== bIsPri) {
+        return aIsPri ? -1 : 1;
+      }
+      return scores.get(b.id) - scores.get(a.id);
+    }));
     return g;
   }, [athletes, age]);
 
@@ -2374,9 +2460,15 @@ function TeamOfferModal({teamKey,athletes,onClose,onSendOffer}){
                 <div style=${{fontWeight:700}}>${a.first} ${a.last}</div>
                 <div style=${{fontSize:11,color:'#78909c'}}>${posAbbr(a.primaryPos)} · ${a.status}</div>
               </div>
-              ${['accepted','declined','offered'].includes(a.status)
-                ? html`<${Badge} c=${a.status==='accepted'?'#66bb6a':a.status==='declined'?'#ef5350':'#42a5f5'} sm>${a.status}<//>`
-                : html`<${Btn} sm onClick=${()=>onSendOffer(a)} color="#f0a500">Send Offer<//>`}
+              ${['accepted'].includes(a.status)
+                ? html`<${Badge} c="#66bb6a" sm>Accepted<//>`
+                : ['declined', 'offered'].includes(a.status)
+                  ? html`
+                    <div style=${{display:'flex',gap:6,alignItems:'center'}}>
+                      <${Badge} c=${a.status==='declined'?'#ef5350':'#42a5f5'} sm>${a.status}<//>
+                      <${Btn} sm onClick=${()=>onSendOffer(a)} color="#ffa726">Resend Offer<//>
+                    </div>`
+                  : html`<${Btn} sm onClick=${()=>onSendOffer(a)} color="#f0a500">Send Offer<//>`}
             </div>`)}
         </div>
         <${Btn} onClick=${onClose} style=${{width:'100%'}} color="#2a2e38">Done<//>
