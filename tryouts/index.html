@@ -1616,9 +1616,13 @@ function HeadCoach({athletes,setAthletes,onLogout}){
     setAddWu(false);
   };
 
+  // ── AGE ATHLETES ──
+  // Memoized for performance to prevent reference identity changes on every render of the HeadCoach component.
+  const ageAths = useMemo(() => athletes.filter(a => a.ageGroup === age && !a.hidden), [athletes, age]);
+
   // ── DEPTH ──
   const depthPool=useMemo(()=>{
-    const pool = athletes.filter(a => a.ageGroup === age && !a.hidden);
+    const pool = [...ageAths];
     // Pre-calculate scores for sorting
     const scores = new Map();
     pool.forEach(a => scores.set(a.id, Number(totalScore(a.metrics, a.drillScore)) || 0));
@@ -1632,12 +1636,12 @@ function HeadCoach({athletes,setAthletes,onLogout}){
     });
     Object.keys(g).forEach(k => g[k].sort((a, b) => scores.get(b.id) - scores.get(a.id)));
     return g;
-  }, [athletes, age]);
+  }, [ageAths]);
 
   // ── RESULTS ──
   const [resSort, setResSort] = useState('score');
   const resList = useMemo(() => {
-    const l = athletes.filter(a => a.ageGroup === age && !a.hidden);
+    const l = [...ageAths];
     if (resSort === 'score') {
       const scores = new Map();
       l.forEach(a => scores.set(a.id, Number(totalScore(a.metrics, a.drillScore)) || 0));
@@ -1648,14 +1652,13 @@ function HeadCoach({athletes,setAthletes,onLogout}){
       l.sort((a, b) => (sAvg(b.metrics, resSort) || 0) - (sAvg(a.metrics, resSort) || 0));
     }
     return l;
-  }, [athletes, age, resSort]);
+  }, [ageAths, resSort]);
 
   // ── TEAMS ──
   const [poolSort, setPoolSort] = useState('pos');
   const [showPool, setShowPool] = useState(true);
   const [dragOver, setDragOver] = useState(null);
   const [showAllPool, setShowAllPool] = useState(true);
-  const ageAths = athletes.filter(a => a.ageGroup === age && !a.hidden);
   const pool = useMemo(() => {
     let l = showAllPool ? [...ageAths] : ageAths.filter(a => !a.teamAssignment);
     if (poolSort === 'score') {
@@ -1675,6 +1678,23 @@ function HeadCoach({athletes,setAthletes,onLogout}){
     }
     return l;
   }, [ageAths, poolSort, showAllPool]);
+
+  // ── POOL BY POSITION CATEGORY ──
+  // Pre-filters and sorts pool athletes by position categories to avoid high-overhead filtering/sorting inside the render loop.
+  const poolByCat = useMemo(() => {
+    const scores = new Map();
+    pool.forEach(a => scores.set(a.id, Number(totalScore(a.metrics, a.drillScore)) || 0));
+    const result = {};
+    const cats = [...POS_CATS, { key: 'unsorted', label: 'Unsorted' }];
+    cats.forEach(cat => {
+      result[cat.key] = pool.filter(a => {
+        const categories = a.posCategories || [a.posCategory];
+        return categories.includes(cat.key);
+      }).sort((a, b) => (scores.get(b.id) || 0) - (scores.get(a.id) || 0));
+    });
+    return result;
+  }, [pool]);
+
   const drop=(e,teamKey)=>{
     e.preventDefault();
     const id=e.dataTransfer.getData('text/plain');
@@ -1879,8 +1899,7 @@ ${list.length===0&&html`<div style=${{padding:20,textAlign:'center',color:'#333'
                   ${poolSort==='pos'
                     ? html`<div>
                         ${[...POS_CATS,{key:'unsorted',label:'Unsorted'}].map(cat => {
-                          const listByCat = pool.filter(a => (a.posCategories || [a.posCategory]).includes(cat.key))
-                                           .sort((a,b)=>(Number(totalScore(b.metrics, b.drillScore))||0)-(Number(totalScore(a.metrics, a.drillScore))||0));
+                          const listByCat = poolByCat[cat.key] || [];
                           if(listByCat.length === 0) return null;
                           return html`
                             <div key=${cat.key} style=${{marginBottom:12,borderBottom:'1px solid #1e222b',paddingBottom:8}}>
