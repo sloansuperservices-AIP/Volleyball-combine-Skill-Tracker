@@ -1,8 +1,4 @@
-﻿<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8"/>
-<script>
+
   window.jsErrors = [];
   window.onerror = function(message, source, lineno, colno, error) {
     window.jsErrors.push({ message, source, lineno, colno, stack: error ? error.stack : '' });
@@ -362,7 +358,7 @@ function Stopwatch({ onApply, label="Stopwatch" }) {
 function WalkupRegister({ athletes, onAddWalkup }) {
   const [form, setForm] = useState({ first: '', last: '', dob: '', division: '12 & Under', primaryPos: 'Outside Hitter', altPos: '', phone: '', email: '' });
   const [registeredTo, setRegisteredTo] = useState(null);
-  
+
   const isValid = form.first.trim() && form.last.trim() && form.phone.trim().length >= 7 && form.email.trim().includes('@');
 
   const submit = () => {
@@ -449,11 +445,11 @@ function WalkupRegister({ athletes, onAddWalkup }) {
               <input class="input" type="email" placeholder="e.g. parent@email.com" value=${form.email} onInput=${e => setForm(p => ({ ...p, email: e.target.value }))} />
             </div>
           </div>
-          
+
           <button onClick=${submit} disabled=${!isValid} style=${{ width: '100%', padding: '12px', background: '#66bb6a', border: 'none', borderRadius: '8px', color: '#fff', fontSize: '14px', fontWeight: 800, cursor: 'pointer', marginBottom: '16px', opacity: (!isValid) ? 0.5 : 1 }}>
             Submit & Register ✓
           </button>
-          
+
           <div style=${{ textAlign: 'center', fontSize: '12px' }}>
             <a href=${faqUrl} target="_blank" style=${{ color: '#4fc3f7', textDecoration: 'none' }}>
               Need Help? Read Tryout FAQ / Instructions
@@ -529,7 +525,7 @@ function Login({onLogin}){
   return html`
     <div style=${{minHeight:'100vh',display:'flex',alignItems:'center',justifyContent:'center',background:'#0d1017',padding:'20px'}}>
       <div style=${{display:'flex',gap:'24px',flexWrap:'wrap',justifyContent:'center',alignItems:'stretch',maxWidth:'840px',width:'100%'}}>
-        
+
         <!-- Login Card -->
         <div class="card" style=${{padding:40,width:380,textAlign:'center',display:'flex',flexDirection:'column',justifyContent:'center'}}>
           <div style=${{fontSize:48,marginBottom:12}}>🏐</div>
@@ -557,9 +553,9 @@ function Login({onLogin}){
         <div class="card" style=${{padding:30,width:380,display:'flex',flexDirection:'column',justifyContent:'space-between',border:'1px solid #f0a50033'}}>
           <div>
             <h3 style=${{color:'#f0a500',fontSize:15,fontWeight:800,marginBottom:16,textAlign:'center',textTransform:'uppercase',letterSpacing:'0.5px'}}>Tryout QR Check-Ins</h3>
-            
+
             <div style=${{display:'flex',gap:12,flexDirection:'column'}}>
-              
+
               <div style=${{display:'flex',alignItems:'center',gap:12,background:'#12151c',padding:10,borderRadius:8,border:'1px solid #2a2e38'}}>
                 <img src=${walkupQr} alt="Walk-up QR" style=${{border:'3px solid white',borderRadius:4,width:76,height:76,flexShrink:0}}/>
                 <div style=${{textAlign:'left'}}>
@@ -610,17 +606,17 @@ function CheckInConfirmModal({ athlete, onClose, onConfirm }) {
         <p style=${{fontSize:12,color:'#78909c',marginBottom:16,lineHeight:1.4}}>
           Please confirm or update contact details for <strong>${athlete.first} ${athlete.last}</strong> (#${athlete.to}) before check-in:
         </p>
-        
+
         <div style=${{marginBottom:12}}>
           <label class="label">Phone Number *</label>
           <input class="input" value=${phone} onInput=${e=>setPhone(e.target.value)} placeholder="e.g. 615-555-0199"/>
         </div>
-        
+
         <div style=${{marginBottom:20}}>
           <label class="label">Email Address *</label>
           <input class="input" type="email" value=${email} onInput=${e=>setEmail(e.target.value)} placeholder="e.g. parent@email.com"/>
         </div>
-        
+
         <div style=${{display:'flex',gap:10,justifyContent:'flex-end'}}>
           <${Btn} onClick=${onClose} color="#2a2e38">Cancel<//>
           <${Btn} onClick=${handleConfirm} disabled=${!isValid} color="#26c6da">Confirm & Check In ✓<//>
@@ -671,8 +667,8 @@ function StaffDashboard({athletes, setAthletes, onArrive, onAddWalkup, onMetric,
     const q = globalSearch.trim().toLowerCase();
     if (!q) return [];
     return athletes.filter(a => !a.hidden && (
-      a.first.toLowerCase().includes(q) || 
-      a.last.toLowerCase().includes(q) || 
+      a.first.toLowerCase().includes(q) ||
+      a.last.toLowerCase().includes(q) ||
       a.to.includes(q)
     ));
   }, [globalSearch, athletes]);
@@ -793,7 +789,7 @@ function StaffDashboard({athletes, setAthletes, onArrive, onAddWalkup, onMetric,
           <input class="input" placeholder="Search registered player by name or TO#..."
             value=${globalSearch} onInput=${e=>setGlobalSearch(e.target.value)}
             style=${{padding:10,fontSize:14}}/>
-          
+
           ${globalSearch && html`
             <div style=${{marginTop:10,maxHeight:300,overflowY:'auto',background:'#0d1017',borderRadius:8,border:'1px solid #1e222b',padding:8}}>
               ${lookupResults.map(a => {
@@ -811,7 +807,7 @@ function StaffDashboard({athletes, setAthletes, onArrive, onAddWalkup, onMetric,
                          ${!a.arrived && html`<${Btn} sm onClick=${()=>setConfirmCheckInAth(a)} color="#26c6da">Check In ✓<//>`}
                       </div>
                     </div>
-                    
+
                     <!-- Progress Grid -->
                     <div style=${{display:'grid',gridTemplateColumns:'repeat(auto-fit, minmax(110px, 1fr))',gap:6,background:'#12151c',padding:8,borderRadius:6,border:'1px solid #1e222b',fontSize:11}}>
                       <div style=${{display:'flex',alignItems:'center',gap:4,color:comp.checkin?'#66bb6a':'#ffa726'}}>
@@ -827,7 +823,7 @@ function StaffDashboard({athletes, setAthletes, onArrive, onAddWalkup, onMetric,
                         <span>${a.drillScore?'✓':'⏳'}</span> Drill Score
                       </div>
                     </div>
-                    
+
                     <!-- Jump Actions -->
                     <div style=${{display:'flex',gap:8,justifyContent:'flex-end',fontSize:11,marginTop:4}}>
                       <button onClick=${()=>handleGlobalAction(a, 's1')} style=${{background:'none',border:'none',color:'#42a5f5',cursor:'pointer',textDecoration:'underline',fontSize:11,padding:0}}>→ Input Physical</button>
@@ -848,7 +844,7 @@ function StaffDashboard({athletes, setAthletes, onArrive, onAddWalkup, onMetric,
                 <h2 style=${{fontSize:16,fontWeight:800,margin:0,color:'#26c6da'}}>Sign In Station</h2>
                 <${Btn} sm onClick=${()=>setShowWalkup(true)} color="#f0a500">+ Add Walkup<//>
               </div>
-              
+
               ${showWalkup ? html`
                 <div class="card" style=${{padding:20,marginBottom:16,border:'1px solid #f0a50033'}}>
                   <div style=${{display:'flex',justifyContent:'space-between',marginBottom:16}}>
@@ -885,7 +881,7 @@ function StaffDashboard({athletes, setAthletes, onArrive, onAddWalkup, onMetric,
                   <input class="input" placeholder="Type name or TO# to sign in..." value=${checkinQ}
                     onInput=${e=>setCheckinQ(e.target.value)}/>
                 </div>
-                
+
                 ${checkinQ && html`
                   <div style=${{marginBottom:16}}>
                     ${athletes.filter(a=>!a.hidden && (a.first.toLowerCase().includes(checkinQ.toLowerCase()) || a.last.toLowerCase().includes(checkinQ.toLowerCase()) || a.to.includes(checkinQ))).map(a=>html`
@@ -908,7 +904,7 @@ function StaffDashboard({athletes, setAthletes, onArrive, onAddWalkup, onMetric,
                       </div>`)}
                   </div>
                 `}
-                
+
                 ${recentCheckins.length > 0 && html`
                   <div class="card" style=${{padding:14}}>
                     <div style=${{fontSize:10,color:'#546e7a',textTransform:'uppercase',letterSpacing:1,marginBottom:8}}>Recent Check-Ins</div>
@@ -928,7 +924,7 @@ function StaffDashboard({athletes, setAthletes, onArrive, onAddWalkup, onMetric,
           ${activeTab === 's1' && html`
             <div>
               <h2 style=${{fontSize:16,fontWeight:800,marginBottom:12,color:'#42a5f5'}}>Reach & Vertical Station</h2>
-              
+
               ${activeAthlete ? html`
                 <div class="card" style=${{padding:16,marginBottom:16}}>
                   <div style=${{display:'flex',justifyContent:'space-between',alignItems:'flex-start',marginBottom:12}}>
@@ -941,7 +937,7 @@ function StaffDashboard({athletes, setAthletes, onArrive, onAddWalkup, onMetric,
                     </div>
                     <${Btn} sm onClick=${()=>setSelAth(activeAthlete)} color="#4fc3f7" outline>Profile 📋<//>
                   </div>
-                  
+
                   <div style=${{display:'grid',gridTemplateColumns:'1fr 1fr 1fr',gap:10,marginBottom:14}}>
                     ${['Height (in)', 'Reach (in)', 'Vertical (in)'].map((l,idx)=>html`
                       <div key=${idx}>
@@ -952,7 +948,7 @@ function StaffDashboard({athletes, setAthletes, onArrive, onAddWalkup, onMetric,
                       </div>
                     `)}
                   </div>
-                  
+
                   <div style=${{display:'flex',gap:8}}>
                     <${Btn} onClick=${()=>setActiveAthlete(null)} color="#2a2e38" style=${{flex:1}}>Cancel<//>
                     <${Btn} onClick=${handleSaveS1} color="#66bb6a" style=${{flex:2}}>Save & Load Next ✓<//>
@@ -983,7 +979,7 @@ function StaffDashboard({athletes, setAthletes, onArrive, onAddWalkup, onMetric,
           ${activeTab === 's2' && html`
             <div>
               <h2 style=${{fontSize:16,fontWeight:800,marginBottom:12,color:'#ffa726'}}>Agility Station</h2>
-              
+
               ${activeAthlete ? html`
                 <div class="card" style=${{padding:16,marginBottom:16}}>
                   <div style=${{display:'flex',justifyContent:'space-between',alignItems:'flex-start',marginBottom:12}}>
@@ -996,17 +992,17 @@ function StaffDashboard({athletes, setAthletes, onArrive, onAddWalkup, onMetric,
                     </div>
                     <${Btn} sm onClick=${()=>setSelAth(activeAthlete)} color="#4fc3f7" outline>Profile 📋<//>
                   </div>
-                  
+
                   <div style=${{marginBottom:12}}>
                     <${Stopwatch} label="Timing Shuttle Run" onApply=${(sec)=>setS2Val(sec)}/>
                   </div>
-                  
+
                   <div style=${{marginBottom:14}}>
                     <label class="label">Shuttle Run Time (sec)</label>
                     <input type="number" step="0.01" value=${s2Val} onInput=${e=>setS2Val(e.target.value)}
                       style=${{width:'100%',padding:10,background:'#12151c',border:'1px solid #2a2e38',borderRadius:8,color:'#e8eaed',fontSize:24,textAlign:'center',fontFamily:'monospace'}}/>
                   </div>
-                  
+
                   <div style=${{display:'flex',gap:8}}>
                     <${Btn} onClick=${()=>setActiveAthlete(null)} color="#2a2e38" style=${{flex:1}}>Cancel<//>
                     <${Btn} onClick=${handleSaveS2} color="#66bb6a" style=${{flex:2}}>Save & Load Next ✓<//>
@@ -1037,7 +1033,7 @@ function StaffDashboard({athletes, setAthletes, onArrive, onAddWalkup, onMetric,
           ${activeTab === 'drills' && html`
             <div>
               <h2 style=${{fontSize:16,fontWeight:800,marginBottom:12,color:'#66bb6a'}}>Drills Station</h2>
-              
+
               ${activeAthlete ? html`
                 <div class="card" style=${{padding:16,marginBottom:16}}>
                   <div style=${{display:'flex',justifyContent:'space-between',alignItems:'flex-start',marginBottom:12}}>
@@ -1050,13 +1046,13 @@ function StaffDashboard({athletes, setAthletes, onArrive, onAddWalkup, onMetric,
                     </div>
                     <${Btn} sm onClick=${()=>setSelAth(activeAthlete)} color="#4fc3f7" outline>Profile 📋<//>
                   </div>
-                  
+
                   <div style=${{marginBottom:14}}>
                     <label class="label">Drill Score (1-10)</label>
                     <input type="number" min="0" max="10" step="0.5" value=${drillVal} onInput=${e=>setDrillVal(e.target.value)}
                       style=${{width:'100%',padding:10,background:'#12151c',border:'1px solid #2a2e38',borderRadius:8,color:'#e8eaed',fontSize:24,textAlign:'center',fontFamily:'monospace',fontWeight:700}}/>
                   </div>
-                  
+
                   <div style=${{display:'flex',gap:8}}>
                     <${Btn} onClick=${()=>setActiveAthlete(null)} color="#2a2e38" style=${{flex:1}}>Cancel<//>
                     <${Btn} onClick=${handleSaveDrill} color="#66bb6a" style=${{flex:2}}>Save & Load Next ✓<//>
@@ -1088,38 +1084,10 @@ function StaffDashboard({athletes, setAthletes, onArrive, onAddWalkup, onMetric,
 
       <${CheckInConfirmModal} athlete=${confirmCheckInAth} onClose=${()=>setConfirmCheckInAth(null)} onConfirm=${handleConfirmCheckIn}/>
       <${AthleteModal} athlete=${selAth} onClose=${()=>setSelAth(null)} onChange=${(id, updates)=>{
-        setAthletes(prev => prev.map(a => {
-          if (a.id !== id) return a;
-          let next = { ...a, ...updates };
-          if (updates.primaryPos || updates.altPos) {
-            next.posCategory = classifyPos(next.primaryPos);
-            next.posCategories = getPosCategories(next.primaryPos, next.altPos);
-          }
-          if (updates.status === 'accepted') next.teamLocked = true;
-          else if (updates.status && a.status === 'accepted') next.teamLocked = false;
-          return next;
-        }));
-        if (selAth && selAth.id === id) setSelAth(p => {
-          let next = { ...p, ...updates };
-          if (updates.primaryPos || updates.altPos) {
-            next.posCategory = classifyPos(next.primaryPos);
-            next.posCategories = getPosCategories(next.primaryPos, next.altPos);
-          }
-          if (updates.status === 'accepted') next.teamLocked = true;
-          else if (updates.status && p.status === 'accepted') next.teamLocked = false;
-          return next;
-        });
-        if (activeAthlete && activeAthlete.id === id) setActiveAthlete(p => {
-          let next = { ...p, ...updates };
-          if (updates.primaryPos || updates.altPos) {
-            next.posCategory = classifyPos(next.primaryPos);
-            next.posCategories = getPosCategories(next.primaryPos, next.altPos);
-          }
-          if (updates.status === 'accepted') next.teamLocked = true;
-          else if (updates.status && p.status === 'accepted') next.teamLocked = false;
-          return next;
-        });
-      }} />
+        setAthletes(prev => prev.map(a => a.id === id ? { ...a, ...updates } : a));
+        if (selAth && selAth.id === id) setSelAth(p => ({ ...p, ...updates }));
+        if (activeAthlete && activeAthlete.id === id) setActiveAthlete(p => ({ ...p, ...updates }));
+      }} onHide=${a=>{setSelAth(null);setHideAth(a);}} onUnhide=${doUnhide} onEmail=${a=>{setSelAth(null);setEmailAth(a);setEmailTeam(a.teamAssignment||'');}}/>
     </div>`;
 }
 
@@ -1158,10 +1126,10 @@ function AthleteModal({athlete,onClose,onChange,onHide,onUnhide,onEmail}){
               <span style=${{color:'#4fc3f7',fontFamily:'monospace',fontSize:13}}>TO# ${athlete.to}</span>
               ${sc&&html`<${Badge} c=${scoreColor(sc)}>Score: ${sc}<//>`}
               <${SBadge} status=${athlete.status}/>
-              ${athlete.wontAccept&&html`<span title=${'Restriction: ' + athlete.wontAccept} aria-label=${'Restriction: ' + athlete.wontAccept}>⚠️</span>`}
+              ${athlete.wontAccept&&html`<span title=${athlete.wontAccept}>⚠️</span>`}
             </div>
           </div>
-          <button onClick=${onClose} aria-label="Close modal" title="Close modal" style=${{background:'none',border:'none',color:'#666',fontSize:24,cursor:'pointer'}}>×</button>
+          <button onClick=${onClose} style=${{background:'none',border:'none',color:'#666',fontSize:24,cursor:'pointer'}}>×</button>
         </div>
         <div style=${{display:'grid',gridTemplateColumns:'1fr 1fr',gap:'12px 20px',marginBottom:16}}>
           ${F('First Name','first')}${F('Last Name','last')}
@@ -1242,14 +1210,14 @@ function AthleteModal({athlete,onClose,onChange,onHide,onUnhide,onEmail}){
           </div>
         </div>
         <div style=${{display:'flex',gap:8,flexWrap:'wrap',alignItems:'center'}}>
-          ${!locked && onEmail && html`
+          ${!locked&&html`
             <div style=${{display:'flex',gap:6}}>
               <${Btn} onClick=${()=>{onEmail(athlete, 'offer');onClose();}} color="#42a5f5">📩 Offer<//>
               <${Btn} onClick=${()=>{onEmail(athlete, 'report');onClose();}} color="#26c6da" outline style=${{borderWidth:2}}>📊 Report<//>
             </div>
           `}
-          ${!locked && !athlete.hidden && onHide && html`<${Btn} onClick=${()=>{onHide(athlete);onClose();}} danger outline>Hide<//>`}
-          ${athlete.hidden && onUnhide && html`<${Btn} onClick=${()=>{onUnhide(athlete.id);onClose();}} color="#66bb6a">Unhide<//>`}
+          ${!locked&&!athlete.hidden&&html`<${Btn} onClick=${()=>{onHide(athlete);onClose();}} danger outline>Hide<//>`}
+          ${athlete.hidden&&html`<${Btn} onClick=${()=>{onUnhide(athlete.id);onClose();}} color="#66bb6a">Unhide<//>`}
           ${locked&&html`<${Badge} c="#66bb6a">🔒 Accepted — Locked<//>`}
           <div style=${{flex:1}}/>
           <label style=${{fontSize:12,display:'flex',alignItems:'center',gap:6,cursor:'pointer',color:'#78909c'}}>
@@ -1266,7 +1234,7 @@ function getPerformanceReportBody(athlete) {
   const sc = totalScore(athlete.metrics, athlete.drillScore);
   const s1Val = athlete.metrics?.s1 || [];
   const s2Val = athlete.metrics?.s2 || [];
-  
+
   return `Hello ${athlete.first},\n\n` +
          `Here is your Tryout Performance Report for the 2026-2027 season:\n\n` +
          `Tryout Number: #${athlete.to}\n` +
@@ -1287,7 +1255,7 @@ function getPerformanceReportBody(athlete) {
 
 function EmailModal({athlete,team,onClose,onSend,initialType='offer'}){
   const [emailType, setEmailType] = useState(initialType);
-  
+
   const offerTpl = useMemo(() => {
     return `Hello,\n\nWe are pleased to offer ${athlete?.first||''} ${athlete?.last||''} a roster spot on Mid TN VBC${team?' — '+team:''} for the 2026-2027 season.\n\nDetails at www.midtnvbc.com/clubtryouts\n\nPlease reply:\n  1. Accept\n  2. Request a call\n  3. Decline\n\nThank you!\nMid TN VBC`;
   }, [athlete, team]);
@@ -1320,9 +1288,9 @@ function EmailModal({athlete,team,onClose,onSend,initialType='offer'}){
       <div class="modal-box" style=${{width:560}} onClick=${e=>e.stopPropagation()}>
         <div style=${{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:12}}>
           <h3 style=${{margin:0,fontSize:16}}>Compose Email — ${athlete.first} ${athlete.last}</h3>
-          <button onClick=${onClose} aria-label="Close modal" title="Close modal" style=${{background:'none',border:'none',color:'#666',fontSize:24,cursor:'pointer'}}>×</button>
+          <button onClick=${onClose} style=${{background:'none',border:'none',color:'#666',fontSize:24,cursor:'pointer'}}>×</button>
         </div>
-        
+
         <div style=${{display:'grid',gridTemplateColumns:'1fr 1fr',gap:12,marginBottom:12}}>
           <div>
             <label class="label">Email Template</label>
@@ -1384,13 +1352,13 @@ function PCard({athlete,onClick,compact,showScore,teamKey}){
     <div class=${'player-card'+(athlete.status==='declined'?' declined':'')+(locked?' locked':'')}
       draggable=${!locked} onDragStart=${e=>!locked&&e.dataTransfer.setData('text/plain',athlete.id)}
       onClick=${()=>onClick?.(athlete)}>
-      ${locked&&html`<span title="Locked Profile" aria-label="Locked Profile" style=${{fontSize:10,fontWeight:800,color:'#f0a500'}}>🔒</span>`}
+      ${locked&&html`<span title="Locked" style=${{fontSize:10,fontWeight:800,color:'#f0a500'}}>🔒</span>`}
       <span style=${{fontFamily:'monospace',fontSize:10,color:'#4fc3f7',minWidth:22}}>#${athlete.to}</span>
       <span style=${{fontWeight:600,fontSize:compact?12:13,flex:1,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>${athlete.first} ${athlete.last}</span>
       <${Badge} c="#78909c" sm>${posAbbr(athlete.primaryPos)}<//>
       ${athlete.altPos&&athlete.altPos!==athlete.primaryPos&&html`<${Badge} c="#3a3f47" sm>${posAbbr(athlete.altPos)}<//>`}
-      ${athlete.wontAccept&&html`<span title=${'WON\'T ACCEPT / RESTRICTION: '+athlete.wontAccept} aria-label=${'Restriction: '+athlete.wontAccept} style=${{fontSize:16,cursor:'help',filter:'drop-shadow(0 0 2px #ffa726)'}}>⚠️</span>`}
-      ${athlete.notes&&html`<span title=${'TRYOUT NOTES: '+athlete.notes} aria-label=${'Notes: '+athlete.notes} style=${{fontSize:16,cursor:'help',filter:'drop-shadow(0 0 2px #4fc3f7)'}}>📝</span>`}
+      ${athlete.wontAccept&&html`<span title=${'WON\'T ACCEPT / RESTRICTION: '+athlete.wontAccept} style=${{fontSize:16,cursor:'help',filter:'drop-shadow(0 0 2px #ffa726)'}}>⚠️</span>`}
+      ${athlete.notes&&html`<span title=${'TRYOUT NOTES: '+athlete.notes} style=${{fontSize:16,cursor:'help',filter:'drop-shadow(0 0 2px #4fc3f7)'}}>📝</span>`}
       ${showScore&&sc&&html`<${Badge} c=${scoreColor(sc)} sm>${sc}<//>`}
       <${SBadge} status=${athlete.status}/>
     </div>`;
@@ -1538,7 +1506,7 @@ function HeadCoach({athletes,setAthletes,onLogout}){
     upd(id,{...contactInfo,arrived:true,status:'arrived'});
     setConfirmCheckInAth(null);
   };
-  
+
   const doEmail=(athlete,body,team,type)=>{
     upd(athlete.id,{status:['pending','arrived'].includes(athlete.status)?'contacted':athlete.status});
     const subject = type === 'offer' ? `Mid TN VBC - Offer` + (team ? ` - ${team}` : ``) : `Mid TN VBC Tryout Performance Report`;
@@ -1546,14 +1514,14 @@ function HeadCoach({athletes,setAthletes,onLogout}){
     if (emailConfig.method === 'mailto') {
       if(athlete.email) window.open(`mailto:${athlete.email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`,'_blank');
       else navigator.clipboard?.writeText(body);
-      
+
       logEmail(athlete.first + ' ' + athlete.last, athlete.email || 'N/A', type || 'offer', 'Copied/Opened Mailto', body);
       setEmailLogs(JSON.parse(localStorage.getItem('midtn_email_logs') || '[]'));
     } else {
       // Send API email
       const endpoint = emailConfig.api_endpoint || 'https://api.emailjs.com/api/v1.0/email/send';
       let payload = {};
-      
+
       if (endpoint.includes('emailjs.com')) {
         payload = {
           service_id: emailConfig.emailjs_service,
@@ -1658,16 +1626,7 @@ function HeadCoach({athletes,setAthletes,onLogout}){
         else g.unsorted.push(a);
       });
     });
-    Object.keys(g).forEach(k => {
-      g[k].sort((a, b) => {
-        const aPri = (a.posCategory === k);
-        const bPri = (b.posCategory === k);
-        if (aPri !== bPri) {
-          return aPri ? -1 : 1;
-        }
-        return scores.get(b.id) - scores.get(a.id);
-      });
-    });
+    Object.keys(g).forEach(k => g[k].sort((a, b) => scores.get(b.id) - scores.get(a.id)));
     return g;
   }, [athletes, age]);
 
@@ -1692,10 +1651,7 @@ function HeadCoach({athletes,setAthletes,onLogout}){
   const [showPool, setShowPool] = useState(true);
   const [dragOver, setDragOver] = useState(null);
   const [showAllPool, setShowAllPool] = useState(true);
-  const ageAths = useMemo(() => {
-    return athletes.filter(a => a.ageGroup === age && !a.hidden);
-  }, [athletes, age]);
-
+  const ageAths = athletes.filter(a => a.ageGroup === age && !a.hidden);
   const pool = useMemo(() => {
     let l = showAllPool ? [...ageAths] : ageAths.filter(a => !a.teamAssignment);
     if (poolSort === 'score') {
@@ -1715,31 +1671,6 @@ function HeadCoach({athletes,setAthletes,onLogout}){
     }
     return l;
   }, [ageAths, poolSort, showAllPool]);
-
-  const poolByCat = useMemo(() => {
-    const scores = new Map();
-    pool.forEach(a => scores.set(a.id, Number(totalScore(a.metrics, a.drillScore)) || 0));
-
-    const g = { setter: [], middle: [], outside: [], defense: [], unsorted: [] };
-    pool.forEach(a => {
-      (a.posCategories || [a.posCategory || 'unsorted']).forEach(cat => {
-        if (g[cat]) g[cat].push(a);
-        else g.unsorted.push(a);
-      });
-    });
-
-    Object.keys(g).forEach(k => {
-      g[k].sort((a, b) => {
-        const aPri = (a.posCategory === k);
-        const bPri = (b.posCategory === k);
-        if (aPri !== bPri) {
-          return aPri ? -1 : 1;
-        }
-        return scores.get(b.id) - scores.get(a.id);
-      });
-    });
-    return g;
-  }, [pool]);
   const drop=(e,teamKey)=>{
     e.preventDefault();
     const id=e.dataTransfer.getData('text/plain');
@@ -1944,7 +1875,8 @@ ${list.length===0&&html`<div style=${{padding:20,textAlign:'center',color:'#333'
                   ${poolSort==='pos'
                     ? html`<div>
                         ${[...POS_CATS,{key:'unsorted',label:'Unsorted'}].map(cat => {
-                          const listByCat = poolByCat[cat.key] || [];
+                          const listByCat = pool.filter(a => (a.posCategories || [a.posCategory]).includes(cat.key))
+                                           .sort((a,b)=>(Number(totalScore(b.metrics, b.drillScore))||0)-(Number(totalScore(a.metrics, a.drillScore))||0));
                           if(listByCat.length === 0) return null;
                           return html`
                             <div key=${cat.key} style=${{marginBottom:12,borderBottom:'1px solid #1e222b',paddingBottom:8}}>
@@ -2007,7 +1939,6 @@ ${list.length===0&&html`<div style=${{padding:20,textAlign:'center',color:'#333'
                           <div key=${a.id} style=${{position:'relative'}}>
                             <${PCard} athlete=${a} onClick=${setSelAth} compact showScore teamKey=${key}/>
                             ${!isLocked&&html`<button onClick=${()=>upd(a.id,{teamAssignment:null,teamLocked:false})}
-                              aria-label="Remove athlete from team" title="Remove athlete from team"
                               style=${{position:'absolute',right:4,top:'50%',transform:'translateY(-50%)',background:'#ef535033',border:'none',borderRadius:4,color:'#ef5350',cursor:'pointer',fontSize:10,padding:'2px 5px'}}>×</button>`}
                           </div>`)}
                         ${declined.length>0&&html`
@@ -2057,16 +1988,16 @@ ${list.length===0&&html`<div style=${{padding:20,textAlign:'center',color:'#333'
 
         ${view==='admin'&&html`
           <div style=${{display:'grid',gridTemplateColumns:'1fr 1fr',gap:24,alignItems:'start',marginTop:14}}>
-            
+
             <!-- Column 1: Settings -->
             <div style=${{display:'flex',flexDirection:'column',gap:20}}>
-              
+
               <!-- Email Config Card -->
               <div class="card" style=${{padding:20,border:'1px solid #f0a50033'}}>
                 <h3 style=${{color:'#f0a500',fontSize:14,fontWeight:800,marginBottom:14,textTransform:'uppercase',letterSpacing:'0.5px'}}>⚙️ Email Service Settings</h3>
-                
+
                 <div style=${{marginBottom:12}}><label class="label">Sending Method</label>
-                  <select class="select" value=${emailConfig.method || 'mailto'} 
+                  <select class="select" value=${emailConfig.method || 'mailto'}
                     onChange=${e=>saveEmailConfig({...emailConfig, method: e.target.value})}>
                     <option value="mailto">Native Mail Client (mailto:)</option>
                     <option value="api">Web API Delivery (EmailJS / Webhook)</option>
@@ -2077,26 +2008,26 @@ ${list.length===0&&html`<div style=${{padding:20,textAlign:'center',color:'#333'
                   <div style=${{display:'flex',flexDirection:'column',gap:10,marginTop:12,borderTop:'1px solid #2a2e38',paddingTop:12}}>
                     <div>
                       <label class="label">API Endpoint / Webhook</label>
-                      <input class="input" placeholder="e.g. https://api.emailjs.com/api/v1.0/email/send" 
-                        value=${emailConfig.api_endpoint || 'https://api.emailjs.com/api/v1.0/email/send'} 
+                      <input class="input" placeholder="e.g. https://api.emailjs.com/api/v1.0/email/send"
+                        value=${emailConfig.api_endpoint || 'https://api.emailjs.com/api/v1.0/email/send'}
                         onInput=${e=>saveEmailConfig({...emailConfig, api_endpoint: e.target.value})}/>
                     </div>
                     <div>
                       <label class="label">EmailJS Service ID</label>
-                      <input class="input" placeholder="e.g. service_midtn" 
-                        value=${emailConfig.emailjs_service || ''} 
+                      <input class="input" placeholder="e.g. service_midtn"
+                        value=${emailConfig.emailjs_service || ''}
                         onInput=${e=>saveEmailConfig({...emailConfig, emailjs_service: e.target.value})}/>
                     </div>
                     <div>
                       <label class="label">EmailJS Template ID</label>
-                      <input class="input" placeholder="e.g. template_tryouts" 
-                        value=${emailConfig.emailjs_template || ''} 
+                      <input class="input" placeholder="e.g. template_tryouts"
+                        value=${emailConfig.emailjs_template || ''}
                         onInput=${e=>saveEmailConfig({...emailConfig, emailjs_template: e.target.value})}/>
                     </div>
                     <div>
                       <label class="label">EmailJS Public Key (User ID)</label>
-                      <input class="input" placeholder="e.g. user_abcdef123" 
-                        value=${emailConfig.emailjs_public_key || ''} 
+                      <input class="input" placeholder="e.g. user_abcdef123"
+                        value=${emailConfig.emailjs_public_key || ''}
                         onInput=${e=>saveEmailConfig({...emailConfig, emailjs_public_key: e.target.value})}/>
                     </div>
                   </div>
@@ -2116,9 +2047,9 @@ ${list.length===0&&html`<div style=${{padding:20,textAlign:'center',color:'#333'
               <!-- AI Chatbot Model Settings Card -->
               <div class="card" style=${{padding:20,border:'1px solid #f0a50033'}}>
                 <h3 style=${{color:'#f0a500',fontSize:14,fontWeight:800,marginBottom:14,textTransform:'uppercase',letterSpacing:'0.5px'}}>🤖 AI Chatbot Model Settings</h3>
-                
+
                 <div style=${{marginBottom:12}}><label class="label">AI Model Provider</label>
-                  <select class="select" value=${chatbotSettings.provider} 
+                  <select class="select" value=${chatbotSettings.provider}
                     onChange=${e=>saveChatbotSettings({...chatbotSettings, provider: e.target.value})}>
                     <option value="rag">Offline Client-Side RAG (Free / Offline)</option>
                     <option value="gemini">Google Gemini API (API Key required)</option>
@@ -2130,14 +2061,14 @@ ${list.length===0&&html`<div style=${{padding:20,textAlign:'center',color:'#333'
                   <div style=${{display:'flex',flexDirection:'column',gap:10,marginTop:12,borderTop:'1px solid #2a2e38',paddingTop:12}}>
                     <div>
                       <label class="label">API Key</label>
-                      <input class="input" type="password" placeholder="Enter API Key" 
-                        value=${chatbotSettings.apiKey || ''} 
+                      <input class="input" type="password" placeholder="Enter API Key"
+                        value=${chatbotSettings.apiKey || ''}
                         onInput=${e=>saveChatbotSettings({...chatbotSettings, apiKey: e.target.value})}/>
                     </div>
                     <div>
                       <label class="label">Model Name</label>
-                      <input class="input" placeholder=${chatbotSettings.provider === 'gemini' ? 'e.g. gemini-1.5-flash' : 'e.g. gpt-4o-mini'} 
-                        value=${chatbotSettings.modelName || ''} 
+                      <input class="input" placeholder=${chatbotSettings.provider === 'gemini' ? 'e.g. gemini-1.5-flash' : 'e.g. gpt-4o-mini'}
+                        value=${chatbotSettings.modelName || ''}
                         onInput=${e=>saveChatbotSettings({...chatbotSettings, modelName: e.target.value})}/>
                     </div>
                   </div>
@@ -2148,7 +2079,7 @@ ${list.length===0&&html`<div style=${{padding:20,textAlign:'center',color:'#333'
               <div class="card" style=${{padding:20,border:'1px solid #f0a50033'}}>
                 <h3 style=${{color:'#f0a500',fontSize:14,fontWeight:800,marginBottom:14,textTransform:'uppercase',letterSpacing:'0.5px'}}>📁 Linked Folders & AI Training Docs</h3>
                 <p style=${{fontSize:11,color:'#78909c',marginBottom:12}}>Link local directories containing club handbooks or rules, or import text documents directly into the chatbot knowledge base.</p>
-                
+
                 <!-- Linked folders list -->
                 <div style=${{marginBottom:14}}>
                   <label class="label">Linked Folders</label>
@@ -2195,7 +2126,7 @@ ${list.length===0&&html`<div style=${{padding:20,textAlign:'center',color:'#333'
                     };
                     r.readAsText(file);
                   }} style=${{fontSize:11,color:'#78909c'}}/>
-                  
+
                   <div style=${{marginTop:10}}>
                     <label class="label">Trained AI Documents</label>
                     <div style=${{maxHeight:120,overflowY:'auto',background:'#12151c',borderRadius:6,border:'1px solid #2a2e38',padding:8}}>
@@ -2218,11 +2149,11 @@ ${list.length===0&&html`<div style=${{padding:20,textAlign:'center',color:'#333'
 
             <!-- Column 2: Chatbot KB Form Editor & AI Retraining Portal -->
             <div style=${{display:'flex',flexDirection:'column',gap:20}}>
-              
+
               <div class="card" style=${{padding:20,border:'1px solid #f0a50033'}}>
                 <h3 style=${{color:'#f0a500',fontSize:14,fontWeight:800,marginBottom:14,textTransform:'uppercase',letterSpacing:'0.5px'}}>🤖 AI Chatbot Knowledge Base Editor</h3>
                 <p style=${{fontSize:11,color:'#78909c',marginBottom:12}}>Directly modify FAQs and rule highlights the chatbot answers on the home page and tryouts dashboard.</p>
-                
+
                 ${kb ? html`
                   <div style=${{display:'flex',flexDirection:'column',gap:12}}>
                     <div>
@@ -2234,7 +2165,7 @@ ${list.length===0&&html`<div style=${{padding:20,textAlign:'center',color:'#333'
                           saveKb(next);
                         }} style=${{fontSize:12}}></textarea>
                     </div>
-                    
+
                     <div>
                       <label class="label">SRVA Tryout Policy Note</label>
                       <textarea class="input" rows="2" value=${kb.rules_and_regulations?.srva?.expert_note || ''}
@@ -2299,7 +2230,7 @@ ${list.length===0&&html`<div style=${{padding:20,textAlign:'center',color:'#333'
               <div class="card" style=${{padding:20,border:'1px solid #f0a50033'}}>
                 <h3 style=${{color:'#f0a500',fontSize:14,fontWeight:800,marginBottom:14,textTransform:'uppercase',letterSpacing:'0.5px'}}>🎓 AI Retraining Portal</h3>
                 <p style=${{fontSize:11,color:'#78909c',marginBottom:12}}>Review unanswered user questions here. Provide an answer and click train to add it to the chatbot's FAQs.</p>
-                
+
                 <div style=${{display:'flex',flexDirection:'column',gap:12,maxHeight:340,overflowY:'auto'}}>
                   ${unansweredQ.map((q,idx)=>html`
                     <div key=${q.id} style=${{background:'#12151c',border:'1px solid #2a2e38',borderRadius:8,padding:12,marginBottom:4}}>
@@ -2312,7 +2243,7 @@ ${list.length===0&&html`<div style=${{padding:20,textAlign:'center',color:'#333'
                         }} style=${{background:'none',border:'none',color:'#ef5350',cursor:'pointer'}}>Dismiss</button>
                       </div>
                       <div style=${{fontSize:12,fontWeight:700,color:'#ffa726',marginBottom:8}}>Q: "${q.question}"</div>
-                      
+
                       <div style=${{marginBottom:8}}>
                         <textarea class="input" placeholder="Type answer to train Volley AI..." rows="2"
                           value=${q.answer || ''}
@@ -2322,7 +2253,7 @@ ${list.length===0&&html`<div style=${{padding:20,textAlign:'center',color:'#333'
                             localStorage.setItem('midtn_unanswered_questions', JSON.stringify(next));
                           }} style=${{fontSize:11,padding:6}}></textarea>
                       </div>
-                      
+
                       <div style=${{textAlign:'right'}}>
                         <${Btn} sm onClick=${()=>{
                           if(!q.answer || !q.answer.trim()) {
@@ -2335,7 +2266,7 @@ ${list.length===0&&html`<div style=${{padding:20,textAlign:'center',color:'#333'
                             faq: [...(currentKb.faq || []), { question: q.question, answer: q.answer.trim() }]
                           };
                           saveKb(nextKb);
-                          
+
                           const nextUnanswered = unansweredQ.filter(item=>item.id!==q.id);
                           setUnansweredQ(nextUnanswered);
                           localStorage.setItem('midtn_unanswered_questions', JSON.stringify(nextUnanswered));
@@ -2430,7 +2361,7 @@ function TeamOfferModal({teamKey,athletes,onClose,onSendOffer}){
       <div class="modal-box" style=${{width:500}} onClick=${e=>e.stopPropagation()}>
         <div style=${{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:16}}>
           <h3 style=${{margin:0}}>${age} ${lvl} — Send Offers</h3>
-          <button onClick=${onClose} aria-label="Close modal" title="Close modal" style=${{background:'none',border:'none',color:'#666',fontSize:24,cursor:'pointer'}}>×</button>
+          <button onClick=${onClose} style=${{background:'none',border:'none',color:'#666',fontSize:24,cursor:'pointer'}}>×</button>
         </div>
         <div style=${{maxHeight:400,overflowY:'auto',marginBottom:16}}>
           ${roster.map(a=>html`
@@ -2439,17 +2370,9 @@ function TeamOfferModal({teamKey,athletes,onClose,onSendOffer}){
                 <div style=${{fontWeight:700}}>${a.first} ${a.last}</div>
                 <div style=${{fontSize:11,color:'#78909c'}}>${posAbbr(a.primaryPos)} · ${a.status}</div>
               </div>
-              ${a.status === 'accepted'
-                ? html`<${Badge} c="#66bb6a" sm>accepted<//>`
-                : html`
-                    <div style=${{display:'flex',gap:6,alignItems:'center'}}>
-                      ${['declined','offered'].includes(a.status) && html`<${Badge} c=${a.status==='declined'?'#ef5350':'#42a5f5'} sm>${a.status}<//>`}
-                      <${Btn} sm onClick=${()=>onSendOffer(a)} color="#f0a500">
-                        ${['declined','offered'].includes(a.status) ? 'Resend Offer 🔁' : 'Send Offer 📩'}
-                      <//>
-                    </div>
-                  `
-              }
+              ${['accepted','declined','offered'].includes(a.status)
+                ? html`<${Badge} c=${a.status==='accepted'?'#66bb6a':a.status==='declined'?'#ef5350':'#42a5f5'} sm>${a.status}<//>`
+                : html`<${Btn} sm onClick=${()=>onSendOffer(a)} color="#f0a500">Send Offer<//>`}
             </div>`)}
         </div>
         <${Btn} onClick=${onClose} style=${{width:'100%'}} color="#2a2e38">Done<//>
@@ -2470,7 +2393,7 @@ function App(){
   },[]);
   const doArrive=useCallback((id,contactInfo)=>{setAthletes(p=>p.map(a=>a.id===id?{...a,...(contactInfo||{}),arrived:true,status:'arrived'}:a));},[]);
   const addWalkup=useCallback(wu=>{setAthletes(p=>[...p,...initAthletes([wu])]);},[]);
-  
+
   useEffect(()=>{if(athletes.length) saveLocal(athletes);},[athletes]);
 
   // Real-time synchronization across multiple browser tabs / devices
@@ -2500,6 +2423,3 @@ function App(){
   return html`<${HeadCoach} athletes=${athletes} setAthletes=${setAthletes} onLogout=${()=>setUser(null)}/>`;
 }
 render(html`<${App}/>`,document.getElementById('app'));
-</script>
-</body>
-</html>
