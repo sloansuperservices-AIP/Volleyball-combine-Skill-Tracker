@@ -229,18 +229,22 @@ def update_knowledge_base():
     # Update Expert Rules (2025-2027)
     kb['rules_and_regulations'] = {
         "usa_volleyball": {
-            "expert_note": "2025-2027 Rule Highlights: Jewelry (studs and small hoops) is now allowed during play; a re-serve is permitted for a tossing error (limited to once per service turn); the Libero is now allowed to be the team or game captain; Coaches are allowed to stand and walk in the free zone up to the attack line extension. Screening is strictly monitored—players must not hide the server or the flight path of the ball. Uniforms must have clearly contrasting numbers centered on the front and back.",
+            "expert_note": "2025-2027 USA Volleyball DCR Highlights: 1. Jewelry (studs and small hoops) is allowed during play. 2. Re-serve is permitted for one tossing error per service turn. 3. The Libero can officially serve in one position in the rotation and is allowed to be the team or game captain. 4. Coaches can stand and walk in the free zone up to the attack line extension. 5. Screening is strictly monitored (players must not hide the server or ball flight path, and hands below head positioning during defense is monitored). 6. Pursuit Rule allows players to pursue a ball crossing the net outside the antennas under specific conditions. 7. Clarified Net Contact faults (contact with net between antennas during playing action is a fault).",
             "link": "https://usavolleyball.org/resources-for-officials/rulebooks-and-interpretations/"
         },
         "srva": {
-            "expert_note": "SRVA Policies: Valid USAV membership (Tryout or Full) required before stepping on court. Offers accepted via SportsEngine are binding. Max tryout fee $75. Athletes must bring a printed and signed USAV Medical Release form to tryouts. Notarization is required for Medical Release forms at certain regional/national events.",
+            "expert_note": "SRVA Policies & Tryouts: 1. Valid USAV membership (Tryout or Full) is required before stepping on court. 2. Offers accepted via SportsEngine are binding. 3. Max tryout fee is $75. 4. 10-Day Offer Rule: Official written club offers must remain open for a minimum of 10 days before they can be rescinded. 5. Mandatory Medical Release forms: Athletes must bring a printed, signed USAV Medical Release form to tryouts; notarization is required for some events.",
             "link": "https://www.srva.org"
         },
         "highlights": [
             "Libero can now officially serve in one position in the rotation and may also be the team or game captain (2025-2027 USAV Rules).",
             "Uniform numbers must be clearly contrasting and centered (front and back).",
-            "Medical Release forms are required for every tournament and must be printed, signed, and occasionally notarized.",
-            "Re-serve rule: One tossing error per service turn is allowed without loss of rally (ball must drop to floor)."
+            "Mandatory Medical Release forms are required for every tournament and must be printed, signed, and occasionally notarized.",
+            "Re-serve rule: One tossing error per service turn is allowed without loss of rally (ball must drop to floor).",
+            "Pursuit Rule: Specific conditions allow players to pursue a ball outside antennas.",
+            "Clarified Net Contact faults: Contact with the net during action of playing is a fault.",
+            "Screening rule: Players cannot screen or hide the server/ball flight path, including active defense positioning.",
+            "SRVA 10-Day Offer Rule: Club offers must remain valid for a minimum of 10 days from receipt."
         ]
     }
 
