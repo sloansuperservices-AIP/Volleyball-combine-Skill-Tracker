@@ -204,8 +204,8 @@ function Chatbot() {
         // 2. Offline Client-side RAG Engine (runs as fallback, or if no API settings are configured)
         if (response === fallbackText && kb) {
             // 0. Priority "Expert Rule" match
-            if (q.includes('rule') || q.includes('jewelry') || q.includes('libero') || q.includes('medical form') || q.includes('re-serve') || q.includes('captain')) {
-                if (q.includes('srva') || q.includes('medical') || q.includes('notar')) {
+            if (q.includes('rule') || q.includes('jewelry') || q.includes('libero') || q.includes('medical form') || q.includes('re-serve') || q.includes('captain') || q.includes('pursuit') || q.includes('net contact') || q.includes('screening') || q.includes('10-day') || q.includes('10 day')) {
+                if (q.includes('srva') || q.includes('medical') || q.includes('notar') || q.includes('10-day') || q.includes('10 day')) {
                     response = kb.rules_and_regulations?.srva?.expert_note || response;
                 } else {
                     response = kb.rules_and_regulations?.usa_volleyball?.expert_note || response;
@@ -217,7 +217,11 @@ function Chatbot() {
                                (q.includes('jewelry') && hl.includes('jewelry')) ||
                                (q.includes('re-serve') && hl.includes('re-serve')) ||
                                (q.includes('uniform') && hl.includes('uniform')) ||
-                               (q.includes('medical') && hl.includes('medical'));
+                               (q.includes('medical') && hl.includes('medical')) ||
+                               (q.includes('pursuit') && hl.includes('pursuit')) ||
+                               (q.includes('net contact') && hl.includes('net contact')) ||
+                               (q.includes('screening') && hl.includes('screen')) ||
+                               ((q.includes('10-day') || q.includes('10 day')) && (hl.includes('10-day') || hl.includes('10 day')));
                     });
                     if (hMatch) response = hMatch;
                 }
@@ -238,11 +242,11 @@ function Chatbot() {
                 if (kb.news && kb.news[0]) {
                     response = `Latest News: ${kb.news[0].title} (${kb.news[0].date}). ${kb.news[0].summary}`;
                 }
-            } else if (q.includes('social') || q.includes('instagram') || q.includes('facebook')) {
+            } else if (response === fallbackText && (q.includes('social') || q.includes('instagram') || q.includes('facebook'))) {
                 response = `Social Media Updates: (IG) ${kb.social_updates?.instagram} (FB) ${kb.social_updates?.facebook}`;
-            } else if (q.includes('where') || q.includes('location') || q.includes('facility')) {
+            } else if (response === fallbackText && (q.includes('where') || q.includes('location') || q.includes('facility'))) {
                 response = `We are based at Hooptown in Smyrna, TN (6910 Stroop Ln).`;
-            } else if (q.includes('offer') || q.includes('when will we know')) {
+            } else if (response === fallbackText && (q.includes('offer') || q.includes('when will we know'))) {
                 response = "Initial offers are typically made within 24-48 hours after the conclusion of tryouts for your age group via email/SportsEngine.";
             }
 
