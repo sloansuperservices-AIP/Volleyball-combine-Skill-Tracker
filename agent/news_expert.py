@@ -229,18 +229,22 @@ def update_knowledge_base():
     # Update Expert Rules (2025-2027)
     kb['rules_and_regulations'] = {
         "usa_volleyball": {
-            "expert_note": "2025-2027 Rule Highlights: Jewelry (studs and small hoops) is now allowed during play; a re-serve is permitted for a tossing error (limited to once per service turn); the Libero is now allowed to be the team or game captain; Coaches are allowed to stand and walk in the free zone up to the attack line extension. Screening is strictly monitored—players must not hide the server or the flight path of the ball. Uniforms must have clearly contrasting numbers centered on the front and back.",
+            "expert_note": "2025-2027 Rule Highlights: Jewelry (studs and small hoops) is now allowed during play; a re-serve is permitted for a tossing error (limited to once per service turn); the Libero is now allowed to be the team or game captain; Coaches are allowed to stand and walk in the free zone up to the attack line extension. Screening is strictly monitored—players must not shield the server or hide the flight path of the ball (hands below head is a clarified guideline). Uniforms must have clearly contrasting numbers centered on the front and back. Net contact is a fault if it interferes with play. Pursuit rule: A ball crossing the net plane outside the crossing space may be played back from the opponent's free zone.",
             "link": "https://usavolleyball.org/resources-for-officials/rulebooks-and-interpretations/"
         },
         "srva": {
-            "expert_note": "SRVA Policies: Valid USAV membership (Tryout or Full) required before stepping on court. Offers accepted via SportsEngine are binding. Max tryout fee $75. Athletes must bring a printed and signed USAV Medical Release form to tryouts. Notarization is required for Medical Release forms at certain regional/national events.",
+            "expert_note": "SRVA Policies: Valid USAV membership (Tryout or Full) required before stepping on court. Offers accepted via SportsEngine are binding. Max tryout fee $75. Athletes must bring a printed and signed USAV Medical Release form to tryouts. Notarization is required for Medical Release forms at certain regional/national events. 10-day offer rule: SRVA clubs must honor written offers for at least 10 days before retracting them to allow families to make informed decisions.",
             "link": "https://www.srva.org"
         },
         "highlights": [
             "Libero can now officially serve in one position in the rotation and may also be the team or game captain (2025-2027 USAV Rules).",
             "Uniform numbers must be clearly contrasting and centered (front and back).",
             "Medical Release forms are required for every tournament and must be printed, signed, and occasionally notarized.",
-            "Re-serve rule: One tossing error per service turn is allowed without loss of rally (ball must drop to floor)."
+            "Re-serve rule: One tossing error per service turn is allowed without loss of rally (ball must drop to floor).",
+            "Screening rule: Players must not shield the server or the ball's flight path. Hands below head is a clarified guideline.",
+            "Net contact faults: Contact with the net is a fault if it influences play or is made while playing the ball.",
+            "Pursuit rule: Allows playing the ball back from the opponent's free zone if it crossed outside the crossing space.",
+            "10-day offer rule: Under SRVA rules, club offers must remain open for 10 days to allow families to make an informed decision."
         ]
     }
 
@@ -278,22 +282,31 @@ def update_knowledge_base():
 def run_daemon():
     """Runs the update loop daily at 12:00 PM."""
     print("Agent starting in DAEMON mode (Daily at 12:00 PM)")
+    last_run_day = None
     while True:
         now = datetime.datetime.now()
+        today = now.date()
+
+        # Check if we should run today
+        # We run if it's past or at 12:00 PM, and we haven't run today yet
+        if now.hour >= 12 and last_run_day != today:
+            print(f"Executing daily update at {now}...")
+            update_knowledge_base()
+            last_run_day = today
+
+        # Recalculate target for next run (noon today if before noon and not run, else noon tomorrow)
+        now = datetime.datetime.now()
         target = now.replace(hour=12, minute=0, second=0, microsecond=0)
-        if now >= target:
+        if now.hour >= 12:
             target += datetime.timedelta(days=1)
 
         wait_seconds = (target - now).total_seconds()
-        print(f"Next run scheduled for {target}. Sleeping for {wait_seconds/3600:.2f} hours.")
-
-        # In a real daemon we would sleep. For the sandbox, we'll run once and simulate.
-        # But for the sake of the task, the logic is correct.
-        time.sleep(min(wait_seconds, 3600))
-
-        if datetime.datetime.now() >= target:
-            print(f"Executing daily update at {datetime.datetime.now()}...")
-            update_knowledge_base()
+        # Keep sleep interval reasonable (e.g., max 1 hour) to check conditions and handle system clock changes
+        sleep_time = min(wait_seconds, 3600)
+        if sleep_time < 1:
+            sleep_time = 1
+        print(f"Next target: {target}. Sleeping for {sleep_time/60:.2f} minutes.")
+        time.sleep(sleep_time)
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Mid TN VBC News Expert Agent")
