@@ -1,0 +1,4 @@
+127.0.0.1 - - [27/Jul/2026 14:07:24] "HEAD /index.html HTTP/1.1" 200 -
+127.0.0.1 - - [27/Jul/2026 14:08:22] "GET /index.html HTTP/1.1" 200 -
+127.0.0.1 - - [27/Jul/2026 14:08:22] "GET /chatbot.js HTTP/1.1" 200 -
+127.0.0.1 - - [27/Jul/2026 14:08:23] "GET /volley_kb.json HTTP/1.1" 200 -
