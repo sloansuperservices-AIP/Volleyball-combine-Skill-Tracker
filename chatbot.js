@@ -341,7 +341,8 @@ function Chatbot() {
     return html`
         <div style=${{ fontFamily: 'Inter, sans-serif' }}>
             ${!isOpen && html`
-                <button onClick=${() => setIsOpen(true)} id="volley-ai-trigger" style=${{
+                <button onClick=${() => setIsOpen(true)} id="volley-ai-trigger"
+                    aria-label="Open Volley AI Assistant" title="Open Chatbot" style=${{
                     width: '60px', height: '60px', borderRadius: '50%', backgroundColor: '#f0a500',
                     border: 'none', color: '#000', fontSize: '24px', cursor: 'pointer',
                     boxShadow: '0 4px 12px rgba(0,0,0,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center'
@@ -358,7 +359,8 @@ function Chatbot() {
                         display: 'flex', justifySelf: 'stretch', justifyContent: 'space-between', alignItems: 'center'
                     }}>
                         <span>Volley AI Expert</span>
-                        <button onClick=${() => setIsOpen(false)} style=${{
+                        <button onClick=${() => setIsOpen(false)}
+                            aria-label="Close Volley AI Assistant" title="Close Chatbot" style=${{
                             background: 'none', border: 'none', color: '#000', fontSize: '20px', cursor: 'pointer'
                         }}>×</button>
                     </div>
