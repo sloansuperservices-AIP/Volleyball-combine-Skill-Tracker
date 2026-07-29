@@ -203,13 +203,19 @@ function Chatbot() {
 
         // 2. Offline Client-side RAG Engine (runs as fallback, or if no API settings are configured)
         if (response === fallbackText && kb) {
-            // 0. Priority "Expert Rule" match
-            if (q.includes('rule') || q.includes('jewelry') || q.includes('libero') || q.includes('medical form') || q.includes('re-serve') || q.includes('captain')) {
-                if (q.includes('srva') || q.includes('medical') || q.includes('notar')) {
+            // Priority expert rule checking branches (jewelry, libero, re-serve, medical, pursuit, net contact, screening, 10-day rule)
+            if (response === fallbackText && (
+                q.includes('rule') || q.includes('jewelry') || q.includes('libero') ||
+                q.includes('medical') || q.includes('re-serve') || q.includes('captain') ||
+                q.includes('pursuit') || q.includes('net contact') || q.includes('screening') ||
+                q.includes('10-day') || q.includes('regulation') || q.includes('policy')
+            )) {
+                if (q.includes('srva') || q.includes('medical') || q.includes('notar') || q.includes('10-day') || q.includes('offer')) {
                     response = kb.rules_and_regulations?.srva?.expert_note || response;
                 } else {
                     response = kb.rules_and_regulations?.usa_volleyball?.expert_note || response;
                 }
+
                 if (kb.rules_and_regulations?.highlights) {
                     const hMatch = kb.rules_and_regulations.highlights.find(h => {
                         const hl = h.toLowerCase();
@@ -217,36 +223,36 @@ function Chatbot() {
                                (q.includes('jewelry') && hl.includes('jewelry')) ||
                                (q.includes('re-serve') && hl.includes('re-serve')) ||
                                (q.includes('uniform') && hl.includes('uniform')) ||
-                               (q.includes('medical') && hl.includes('medical'));
+                               (q.includes('medical') && hl.includes('medical')) ||
+                               (q.includes('pursuit') && hl.includes('pursuit')) ||
+                               (q.includes('net contact') && hl.includes('net contact')) ||
+                               (q.includes('screening') && hl.includes('screening')) ||
+                               (q.includes('10-day') && hl.includes('10-day'));
                     });
                     if (hMatch) response = hMatch;
                 }
             }
 
-            // FAQ direct matches
+            // Specific FAQ and location queries
             if (response === fallbackText && (q.includes('cost') || q.includes('price') || q.includes('how much'))) {
                 response = kb.faq?.find(f => f.question.toLowerCase().includes('cost'))?.answer || response;
             } else if (response === fallbackText && (q.includes('sign in') || q.includes('check in') || q.includes('register'))) {
                 response = kb.faq?.find(f => f.question.toLowerCase().includes('sign in'))?.answer || response;
             } else if (response === fallbackText && (q.includes('bring') || q.includes('ready') || q.includes('requirement'))) {
                 response = kb.faq?.find(f => f.question.toLowerCase().includes('ready'))?.answer || response;
-            } else if (response === fallbackText && (q.includes('rule') || q.includes('regulation') || q.includes('uniform'))) {
-                response = `USAV Expert Note: ${kb.rules_and_regulations?.usa_volleyball?.expert_note || ''}`;
-            } else if (response === fallbackText && q.includes('srva')) {
-                response = `SRVA Expert Note: ${kb.rules_and_regulations?.srva?.expert_note || ''}`;
             } else if (response === fallbackText && (q.includes('news') || q.includes('update'))) {
                 if (kb.news && kb.news[0]) {
                     response = `Latest News: ${kb.news[0].title} (${kb.news[0].date}). ${kb.news[0].summary}`;
                 }
-            } else if (q.includes('social') || q.includes('instagram') || q.includes('facebook')) {
+            } else if (response === fallbackText && (q.includes('social') || q.includes('instagram') || q.includes('facebook'))) {
                 response = `Social Media Updates: (IG) ${kb.social_updates?.instagram} (FB) ${kb.social_updates?.facebook}`;
-            } else if (q.includes('where') || q.includes('location') || q.includes('facility')) {
+            } else if (response === fallbackText && (q.includes('where') || q.includes('location') || q.includes('facility'))) {
                 response = `We are based at Hooptown in Smyrna, TN (6910 Stroop Ln).`;
-            } else if (q.includes('offer') || q.includes('when will we know')) {
+            } else if (response === fallbackText && (q.includes('offer') || q.includes('when will we know'))) {
                 response = "Initial offers are typically made within 24-48 hours after the conclusion of tryouts for your age group via email/SportsEngine.";
             }
 
-            // Custom trained FAQ match scan
+            // Custom FAQ score matching (Only evaluate if we still haven't found a response)
             if (response === fallbackText && kb.faq && kb.faq.length > 0) {
                 let bestFaq = null;
                 let bestFaqScore = 0;
@@ -341,7 +347,10 @@ function Chatbot() {
     return html`
         <div style=${{ fontFamily: 'Inter, sans-serif' }}>
             ${!isOpen && html`
-                <button onClick=${() => setIsOpen(true)} id="volley-ai-trigger" style=${{
+                <button onClick=${() => setIsOpen(true)} id="volley-ai-trigger"
+                        aria-label="Open Volley AI Expert Chatbot"
+                        title="Open Volley AI Expert Chatbot"
+                        style=${{
                     width: '60px', height: '60px', borderRadius: '50%', backgroundColor: '#f0a500',
                     border: 'none', color: '#000', fontSize: '24px', cursor: 'pointer',
                     boxShadow: '0 4px 12px rgba(0,0,0,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center'
@@ -358,7 +367,10 @@ function Chatbot() {
                         display: 'flex', justifySelf: 'stretch', justifyContent: 'space-between', alignItems: 'center'
                     }}>
                         <span>Volley AI Expert</span>
-                        <button onClick=${() => setIsOpen(false)} style=${{
+                        <button onClick=${() => setIsOpen(false)}
+                                aria-label="Close Volley AI Expert Chatbot"
+                                title="Close Volley AI Expert Chatbot"
+                                style=${{
                             background: 'none', border: 'none', color: '#000', fontSize: '20px', cursor: 'pointer'
                         }}>×</button>
                     </div>
