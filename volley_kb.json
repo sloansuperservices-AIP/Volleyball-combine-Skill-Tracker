@@ -7,6 +7,31 @@
   },
   "news": [
     {
+      "title": "U.S. Women\u2019s U19 Sweeps Way to Gold Medal at 2026 Continental Championship",
+      "date": "2026-07-30",
+      "summary": "Source: USA Volleyball. Link: https://usavolleyball.org/story/u-s-womens-u19-sweeps-way-to-gold-medal-at-2026-continental-championship/"
+    },
+    {
+      "title": "USA Volleyball Announces 2026 Beach NTDP Summer Training Series Rosters",
+      "date": "2026-07-30",
+      "summary": "Source: USA Volleyball. Link: https://usavolleyball.org/story/usa-volleyball-announces-2026-beach-ntdp-summer-training-series-rosters/"
+    },
+    {
+      "title": "U.S. Men Announce Roster for 2026 VNL Final in China",
+      "date": "2026-07-30",
+      "summary": "Source: USA Volleyball. Link: https://usavolleyball.org/story/u-s-men-announce-roster-for-2026-vnl-final-in-china/"
+    },
+    {
+      "title": "U.S. Men Ace Italy in 2026 VNL Quarterfinal",
+      "date": "2026-07-30",
+      "summary": "Source: USA Volleyball. Link: https://usavolleyball.org/story/u-s-men-ace-italy-in-2026-vnl-quarterfinal/"
+    },
+    {
+      "title": "2026 USAV Women\u2019s Cup (San Diego)",
+      "date": "2026-07-30",
+      "summary": "Source: USA Volleyball. Link: https://usavolleyball.org/event/2026-usav-womens-cup-san-diego/"
+    },
+    {
       "title": "U.S. Upends Canada to Reach Semifinals at 2026 Women\u2019s U21 Pan American Cup",
       "date": "2026-07-10",
       "summary": "Source: USA Volleyball. Link: https://usavolleyball.org/story/u-s-upends-canada-to-reach-semifinals-at-2026-womens-u21-pan-american-cup/"
@@ -74,18 +99,22 @@
   ],
   "rules_and_regulations": {
     "usa_volleyball": {
-      "expert_note": "2025-2027 Rule Highlights: Jewelry (studs and small hoops) is now allowed during play; a re-serve is permitted for a tossing error (limited to once per service turn); the Libero is now allowed to be the team or game captain; Coaches are allowed to stand and walk in the free zone up to the attack line extension. Screening is strictly monitored\u2014players must not hide the server or the flight path of the ball. Uniforms must have clearly contrasting numbers centered on the front and back.",
+      "expert_note": "2025-2027 USA Volleyball Rule Highlights: 1) Jewelry (studs, small hoops, flat rings) is permitted during play. 2) Re-serve on toss error: One tossing error is allowed per service turn for a re-serve (the ball must drop to the floor without touch). 3) Libero captaincy: The Libero is now officially allowed to be the team or game captain. 4) Screening rule: Screening is strictly monitored; players on the serving team must not hide the server or the flight path of the ball, and grouped players must keep hands below their head (no waving, jumping, or hands above head). 5) Pursuit rule: The Pursuit rule allows a player to retrieve a ball that has crossed the vertical plane of the net outside the crossing space, provided it is returned outside the crossing space. 6) Clarified net contact faults: Net contact is only a fault if it interferes with play, or if it occurs during the action of playing the ball, or touching the top tape.",
       "link": "https://usavolleyball.org/resources-for-officials/rulebooks-and-interpretations/"
     },
     "srva": {
-      "expert_note": "SRVA Policies: Valid USAV membership (Tryout or Full) required before stepping on court. Offers accepted via SportsEngine are binding. Max tryout fee $75. Athletes must bring a printed and signed USAV Medical Release form to tryouts. Notarization is required for Medical Release forms at certain regional/national events.",
+      "expert_note": "SRVA Regional Policies & Tryout Requirements: 1) SRVA 10-day offer rule: Clubs must keep tryout offers open for at least 10 days from the date of the offer; athletes cannot be forced into a decision before then. 2) Mandatory medical release forms: Every athlete must bring a printed and signed USAV/SRVA Medical Release form to tryouts. 3) USAV Membership: A valid USAV membership (Tryout or Full) is required before stepping on the court. 4) Tryout fee limit: Maximum tryout fee is $75.",
       "link": "https://www.srva.org"
     },
     "highlights": [
       "Libero can now officially serve in one position in the rotation and may also be the team or game captain (2025-2027 USAV Rules).",
       "Uniform numbers must be clearly contrasting and centered (front and back).",
-      "Medical Release forms are required for every tournament and must be printed, signed, and occasionally notarized.",
-      "Re-serve rule: One tossing error per service turn is allowed without loss of rally (ball must drop to floor)."
+      "Medical Release forms are mandatory for tryouts and must be printed, signed, and occasionally notarized.",
+      "Re-serve rule: One tossing error per service turn is allowed without loss of rally (ball must drop to floor).",
+      "Screening rule / hands below head: Serving team players must not group with hands above head or wave arms to block the opponent's view of the server.",
+      "Pursuit rule: Permits retrieving a ball that crossed the net's vertical plane outside the crossing space.",
+      "Net contact faults: Touches are only a fault if they interfere with play or touch the top tape during active play.",
+      "10-day offer rule: SRVA clubs must leave tryout offers open for at least 10 days."
     ]
   },
   "faq": [
@@ -110,12 +139,12 @@
     "instagram": "Latest social media updates are currently unavailable; please visit our Instagram page.",
     "facebook": "Latest social media updates are currently unavailable; please visit our Facebook page."
   },
-  "last_agent_run": "2026-07-10 14:42:09",
+  "last_agent_run": "2026-07-30 14:44:24",
   "active_documents": [
     {
       "name": "MidTN VBC",
       "url": "https://www.midtnvbc.com/page/show/1484078-home",
-      "content": "2026-2027 Club Tryouts\nCountdown to Club Volleyball Tryouts!0Days0Hours0Minutes0Seconds\nCountdown to Club Volleyball Tryouts!\nPrivate Lessons are 1 hour each. All our staff is experienced at working with all levels of training from beginner players to college age players.\nFor prices & availability view the registration.\nThis is our first step into volleyball, built for beginners who are just getting started. Athletes develop agility, footwork, coordination, and body control through fun, age-appropriate drills that build a strong foundation.\nThe next step after Tot\u2019s\u2014athletes strengthen passing, setting, serving, and attacking while learning simple game concepts like spacing, communication, and teamwork through fun gameplay.\nFun with Fundamentals (7/20-23):This camp is all about FUN! Your athlete will be learning all of the basic skills and techniques of the sport. Our sessions will be gears toward beginners, so no experience is needed! This camp will teach the following skills, Footwork and movement, Passing, Setting, Serving, Attacking, and Defense.\nTryout Tune Up (6/22, 6/29, 7/6):Gear up for volleyball tryouts!Join our prep clinics to sharpen your serving, passing, setting, and attacking. With expert coaching and game-like drills, we\u2019ll help players of all skill levels build the confidence to make the team.\nAll Skills (Week 1: 6/8-11 OR Week 2: 7/27-7/30):Learn the fundamentals and play with confidence! Our camp covers the essentials\u2014passing, setting, hitting, serving, and defending\u2014through fun drills and friendly competition. With expert, individualized coaching, athletes will build skills, practice teamwork, and make lasting friendships.\nSkills Week (6/22-25):This 4-day camp focuses on a different skill theme each day to help athletes level up fast: Day 1: Setting + Attacking, Day 2: Serving + Serve Receive + Defense, Day 3: Dig-to-Attack,\u00a0Day 4: Pass-to-Set. Best for athletes with prior volleyball experience.\nTryout Tune Up (6/24, 7/1, 7/8):Gear up for volleyball tryouts!Join our prep clinics to sharpen your serving, passing, setting, and attacking. With expert coaching and game-like drills, we\u2019ll help players of all skill levels build the confidence to make the team.\nAll Skills (Week 1: 6/15-18:Learn the fundamentals and play with confidence! Our camp covers the essentials\u2014passing, setting, hitting, serving, and defending\u2014through fun drills and friendly competition. With expert, individualized coaching, athletes will build skills, practice teamwork, and make lasting friendships.\nThis website is powered by SportsEngine'sSports Relationship Management(SRM) software, but is owned by and subject to the  MidTN VBC privacy policy.\u00a92026 SportsEngine, LLC.Privacy Policy\nThis website is powered by SportsEngine'sSports Relationship Management(SRM) software, but is owned by and subject to the  MidTN VBC privacy policy.\u00a92026 SportsEngine, LLC."
+      "content": "2026-2027 Club Tryouts\nPrivate Lessons are 1 hour each. All our staff is experienced at working with all levels of training from beginner players to college age players.\nFor prices & availability view the registration.\nThis is our first step into volleyball, built for beginners who are just getting started. Athletes develop agility, footwork, coordination, and body control through fun, age-appropriate drills that build a strong foundation.\nThe next step after Tot\u2019s\u2014athletes strengthen passing, setting, serving, and attacking while learning simple game concepts like spacing, communication, and teamwork through fun gameplay.\nFun with Fundamentals (7/20-23):This camp is all about FUN! Your athlete will be learning all of the basic skills and techniques of the sport. Our sessions will be gears toward beginners, so no experience is needed! This camp will teach the following skills, Footwork and movement, Passing, Setting, Serving, Attacking, and Defense.\nTryout Tune Up (6/22, 6/29, 7/6):Gear up for volleyball tryouts!Join our prep clinics to sharpen your serving, passing, setting, and attacking. With expert coaching and game-like drills, we\u2019ll help players of all skill levels build the confidence to make the team.\nAll Skills (Week 1: 6/8-11 OR Week 2: 7/27-7/30):Learn the fundamentals and play with confidence! Our camp covers the essentials\u2014passing, setting, hitting, serving, and defending\u2014through fun drills and friendly competition. With expert, individualized coaching, athletes will build skills, practice teamwork, and make lasting friendships.\nSkills Week (6/22-25):This 4-day camp focuses on a different skill theme each day to help athletes level up fast: Day 1: Setting + Attacking, Day 2: Serving + Serve Receive + Defense, Day 3: Dig-to-Attack,\u00a0Day 4: Pass-to-Set. Best for athletes with prior volleyball experience.\nTryout Tune Up (6/24, 7/1, 7/8):Gear up for volleyball tryouts!Join our prep clinics to sharpen your serving, passing, setting, and attacking. With expert coaching and game-like drills, we\u2019ll help players of all skill levels build the confidence to make the team.\nAll Skills (Week 1: 6/15-18:Learn the fundamentals and play with confidence! Our camp covers the essentials\u2014passing, setting, hitting, serving, and defending\u2014through fun drills and friendly competition. With expert, individualized coaching, athletes will build skills, practice teamwork, and make lasting friendships.\nThis website is powered by SportsEngine'sSports Relationship Management(SRM) software, but is owned by and subject to the  MidTN VBC privacy policy.\u00a92026 SportsEngine, LLC.Privacy Policy\nThis website is powered by SportsEngine'sSports Relationship Management(SRM) software, but is owned by and subject to the  MidTN VBC privacy policy.\u00a92026 SportsEngine, LLC."
     },
     {
       "name": "Private Lessons",
