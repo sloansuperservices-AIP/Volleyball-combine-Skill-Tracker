@@ -229,18 +229,22 @@ def update_knowledge_base():
     # Update Expert Rules (2025-2027)
     kb['rules_and_regulations'] = {
         "usa_volleyball": {
-            "expert_note": "2025-2027 Rule Highlights: Jewelry (studs and small hoops) is now allowed during play; a re-serve is permitted for a tossing error (limited to once per service turn); the Libero is now allowed to be the team or game captain; Coaches are allowed to stand and walk in the free zone up to the attack line extension. Screening is strictly monitored—players must not hide the server or the flight path of the ball. Uniforms must have clearly contrasting numbers centered on the front and back.",
+            "expert_note": "2025-2027 USA Volleyball Rule Highlights: 1) Jewelry (studs, small hoops, flat rings) is permitted during play. 2) Re-serve on toss error: One tossing error is allowed per service turn for a re-serve (the ball must drop to the floor without touch). 3) Libero captaincy: The Libero is now officially allowed to be the team or game captain. 4) Screening rule: Screening is strictly monitored; players on the serving team must not hide the server or the flight path of the ball, and grouped players must keep hands below their head (no waving, jumping, or hands above head). 5) Pursuit rule: The Pursuit rule allows a player to retrieve a ball that has crossed the vertical plane of the net outside the crossing space, provided it is returned outside the crossing space. 6) Clarified net contact faults: Net contact is only a fault if it interferes with play, or if it occurs during the action of playing the ball, or touching the top tape.",
             "link": "https://usavolleyball.org/resources-for-officials/rulebooks-and-interpretations/"
         },
         "srva": {
-            "expert_note": "SRVA Policies: Valid USAV membership (Tryout or Full) required before stepping on court. Offers accepted via SportsEngine are binding. Max tryout fee $75. Athletes must bring a printed and signed USAV Medical Release form to tryouts. Notarization is required for Medical Release forms at certain regional/national events.",
+            "expert_note": "SRVA Regional Policies & Tryout Requirements: 1) SRVA 10-day offer rule: Clubs must keep tryout offers open for at least 10 days from the date of the offer; athletes cannot be forced into a decision before then. 2) Mandatory medical release forms: Every athlete must bring a printed and signed USAV/SRVA Medical Release form to tryouts. 3) USAV Membership: A valid USAV membership (Tryout or Full) is required before stepping on the court. 4) Tryout fee limit: Maximum tryout fee is $75.",
             "link": "https://www.srva.org"
         },
         "highlights": [
             "Libero can now officially serve in one position in the rotation and may also be the team or game captain (2025-2027 USAV Rules).",
             "Uniform numbers must be clearly contrasting and centered (front and back).",
-            "Medical Release forms are required for every tournament and must be printed, signed, and occasionally notarized.",
-            "Re-serve rule: One tossing error per service turn is allowed without loss of rally (ball must drop to floor)."
+            "Medical Release forms are mandatory for tryouts and must be printed, signed, and occasionally notarized.",
+            "Re-serve rule: One tossing error per service turn is allowed without loss of rally (ball must drop to floor).",
+            "Screening rule / hands below head: Serving team players must not group with hands above head or wave arms to block the opponent's view of the server.",
+            "Pursuit rule: Permits retrieving a ball that crossed the net's vertical plane outside the crossing space.",
+            "Net contact faults: Touches are only a fault if they interfere with play or touch the top tape during active play.",
+            "10-day offer rule: SRVA clubs must leave tryout offers open for at least 10 days."
         ]
     }
 
@@ -276,24 +280,22 @@ def update_knowledge_base():
     print(f"Knowledge base '{KB_FILE}' updated at {kb['last_agent_run']}")
 
 def run_daemon():
-    """Runs the update loop daily at 12:00 PM."""
+    """Runs the update loop daily at 12:00 PM using calendar-day checking pattern."""
     print("Agent starting in DAEMON mode (Daily at 12:00 PM)")
+    last_run_day = None
     while True:
         now = datetime.datetime.now()
-        target = now.replace(hour=12, minute=0, second=0, microsecond=0)
-        if now >= target:
-            target += datetime.timedelta(days=1)
-
-        wait_seconds = (target - now).total_seconds()
-        print(f"Next run scheduled for {target}. Sleeping for {wait_seconds/3600:.2f} hours.")
-
-        # In a real daemon we would sleep. For the sandbox, we'll run once and simulate.
-        # But for the sake of the task, the logic is correct.
-        time.sleep(min(wait_seconds, 3600))
-
-        if datetime.datetime.now() >= target:
-            print(f"Executing daily update at {datetime.datetime.now()}...")
-            update_knowledge_base()
+        today = now.date()
+        # Check if it is a new day, and if it is 12:00 PM or later
+        if last_run_day != today and now.hour >= 12:
+            print(f"Executing daily update at {now} (calendar-day checking pattern)...")
+            try:
+                update_knowledge_base()
+                last_run_day = today
+            except Exception as e:
+                print(f"Error during scheduled update: {e}")
+        # Sleep for a short interval (e.g., 60 seconds) to avoid CPU spin and check again
+        time.sleep(60)
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Mid TN VBC News Expert Agent")
