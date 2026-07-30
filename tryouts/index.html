@@ -1122,7 +1122,7 @@ function AthleteModal({athlete,onClose,onChange,onHide,onUnhide,onEmail}){
         <div style=${{display:'flex',justifyContent:'space-between',alignItems:'flex-start',marginBottom:16}}>
           <div>
             <h3 style=${{fontSize:20,color:'#e8eaed',margin:0,display:'flex',alignItems:'center',gap:8}}>
-              ${locked&&'🔒 '}${athlete.first} ${athlete.last}
+              ${locked&&html`<span title="Locked" aria-label="Profile Locked" role="img">🔒 </span>`}${athlete.first} ${athlete.last}
               ${athlete.isWalkup&&html`<${Badge} c="#ffa726" sm>Walkup<//>`}
               ${athlete.arrived&&html`<${Badge} c="#26c6da" sm>✓ Arrived<//>`}
             </h3>
@@ -1130,10 +1130,10 @@ function AthleteModal({athlete,onClose,onChange,onHide,onUnhide,onEmail}){
               <span style=${{color:'#4fc3f7',fontFamily:'monospace',fontSize:13}}>TO# ${athlete.to}</span>
               ${sc&&html`<${Badge} c=${scoreColor(sc)}>Score: ${sc}<//>`}
               <${SBadge} status=${athlete.status}/>
-              ${athlete.wontAccept&&html`<span title=${athlete.wontAccept}>⚠️</span>`}
+              ${athlete.wontAccept&&html`<span title=${athlete.wontAccept} aria-label=${'Restriction: ' + athlete.wontAccept} role="img">⚠️</span>`}
             </div>
           </div>
-          <button onClick=${onClose} style=${{background:'none',border:'none',color:'#666',fontSize:24,cursor:'pointer'}}>×</button>
+          <button onClick=${onClose} aria-label="Close" title="Close" style=${{background:'none',border:'none',color:'#666',fontSize:24,cursor:'pointer'}}>×</button>
         </div>
         <div style=${{display:'grid',gridTemplateColumns:'1fr 1fr',gap:'12px 20px',marginBottom:16}}>
           ${F('First Name','first')}${F('Last Name','last')}
@@ -1292,7 +1292,7 @@ function EmailModal({athlete,team,onClose,onSend,initialType='offer'}){
       <div class="modal-box" style=${{width:560}} onClick=${e=>e.stopPropagation()}>
         <div style=${{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:12}}>
           <h3 style=${{margin:0,fontSize:16}}>Compose Email — ${athlete.first} ${athlete.last}</h3>
-          <button onClick=${onClose} style=${{background:'none',border:'none',color:'#666',fontSize:24,cursor:'pointer'}}>×</button>
+          <button onClick=${onClose} aria-label="Close" title="Close" style=${{background:'none',border:'none',color:'#666',fontSize:24,cursor:'pointer'}}>×</button>
         </div>
         
         <div style=${{display:'grid',gridTemplateColumns:'1fr 1fr',gap:12,marginBottom:12}}>
@@ -1356,13 +1356,13 @@ function PCard({athlete,onClick,compact,showScore,teamKey}){
     <div class=${'player-card'+(athlete.status==='declined'?' declined':'')+(locked?' locked':'')}
       draggable=${!locked} onDragStart=${e=>!locked&&e.dataTransfer.setData('text/plain',athlete.id)}
       onClick=${()=>onClick?.(athlete)}>
-      ${locked&&html`<span title="Locked" style=${{fontSize:10,fontWeight:800,color:'#f0a500'}}>🔒</span>`}
+      ${locked&&html`<span title="Locked" aria-label="Profile Locked" role="img" style=${{fontSize:10,fontWeight:800,color:'#f0a500'}}>🔒</span>`}
       <span style=${{fontFamily:'monospace',fontSize:10,color:'#4fc3f7',minWidth:22}}>#${athlete.to}</span>
       <span style=${{fontWeight:600,fontSize:compact?12:13,flex:1,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>${athlete.first} ${athlete.last}</span>
       <${Badge} c="#78909c" sm>${posAbbr(athlete.primaryPos)}<//>
       ${athlete.altPos&&athlete.altPos!==athlete.primaryPos&&html`<${Badge} c="#3a3f47" sm>${posAbbr(athlete.altPos)}<//>`}
-      ${athlete.wontAccept&&html`<span title=${'WON\'T ACCEPT / RESTRICTION: '+athlete.wontAccept} style=${{fontSize:16,cursor:'help',filter:'drop-shadow(0 0 2px #ffa726)'}}>⚠️</span>`}
-      ${athlete.notes&&html`<span title=${'TRYOUT NOTES: '+athlete.notes} style=${{fontSize:16,cursor:'help',filter:'drop-shadow(0 0 2px #4fc3f7)'}}>📝</span>`}
+      ${athlete.wontAccept&&html`<span title=${'WON\'T ACCEPT / RESTRICTION: '+athlete.wontAccept} aria-label=${'Restriction: ' + athlete.wontAccept} role="img" style=${{fontSize:16,cursor:'help',filter:'drop-shadow(0 0 2px #ffa726)'}}>⚠️</span>`}
+      ${athlete.notes&&html`<span title=${'TRYOUT NOTES: '+athlete.notes} aria-label=${'Notes: ' + athlete.notes} role="img" style=${{fontSize:16,cursor:'help',filter:'drop-shadow(0 0 2px #4fc3f7)'}}>📝</span>`}
       ${showScore&&sc&&html`<${Badge} c=${scoreColor(sc)} sm>${sc}<//>`}
       <${SBadge} status=${athlete.status}/>
     </div>`;
@@ -1805,8 +1805,8 @@ function HeadCoach({athletes,setAthletes,onLogout}){
                             <span style=${{fontSize:10,color:'#4fc3f7',background:'rgba(79,195,247,0.1)',padding:'1px 4px',borderRadius:4,marginRight:4,border:'1px solid rgba(79,195,247,0.2)'}}>${label}: ${posAbbr(otherPos)}</span>
                           `}
                           ${totalScore(a.metrics, a.drillScore)&&html`<${Badge} c=${scoreColor(totalScore(a.metrics, a.drillScore))} sm>${totalScore(a.metrics, a.drillScore)}<//>`}
-                          ${a.wontAccept&&html`<span title=${'WON\'T ACCEPT: ' + a.wontAccept} aria-label=${'Restriction: ' + a.wontAccept}>⚠️</span>`}
-                          ${a.notes&&html`<span title=${'NOTES: ' + a.notes} aria-label=${'Notes: ' + a.notes}>📝</span>`}
+                          ${a.wontAccept&&html`<span title=${'WON\'T ACCEPT: ' + a.wontAccept} aria-label=${'Restriction: ' + a.wontAccept} role="img">⚠️</span>`}
+                          ${a.notes&&html`<span title=${'NOTES: ' + a.notes} aria-label=${'Notes: ' + a.notes} role="img">📝</span>`}
                         </div>`;
                       })}
 ${list.length===0&&html`<div style=${{padding:20,textAlign:'center',color:'#333',fontSize:12}}>None</div>`}
@@ -1943,6 +1943,8 @@ ${list.length===0&&html`<div style=${{padding:20,textAlign:'center',color:'#333'
                           <div key=${a.id} style=${{position:'relative'}}>
                             <${PCard} athlete=${a} onClick=${setSelAth} compact showScore teamKey=${key}/>
                             ${!isLocked&&html`<button onClick=${()=>upd(a.id,{teamAssignment:null,teamLocked:false})}
+                              aria-label=${`Remove ${a.first} ${a.last} from team`}
+                              title="Remove from team"
                               style=${{position:'absolute',right:4,top:'50%',transform:'translateY(-50%)',background:'#ef535033',border:'none',borderRadius:4,color:'#ef5350',cursor:'pointer',fontSize:10,padding:'2px 5px'}}>×</button>`}
                           </div>`)}
                         ${declined.length>0&&html`
@@ -2102,7 +2104,10 @@ ${list.length===0&&html`<div style=${{padding:20,textAlign:'center',color:'#333'
                     ${linkedFolders.map((f,idx)=>html`
                       <div key=${idx} style=${{display:'flex',justifyContent:'space-between',alignItems:'center',fontSize:12,padding:'3px 0',borderBottom:'1px solid #1e222b'}}>
                         <span style=${{fontFamily:'monospace',wordBreak:'break-all'}}>${f}</span>
-                        <button onClick=${()=>saveLinkedFolders(linkedFolders.filter((_,i)=>i!==idx))} style=${{background:'none',border:'none',color:'#ef5350',cursor:'pointer',fontSize:12}}>✕</button>
+                        <button onClick=${()=>saveLinkedFolders(linkedFolders.filter((_,i)=>i!==idx))}
+                          aria-label="Remove linked folder"
+                          title="Remove linked folder"
+                          style=${{background:'none',border:'none',color:'#ef5350',cursor:'pointer',fontSize:12}}>✕</button>
                       </div>
                     `)}
                     ${!linkedFolders.length && html`<div style=${{color:'#444',textAlign:'center',padding:10}}>No directories linked</div>`}
@@ -2365,7 +2370,7 @@ function TeamOfferModal({teamKey,athletes,onClose,onSendOffer}){
       <div class="modal-box" style=${{width:500}} onClick=${e=>e.stopPropagation()}>
         <div style=${{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:16}}>
           <h3 style=${{margin:0}}>${age} ${lvl} — Send Offers</h3>
-          <button onClick=${onClose} style=${{background:'none',border:'none',color:'#666',fontSize:24,cursor:'pointer'}}>×</button>
+          <button onClick=${onClose} aria-label="Close" title="Close" style=${{background:'none',border:'none',color:'#666',fontSize:24,cursor:'pointer'}}>×</button>
         </div>
         <div style=${{maxHeight:400,overflowY:'auto',marginBottom:16}}>
           ${roster.map(a=>html`
