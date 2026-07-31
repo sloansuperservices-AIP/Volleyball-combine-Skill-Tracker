@@ -238,11 +238,11 @@ function Chatbot() {
                 if (kb.news && kb.news[0]) {
                     response = `Latest News: ${kb.news[0].title} (${kb.news[0].date}). ${kb.news[0].summary}`;
                 }
-            } else if (q.includes('social') || q.includes('instagram') || q.includes('facebook')) {
+            } else if (response === fallbackText && (q.includes('social') || q.includes('instagram') || q.includes('facebook'))) {
                 response = `Social Media Updates: (IG) ${kb.social_updates?.instagram} (FB) ${kb.social_updates?.facebook}`;
-            } else if (q.includes('where') || q.includes('location') || q.includes('facility')) {
+            } else if (response === fallbackText && (q.includes('where') || q.includes('location') || q.includes('facility'))) {
                 response = `We are based at Hooptown in Smyrna, TN (6910 Stroop Ln).`;
-            } else if (q.includes('offer') || q.includes('when will we know')) {
+            } else if (response === fallbackText && (q.includes('offer') || q.includes('when will we know'))) {
                 response = "Initial offers are typically made within 24-48 hours after the conclusion of tryouts for your age group via email/SportsEngine.";
             }
 
