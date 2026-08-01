@@ -649,6 +649,80 @@ function StaffDashboard({athletes, setAthletes, onArrive, onAddWalkup, onMetric,
   const [recentCheckins, setRecentCheckins] = useState([]);
   const [confirmCheckInAth, setConfirmCheckInAth] = useState(null);
 
+  const [emailAth, setEmailAth] = useState(null);
+  const [emailTeam, setEmailTeam] = useState('');
+  const [hideAth, setHideAth] = useState(null);
+
+  const doHide = (id, reason, note) => {
+    setAthletes(prev => prev.map(a => a.id === id ? { ...a, hidden: true, hideReason: reason, hideNote: note, teamAssignment: null, teamLocked: false } : a));
+    setSelAth(p => p && p.id === id ? { ...p, hidden: true, hideReason: reason, hideNote: note, teamAssignment: null, teamLocked: false } : p);
+  };
+  const doUnhide = (id) => {
+    setAthletes(prev => prev.map(a => a.id === id ? { ...a, hidden: false, hideReason: '', hideNote: '' } : a));
+    setSelAth(p => p && p.id === id ? { ...p, hidden: false, hideReason: '', hideNote: '' } : p);
+  };
+  const doEmail = (athlete, body, team, type) => {
+    setAthletes(prev => prev.map(a => a.id === athlete.id ? { ...a, status: ['pending','arrived'].includes(a.status)?'contacted':a.status } : a));
+    setSelAth(p => p && p.id === athlete.id ? { ...p, status: ['pending','arrived'].includes(p.status)?'contacted':p.status } : p);
+
+    const subject = type === 'offer' ? `Mid TN VBC - Offer` + (team ? ` - ${team}` : ``) : `Mid TN VBC Tryout Performance Report`;
+
+    let cfg = { method: 'mailto' };
+    try {
+      cfg = JSON.parse(localStorage.getItem('midtn_email_config') || '{"method":"mailto"}');
+    } catch (e) {}
+
+    if (cfg.method === 'mailto') {
+      if(athlete.email) window.open(`mailto:${athlete.email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`,'_blank');
+      else navigator.clipboard?.writeText(body);
+
+      logEmail(athlete.first + ' ' + athlete.last, athlete.email || 'N/A', type || 'offer', 'Copied/Opened Mailto', body);
+    } else {
+      const endpoint = cfg.api_endpoint || 'https://api.emailjs.com/api/v1.0/email/send';
+      let payload = {};
+      if (endpoint.includes('emailjs.com')) {
+        payload = {
+          service_id: cfg.emailjs_service,
+          template_id: cfg.emailjs_template,
+          user_id: cfg.emailjs_public_key,
+          template_params: {
+            to_email: athlete.email,
+            to_name: `${athlete.first} ${athlete.last}`,
+            message: body,
+            subject: subject
+          }
+        };
+      } else {
+        payload = {
+          to: athlete.email,
+          name: `${athlete.first} ${athlete.last}`,
+          subject: subject,
+          body: body
+        };
+      }
+      fetch(endpoint, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      })
+      .then(res => {
+        if (res.ok) {
+          logEmail(athlete.first + ' ' + athlete.last, athlete.email, type || 'offer', 'Sent (API)', body);
+          alert(`Email successfully sent via API to ${athlete.email}!`);
+        } else {
+          res.text().then(errText => {
+            logEmail(athlete.first + ' ' + athlete.last, athlete.email, type || 'offer', `Failed: ${res.status}`, body);
+            alert(`Failed to send email via API: ${res.status} - ${errText}`);
+          });
+        }
+      })
+      .catch(err => {
+        logEmail(athlete.first + ' ' + athlete.last, athlete.email, type || 'offer', 'Failed (Network Error)', body);
+        alert(`Network error sending email: ${err.message}`);
+      });
+    }
+  };
+
   const handleConfirmCheckIn = (id, contactInfo) => {
     onArrive(id, contactInfo);
     const matched = athletes.find(a=>a.id===id);
@@ -873,10 +947,33 @@ function StaffDashboard({athletes, setAthletes, onArrive, onAddWalkup, onMetric,
                     if(!isWuValid) return;
                     const id=`wu-${Date.now()}`;
                     const toN = String(200+athletes.filter(a=>a.isWalkup).length);
-                    onAddWalkup({...walkupForm,id,to:toN,isWalkup:true,arrived:true,status:'arrived'});
-                    setRecentCheckins(p=>[{...walkupForm,to:toN,isWalkup:true},...p].slice(0,6));
+                    const newAth = {
+                      ...walkupForm,
+                      id,
+                      to:toN,
+                      isWalkup:true,
+                      arrived:true,
+                      status:'arrived',
+                      ageGroup:divAge(walkupForm.division),
+                      posCategory:classifyPos(walkupForm.primaryPos),
+                      posCategories:getPosCategories(walkupForm.primaryPos, walkupForm.altPos || ''),
+                      teamAssignment:null,
+                      teamLocked:false,
+                      coachPos:'',
+                      hidden:false,
+                      hideReason:'',
+                      notes:'',
+                      wontAccept:'',
+                      drillScore:'',
+                      metrics:{}
+                    };
+                    onAddWalkup(newAth);
+                    setRecentCheckins(p=>[newAth,...p].slice(0,6));
                     setWalkupForm({first:'',last:'',dob:'',division:'12 & Under',primaryPos:'Outside Hitter',altPos:'N/A',phone:'',email:''});
                     setShowWalkup(false);
+                    // Immediate transition to Station 1 (Physical Metrics) after walkup registration
+                    setActiveTab('s1');
+                    loadAthleteForTab(newAth, 's1');
                   }} disabled=${!(walkupForm.first.trim() && walkupForm.last.trim() && walkupForm.phone.trim().length >= 7 && walkupForm.email.trim().includes('@'))} style=${{width:'100%',padding:10}}>Register & Check In ✓<//>
                 </div>
               ` : html`
@@ -1092,13 +1189,15 @@ function StaffDashboard({athletes, setAthletes, onArrive, onAddWalkup, onMetric,
         if (selAth && selAth.id === id) setSelAth(p => ({ ...p, ...updates }));
         if (activeAthlete && activeAthlete.id === id) setActiveAthlete(p => ({ ...p, ...updates }));
       }} onHide=${a=>{setSelAth(null);setHideAth(a);}} onUnhide=${doUnhide} onEmail=${a=>{setSelAth(null);setEmailAth(a);setEmailTeam(a.teamAssignment||'');}}/>
+      <${EmailModal} athlete=${emailAth} team=${emailTeam} onClose=${()=>{setEmailAth(null);setEmailTeam('');}} onSend=${doEmail}/>
+      <${HideModal} athlete=${hideAth} onClose=${()=>setHideAth(null)} onHide=${doHide}/>
     </div>`;
 }
 
 // ── ATHLETE MODAL ────────────────────────────────────────────────
 function AthleteModal({athlete,onClose,onChange,onHide,onUnhide,onEmail}){
   if(!athlete) return null;
-  const locked = athlete.teamLocked || athlete.status === 'accepted';
+  const locked = !!athlete.teamLocked;
   const sc = totalScore(athlete.metrics, athlete.drillScore);
   const [ef,setEf]=useState(null);
   const [ev,setEv]=useState('');
@@ -1630,7 +1729,14 @@ function HeadCoach({athletes,setAthletes,onLogout}){
         else g.unsorted.push(a);
       });
     });
-    Object.keys(g).forEach(k => g[k].sort((a, b) => scores.get(b.id) - scores.get(a.id)));
+    Object.keys(g).forEach(k => g[k].sort((a, b) => {
+      const aIsPri = a.posCategory === k;
+      const bIsPri = b.posCategory === k;
+      if (aIsPri !== bIsPri) {
+        return aIsPri ? -1 : 1;
+      }
+      return scores.get(b.id) - scores.get(a.id);
+    }));
     return g;
   }, [athletes, age]);
 
@@ -2374,9 +2480,14 @@ function TeamOfferModal({teamKey,athletes,onClose,onSendOffer}){
                 <div style=${{fontWeight:700}}>${a.first} ${a.last}</div>
                 <div style=${{fontSize:11,color:'#78909c'}}>${posAbbr(a.primaryPos)} · ${a.status}</div>
               </div>
-              ${['accepted','declined','offered'].includes(a.status)
-                ? html`<${Badge} c=${a.status==='accepted'?'#66bb6a':a.status==='declined'?'#ef5350':'#42a5f5'} sm>${a.status}<//>`
-                : html`<${Btn} sm onClick=${()=>onSendOffer(a)} color="#f0a500">Send Offer<//>`}
+              ${a.status === 'accepted'
+                ? html`<${Badge} c="#66bb6a" sm>accepted<//>`
+                : html`
+                    <div style=${{display:'flex', gap:6, alignItems:'center'}}>
+                      ${['offered','declined'].includes(a.status) && html`<${Badge} c=${a.status==='declined'?'#ef5350':'#42a5f5'} sm>${a.status}<//>`}
+                      <${Btn} sm onClick=${()=>onSendOffer(a)} color="#f0a500">${['offered','declined'].includes(a.status) ? 'Resend Offer' : 'Send Offer'}<//>
+                    </div>
+                  `}
             </div>`)}
         </div>
         <${Btn} onClick=${onClose} style=${{width:'100%'}} color="#2a2e38">Done<//>
