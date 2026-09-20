@@ -18,15 +18,15 @@ Strategic goals and user feedback are analyzed in Google AI Studio, then transla
   - **VOLLEY AI**: A context-aware chatbot integrated into both `index.html` and `tryouts/index.html`, utilizing `volley_kb.json`.
   - **Knowledge Agent**: `agent/news_expert.py` (Python) scrapes SRVA and USAV sites to update the local knowledge base.
 
-## Core Features & Access
-- **Role-Based Access**:
-  - `0000`: Head Coach (Full access: Team Builder, Depth Chart, Results, All Reg, Hidden).
-  - `9999`: Check-In (Check-in athletes, add walk-ups).
-  - `1111`: Station 1 (Physical: Height, Reach, Vertical).
-  - `2222`: Station 2 (Agility: Shuttle Run).
-- **Team Builder**: Drag-and-drop roster management with a 'Finalize' lock mechanism and 'Show All' pool visibility.
-- **Depth Chart**: Automated ranking of athletes by position category and performance score (Supports multi-position ranking).
-- **Exports**: Detailed CSV and Print (PDF) exports for registration lists and finalized teams, including all metrics and coaching notes.
+## Core Features & Initial User Review Resolutions
+- **Walkups with Testing**: Self-service QR form or desk "+ Add Walkup" immediately assigns tryout number and routes to Station 1 (Physical) & Station 2 (Agility) testing and Check-In.
+- **Stations Streamlined**: Station 1 (Height, Reach, Vertical) & Station 2 (Shuttle Run) with integrated digital stopwatch. Drill scoring is integrated directly into Check-In and search results.
+- **Depth Chart Sorting**: Ranks athletes within position columns by primary position match first (descending total score) then secondary position match (descending total score), with secondary positions clearly badged.
+- **Team Builder & Depth Chart Integration**: Displays full depth chart inside Team Builder with position grouping and 'Show All' pool visibility, note icons (📝), restriction warnings (⚠️), and team '🔒 Finalize' lock button.
+- **Athlete Page Notes & Call Log**: Dedicated auto-expanding tryout notes and phone call log textarea on every athlete profile card.
+- **Offer Process & Vacancy Management**: Supports team offer management with individual offer/resend capabilities for replacements when a player declines; accepting locks profile.
+- **Check-in Data Editing**: Contact info confirmation on check-in and inline table editing for contact or position corrections.
+- **Professional Exports**: Multi-field CSV export and optimized print-to-PDF styles for teams and registration lists.
 
 ## Maintenance Instructions
 - **Updating Rules/News**: Run `python3 agent/news_expert.py` to refresh `volley_kb.json`.
