@@ -1630,7 +1630,14 @@ function HeadCoach({athletes,setAthletes,onLogout}){
         else g.unsorted.push(a);
       });
     });
-    Object.keys(g).forEach(k => g[k].sort((a, b) => scores.get(b.id) - scores.get(a.id)));
+    Object.keys(g).forEach(k => {
+      g[k].sort((a, b) => {
+        const aPri = classifyPos(a.primaryPos) === k ? 1 : 0;
+        const bPri = classifyPos(b.primaryPos) === k ? 1 : 0;
+        if (aPri !== bPri) return bPri - aPri;
+        return (scores.get(b.id) || 0) - (scores.get(a.id) || 0);
+      });
+    });
     return g;
   }, [athletes, age]);
 
@@ -1675,6 +1682,25 @@ function HeadCoach({athletes,setAthletes,onLogout}){
     }
     return l;
   }, [ageAths, poolSort, showAllPool]);
+
+  const poolByCat = useMemo(() => {
+    if (poolSort !== 'pos') return null;
+    const scores = new Map();
+    pool.forEach(a => scores.set(a.id, Number(totalScore(a.metrics, a.drillScore)) || 0));
+
+    const result = {};
+    [...POS_CATS, { key: 'unsorted', label: 'Unsorted' }].forEach(cat => {
+      const listByCat = pool.filter(a => (a.posCategories || [a.posCategory || 'unsorted']).includes(cat.key));
+      listByCat.sort((a, b) => {
+        const aPri = classifyPos(a.primaryPos) === cat.key ? 1 : 0;
+        const bPri = classifyPos(b.primaryPos) === cat.key ? 1 : 0;
+        if (aPri !== bPri) return bPri - aPri;
+        return (scores.get(b.id) || 0) - (scores.get(a.id) || 0);
+      });
+      result[cat.key] = listByCat;
+    });
+    return result;
+  }, [pool, poolSort]);
   const drop=(e,teamKey)=>{
     e.preventDefault();
     const id=e.dataTransfer.getData('text/plain');
@@ -1876,11 +1902,10 @@ ${list.length===0&&html`<div style=${{padding:20,textAlign:'center',color:'#333'
                   <div style=${{fontSize:11,color:'#546e7a'}}>Drag into teams →</div>
                 </div>
                 <div style=${{overflow:'auto',flex:1,padding:8}}>
-                  ${poolSort==='pos'
+                  ${poolSort==='pos' && poolByCat
                     ? html`<div>
                         ${[...POS_CATS,{key:'unsorted',label:'Unsorted'}].map(cat => {
-                          const listByCat = pool.filter(a => (a.posCategories || [a.posCategory]).includes(cat.key))
-                                           .sort((a,b)=>(Number(totalScore(b.metrics, b.drillScore))||0)-(Number(totalScore(a.metrics, a.drillScore))||0));
+                          const listByCat = poolByCat[cat.key] || [];
                           if(listByCat.length === 0) return null;
                           return html`
                             <div key=${cat.key} style=${{marginBottom:12,borderBottom:'1px solid #1e222b',paddingBottom:8}}>
@@ -1888,13 +1913,21 @@ ${list.length===0&&html`<div style=${{padding:20,textAlign:'center',color:'#333'
                                 <span>${cat.label}</span>
                                 <span style=${{fontSize:10,opacity:.5}}>${listByCat.length}</span>
                               </div>
-                              ${listByCat.map((a, idx) => html`
+                              ${listByCat.map((a, idx) => {
+                                const isPri = classifyPos(a.primaryPos) === cat.key;
+                                const otherPos = isPri ? a.altPos : a.primaryPos;
+                                const label = isPri ? 'Alt' : 'Pri';
+                                return html`
                                 <div key=${a.id} style=${{opacity:(a.teamAssignment && !showAllPool)?0.35:1,pointerEvents:(a.teamAssignment && !showAllPool)?'none':'auto',marginBottom:2,display:'flex',alignItems:'center',gap:4}}>
                                   <span style=${{fontSize:10,color:'#546e7a',width:15,textAlign:'right'}}>${idx+1}</span>
                                   <div style=${{flex:1}}>
                                     <${PCard} athlete=${a} onClick=${setSelAth} compact showScore/>
                                   </div>
-                                </div>`)}
+                                  ${otherPos && otherPos !== 'N/A' && otherPos !== 'none' && html`
+                                    <span style=${{fontSize:9,color:'#4fc3f7',background:'rgba(79,195,247,0.1)',padding:'1px 3px',borderRadius:3,whiteSpace:'nowrap',border:'1px solid rgba(79,195,247,0.2)'}} title=${label + ': ' + otherPos}>${label}: ${posAbbr(otherPos)}</span>
+                                  `}
+                                </div>`;
+                              })}
                             </div>`;
                         })}
                       </div>`
@@ -2362,22 +2395,35 @@ function TeamOfferModal({teamKey,athletes,onClose,onSendOffer}){
   const [age,lvl]=teamKey.split('-');
   return html`
     <div class="modal-overlay" onClick=${onClose}>
-      <div class="modal-box" style=${{width:500}} onClick=${e=>e.stopPropagation()}>
+      <div class="modal-box" style=${{width:540}} onClick=${e=>e.stopPropagation()}>
         <div style=${{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:16}}>
-          <h3 style=${{margin:0}}>${age} ${lvl} — Send Offers</h3>
+          <div>
+            <h3 style=${{margin:0,fontSize:18,color:'#f0a500'}}>${age} ${lvl} — Team Roster Offers</h3>
+            <p style=${{margin:0,fontSize:11,color:'#78909c'}}>Send or resend individual roster offers for ${age} ${lvl}.</p>
+          </div>
           <button onClick=${onClose} style=${{background:'none',border:'none',color:'#666',fontSize:24,cursor:'pointer'}}>×</button>
         </div>
-        <div style=${{maxHeight:400,overflowY:'auto',marginBottom:16}}>
+        <div style=${{maxHeight:420,overflowY:'auto',marginBottom:16}}>
           ${roster.map(a=>html`
-            <div key=${a.id} style=${{display:'flex',alignItems:'center',gap:10,padding:'10px 0',borderBottom:'1px solid #2a2e38'}}>
+            <div key=${a.id} style=${{display:'flex',alignItems:'center',gap:10,padding:'10px 8px',borderBottom:'1px solid #2a2e38',background:a.status==='declined'?'rgba(239,83,80,0.05)':'transparent',borderRadius:6,marginBottom:4}}>
               <div style=${{flex:1}}>
-                <div style=${{fontWeight:700}}>${a.first} ${a.last}</div>
-                <div style=${{fontSize:11,color:'#78909c'}}>${posAbbr(a.primaryPos)} · ${a.status}</div>
+                <div style=${{fontWeight:700,fontSize:13,display:'flex',alignItems:'center',gap:6}}>
+                  ${a.teamLocked && html`<span title="Locked">🔒</span>`}
+                  ${a.first} ${a.last}
+                  <span style=${{fontFamily:'monospace',fontSize:10,color:'#4fc3f7'}}>#${a.to}</span>
+                </div>
+                <div style=${{fontSize:11,color:'#78909c',marginTop:2}}>${posAbbr(a.primaryPos)} · ${a.email || 'No email on file'}</div>
               </div>
-              ${['accepted','declined','offered'].includes(a.status)
-                ? html`<${Badge} c=${a.status==='accepted'?'#66bb6a':a.status==='declined'?'#ef5350':'#42a5f5'} sm>${a.status}<//>`
-                : html`<${Btn} sm onClick=${()=>onSendOffer(a)} color="#f0a500">Send Offer<//>`}
+              <div style=${{display:'flex',alignItems:'center',gap:8}}>
+                <${SBadge} status=${a.status}/>
+                ${a.status === 'accepted'
+                  ? html`<span style=${{fontSize:11,color:'#66bb6a',fontWeight:700}}>✓ Roster Locked</span>`
+                  : html`<${Btn} sm onClick=${()=>onSendOffer(a)} color=${a.status==='declined'?'#ef5350':a.status==='offered'?'#42a5f5':'#f0a500'}>
+                      ${['offered','declined'].includes(a.status)?'Resend Offer':'Send Offer'}
+                    <//>`}
+              </div>
             </div>`)}
+          ${roster.length === 0 && html`<div style=${{textAlign:'center',padding:20,color:'#555'}}>No players currently assigned to ${age} ${lvl}. Drag players into this team from the pool first.</div>`}
         </div>
         <${Btn} onClick=${onClose} style=${{width:'100%'}} color="#2a2e38">Done<//>
       </div>
