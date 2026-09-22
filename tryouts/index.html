@@ -400,7 +400,7 @@ function WalkupRegister({ athletes, onAddWalkup }) {
           <div style=${{ textAlign: 'center', padding: '20px 0' }}>
             <div style=${{ fontSize: '56px', color: '#66bb6a', marginBottom: '16px' }}>✓</div>
             <h2 style=${{ fontSize: '20px', fontWeight: 800, marginBottom: '8px' }}>Registration Complete!</h2>
-            <p style=${{ color: '#78909c', fontSize: '13px', marginBottom: '20px' }}>Please write this Tryout Number clearly on your shoulder or collect your sticker:</p>
+            <p style=${{ color: '#78909c', fontSize: '13px', marginBottom: '20px' }}>Please write this Tryout Number clearly on your shoulder or collect your sticker, then proceed to Station 1 (Physical Metrics):</p>
             <div style=${{ display: 'inline-block', background: '#12151c', border: '2px solid #f0a500', borderRadius: '12px', padding: '16px 32px', fontSize: '36px', fontFamily: 'monospace', fontWeight: 900, color: '#f0a500', marginBottom: '32px' }}>
               #${registeredTo}
             </div>
@@ -1630,7 +1630,14 @@ function HeadCoach({athletes,setAthletes,onLogout}){
         else g.unsorted.push(a);
       });
     });
-    Object.keys(g).forEach(k => g[k].sort((a, b) => scores.get(b.id) - scores.get(a.id)));
+    Object.keys(g).forEach(k => {
+      g[k].sort((a, b) => {
+        const aIsPri = classifyPos(a.primaryPos) === k ? 1 : 0;
+        const bIsPri = classifyPos(b.primaryPos) === k ? 1 : 0;
+        if (aIsPri !== bIsPri) return bIsPri - aIsPri;
+        return scores.get(b.id) - scores.get(a.id);
+      });
+    });
     return g;
   }, [athletes, age]);
 
@@ -1880,7 +1887,12 @@ ${list.length===0&&html`<div style=${{padding:20,textAlign:'center',color:'#333'
                     ? html`<div>
                         ${[...POS_CATS,{key:'unsorted',label:'Unsorted'}].map(cat => {
                           const listByCat = pool.filter(a => (a.posCategories || [a.posCategory]).includes(cat.key))
-                                           .sort((a,b)=>(Number(totalScore(b.metrics, b.drillScore))||0)-(Number(totalScore(a.metrics, a.drillScore))||0));
+                                           .sort((a,b)=>{
+                                             const aIsPri = classifyPos(a.primaryPos) === cat.key ? 1 : 0;
+                                             const bIsPri = classifyPos(b.primaryPos) === cat.key ? 1 : 0;
+                                             if (aIsPri !== bIsPri) return bIsPri - aIsPri;
+                                             return (Number(totalScore(b.metrics, b.drillScore))||0)-(Number(totalScore(a.metrics, a.drillScore))||0);
+                                           });
                           if(listByCat.length === 0) return null;
                           return html`
                             <div key=${cat.key} style=${{marginBottom:12,borderBottom:'1px solid #1e222b',paddingBottom:8}}>
@@ -2375,7 +2387,10 @@ function TeamOfferModal({teamKey,athletes,onClose,onSendOffer}){
                 <div style=${{fontSize:11,color:'#78909c'}}>${posAbbr(a.primaryPos)} · ${a.status}</div>
               </div>
               ${['accepted','declined','offered'].includes(a.status)
-                ? html`<${Badge} c=${a.status==='accepted'?'#66bb6a':a.status==='declined'?'#ef5350':'#42a5f5'} sm>${a.status}<//>`
+                ? html`<div style=${{display:'flex',alignItems:'center',gap:6}}>
+                    <${Badge} c=${a.status==='accepted'?'#66bb6a':a.status==='declined'?'#ef5350':'#42a5f5'} sm>${a.status}<//>
+                    ${['offered','declined'].includes(a.status) && html`<${Btn} sm onClick=${()=>onSendOffer(a)} color="#ffa726" outline>Resend<//>`}
+                  </div>`
                 : html`<${Btn} sm onClick=${()=>onSendOffer(a)} color="#f0a500">Send Offer<//>`}
             </div>`)}
         </div>
