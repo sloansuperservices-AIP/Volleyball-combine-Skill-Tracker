@@ -1675,6 +1675,19 @@ function HeadCoach({athletes,setAthletes,onLogout}){
     }
     return l;
   }, [ageAths, poolSort, showAllPool]);
+
+  // Performance optimization: Pre-calculate position grouping and sorting for Team Builder
+  const poolByCat = useMemo(() => {
+    if (poolSort !== 'pos') return [];
+    const scores = new Map();
+    pool.forEach(a => scores.set(a.id, Number(totalScore(a.metrics, a.drillScore)) || 0));
+    const cats = [...POS_CATS, { key: 'unsorted', label: 'Unsorted' }];
+    return cats.map(cat => ({
+      cat,
+      listByCat: pool.filter(a => (a.posCategories || [a.posCategory]).includes(cat.key))
+                     .sort((a, b) => scores.get(b.id) - scores.get(a.id))
+    })).filter(item => item.listByCat.length > 0);
+  }, [pool, poolSort]);
   const drop=(e,teamKey)=>{
     e.preventDefault();
     const id=e.dataTransfer.getData('text/plain');
@@ -1878,25 +1891,20 @@ ${list.length===0&&html`<div style=${{padding:20,textAlign:'center',color:'#333'
                 <div style=${{overflow:'auto',flex:1,padding:8}}>
                   ${poolSort==='pos'
                     ? html`<div>
-                        ${[...POS_CATS,{key:'unsorted',label:'Unsorted'}].map(cat => {
-                          const listByCat = pool.filter(a => (a.posCategories || [a.posCategory]).includes(cat.key))
-                                           .sort((a,b)=>(Number(totalScore(b.metrics, b.drillScore))||0)-(Number(totalScore(a.metrics, a.drillScore))||0));
-                          if(listByCat.length === 0) return null;
-                          return html`
-                            <div key=${cat.key} style=${{marginBottom:12,borderBottom:'1px solid #1e222b',paddingBottom:8}}>
-                              <div style=${{fontSize:11,fontWeight:800,color:cat.key==='unsorted'?'#ffa726':'#4fc3f7',textTransform:'uppercase',marginBottom:8,paddingLeft:4,borderLeft:`3px solid ${cat.key==='unsorted'?'#ffa726':'#4fc3f7'}`,display:'flex',justifyContent:'space-between'}}>
-                                <span>${cat.label}</span>
-                                <span style=${{fontSize:10,opacity:.5}}>${listByCat.length}</span>
-                              </div>
-                              ${listByCat.map((a, idx) => html`
-                                <div key=${a.id} style=${{opacity:(a.teamAssignment && !showAllPool)?0.35:1,pointerEvents:(a.teamAssignment && !showAllPool)?'none':'auto',marginBottom:2,display:'flex',alignItems:'center',gap:4}}>
-                                  <span style=${{fontSize:10,color:'#546e7a',width:15,textAlign:'right'}}>${idx+1}</span>
-                                  <div style=${{flex:1}}>
-                                    <${PCard} athlete=${a} onClick=${setSelAth} compact showScore/>
-                                  </div>
-                                </div>`)}
-                            </div>`;
-                        })}
+                        ${poolByCat.map(({ cat, listByCat }) => html`
+                          <div key=${cat.key} style=${{marginBottom:12,borderBottom:'1px solid #1e222b',paddingBottom:8}}>
+                            <div style=${{fontSize:11,fontWeight:800,color:cat.key==='unsorted'?'#ffa726':'#4fc3f7',textTransform:'uppercase',marginBottom:8,paddingLeft:4,borderLeft:`3px solid ${cat.key==='unsorted'?'#ffa726':'#4fc3f7'}`,display:'flex',justifyContent:'space-between'}}>
+                              <span>${cat.label}</span>
+                              <span style=${{fontSize:10,opacity:.5}}>${listByCat.length}</span>
+                            </div>
+                            ${listByCat.map((a, idx) => html`
+                              <div key=${a.id} style=${{opacity:(a.teamAssignment && !showAllPool)?0.35:1,pointerEvents:(a.teamAssignment && !showAllPool)?'none':'auto',marginBottom:2,display:'flex',alignItems:'center',gap:4}}>
+                                <span style=${{fontSize:10,color:'#546e7a',width:15,textAlign:'right'}}>${idx+1}</span>
+                                <div style=${{flex:1}}>
+                                  <${PCard} athlete=${a} onClick=${setSelAth} compact showScore/>
+                                </div>
+                              </div>`)}
+                          </div>`)}
                       </div>`
                     : pool.map(a=>html`
                         <div style=${{opacity:a.teamAssignment?.length?0.35:1,pointerEvents:a.teamAssignment?.length?'none':'auto',marginBottom:2}}>
