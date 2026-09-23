@@ -1,0 +1,4 @@
+*.log
+*.png
+temp_script_*.js
+verify_tryouts.py

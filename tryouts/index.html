@@ -401,8 +401,11 @@ function WalkupRegister({ athletes, onAddWalkup }) {
             <div style=${{ fontSize: '56px', color: '#66bb6a', marginBottom: '16px' }}>✓</div>
             <h2 style=${{ fontSize: '20px', fontWeight: 800, marginBottom: '8px' }}>Registration Complete!</h2>
             <p style=${{ color: '#78909c', fontSize: '13px', marginBottom: '20px' }}>Please write this Tryout Number clearly on your shoulder or collect your sticker:</p>
-            <div style=${{ display: 'inline-block', background: '#12151c', border: '2px solid #f0a500', borderRadius: '12px', padding: '16px 32px', fontSize: '36px', fontFamily: 'monospace', fontWeight: 900, color: '#f0a500', marginBottom: '32px' }}>
+            <div style=${{ display: 'inline-block', background: '#12151c', border: '2px solid #f0a500', borderRadius: '12px', padding: '16px 32px', fontSize: '36px', fontFamily: 'monospace', fontWeight: 900, color: '#f0a500', marginBottom: '20px' }}>
               #${registeredTo}
+            </div>
+            <div style=${{ background: 'rgba(38,198,218,0.1)', border: '1px solid #26c6da', borderRadius: '8px', padding: '12px', color: '#26c6da', fontSize: '13px', fontWeight: 700, marginBottom: '24px' }}>
+              📍 Next Step: Proceed directly to Station 1 (Reach & Vertical) for testing!
             </div>
             <button onClick=${reset} style=${{ width: '100%', padding: '12px', background: '#f0a500', border: 'none', borderRadius: '8px', color: '#000', fontSize: '14px', fontWeight: 800, cursor: 'pointer' }}>
               Register Another Player
@@ -1617,6 +1620,7 @@ function HeadCoach({athletes,setAthletes,onLogout}){
   };
 
   // ── DEPTH ──
+  const [depthMode, setDepthMode] = useState('primary'); // 'primary' or 'multi'
   const depthPool=useMemo(()=>{
     const pool = athletes.filter(a => a.ageGroup === age && !a.hidden);
     // Pre-calculate scores for sorting
@@ -1625,14 +1629,17 @@ function HeadCoach({athletes,setAthletes,onLogout}){
 
     const g = { setter: [], middle: [], outside: [], defense: [], unsorted: [] };
     pool.forEach(a => {
-      (a.posCategories || [a.posCategory || 'unsorted']).forEach(cat => {
+      const cats = depthMode === 'multi'
+        ? (a.posCategories || [a.posCategory || 'unsorted'])
+        : [a.posCategory || classifyPos(a.primaryPos) || 'unsorted'];
+      cats.forEach(cat => {
         if (g[cat]) g[cat].push(a);
         else g.unsorted.push(a);
       });
     });
     Object.keys(g).forEach(k => g[k].sort((a, b) => scores.get(b.id) - scores.get(a.id)));
     return g;
-  }, [athletes, age]);
+  }, [athletes, age, depthMode]);
 
   // ── RESULTS ──
   const [resSort, setResSort] = useState('score');
@@ -1780,7 +1787,22 @@ function HeadCoach({athletes,setAthletes,onLogout}){
 
         ${view==='depth'&&html`
           <div>
-            <h2 style=${{fontSize:17,fontWeight:700,margin:'0 0 14px'}}>${age}'s Depth Chart <span style=${{fontSize:12,color:'#78909c',fontWeight:400}}>primary ranking · secondary visible</span></h2>
+            <div style=${{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:14,flexWrap:'wrap',gap:10}}>
+              <h2 style=${{fontSize:17,fontWeight:700,margin:0}}>${age}'s Depth Chart <span style=${{fontSize:12,color:'#78909c',fontWeight:400}}>sorted by ${depthMode==='primary'?'primary position (secondary visible)':'all position eligibilities'}</span></h2>
+              <div style=${{display:'flex',gap:6,alignItems:'center'}}>
+                <span style=${{fontSize:11,color:'#78909c'}}>View Mode:</span>
+                <button class=${'btn btn-sm '+(depthMode==='primary'?'btn-primary':'btn-outline')}
+                  onClick=${()=>setDepthMode('primary')}
+                  style=${{fontSize:11,padding:'3px 8px',background:depthMode==='primary'?'#f0a500':'transparent',color:depthMode==='primary'?'#000':'#78909c',border:'1px solid #2a2e38',fontWeight:600}}>
+                  Primary Pos
+                </button>
+                <button class=${'btn btn-sm '+(depthMode==='multi'?'btn-primary':'btn-outline')}
+                  onClick=${()=>setDepthMode('multi')}
+                  style=${{fontSize:11,padding:'3px 8px',background:depthMode==='multi'?'#f0a500':'transparent',color:depthMode==='multi'?'#000':'#78909c',border:'1px solid #2a2e38',fontWeight:600}}>
+                  Multi-Position
+                </button>
+              </div>
+            </div>
             <div style=${{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(240px,1fr))',gap:14}}>
               ${[...POS_CATS,{key:'unsorted',label:'Unsorted'}].map(cat=>{
                 const list=depthPool[cat.key]||[];
@@ -2362,21 +2384,31 @@ function TeamOfferModal({teamKey,athletes,onClose,onSendOffer}){
   const [age,lvl]=teamKey.split('-');
   return html`
     <div class="modal-overlay" onClick=${onClose}>
-      <div class="modal-box" style=${{width:500}} onClick=${e=>e.stopPropagation()}>
+      <div class="modal-box" style=${{width:520}} onClick=${e=>e.stopPropagation()}>
         <div style=${{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:16}}>
-          <h3 style=${{margin:0}}>${age} ${lvl} — Send Offers</h3>
+          <div>
+            <h3 style=${{margin:0,fontSize:18,color:'#e8eaed'}}>${age} ${lvl} — Send Roster Offers</h3>
+            <p style=${{margin:'2px 0 0',fontSize:12,color:'#78909c'}}>Send individual roster offers or re-send offers to replacement players.</p>
+          </div>
           <button onClick=${onClose} style=${{background:'none',border:'none',color:'#666',fontSize:24,cursor:'pointer'}}>×</button>
         </div>
         <div style=${{maxHeight:400,overflowY:'auto',marginBottom:16}}>
           ${roster.map(a=>html`
             <div key=${a.id} style=${{display:'flex',alignItems:'center',gap:10,padding:'10px 0',borderBottom:'1px solid #2a2e38'}}>
               <div style=${{flex:1}}>
-                <div style=${{fontWeight:700}}>${a.first} ${a.last}</div>
-                <div style=${{fontSize:11,color:'#78909c'}}>${posAbbr(a.primaryPos)} · ${a.status}</div>
+                <div style=${{fontWeight:700,display:'flex',alignItems:'center',gap:6}}>
+                  ${a.teamLocked && '🔒 '}${a.first} ${a.last}
+                  <span style=${{fontFamily:'monospace',fontSize:11,color:'#4fc3f7'}}>#${a.to}</span>
+                </div>
+                <div style=${{fontSize:11,color:'#78909c',marginTop:2}}>
+                  ${posAbbr(a.primaryPos)} · Status: <span style=${{color:a.status==='accepted'?'#66bb6a':a.status==='declined'?'#ef5350':'#ffa726',fontWeight:700}}>${a.status.toUpperCase()}</span>
+                </div>
               </div>
-              ${['accepted','declined','offered'].includes(a.status)
-                ? html`<${Badge} c=${a.status==='accepted'?'#66bb6a':a.status==='declined'?'#ef5350':'#42a5f5'} sm>${a.status}<//>`
-                : html`<${Btn} sm onClick=${()=>onSendOffer(a)} color="#f0a500">Send Offer<//>`}
+              ${a.status==='accepted'
+                ? html`<${Badge} c="#66bb6a" sm>🔒 Accepted<//>`
+                : html`<${Btn} sm onClick=${()=>onSendOffer(a)} color=${a.status==='declined'?'#ef5350':'#f0a500'}>
+                    ${a.status==='declined'?'Resend Offer 📩':'Send Offer 📩'}
+                  <//>`}
             </div>`)}
         </div>
         <${Btn} onClick=${onClose} style=${{width:'100%'}} color="#2a2e38">Done<//>
