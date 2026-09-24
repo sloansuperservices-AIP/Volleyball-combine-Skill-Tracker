@@ -341,7 +341,7 @@ function Chatbot() {
     return html`
         <div style=${{ fontFamily: 'Inter, sans-serif' }}>
             ${!isOpen && html`
-                <button onClick=${() => setIsOpen(true)} id="volley-ai-trigger" style=${{
+                <button onClick=${() => setIsOpen(true)} id="volley-ai-trigger" aria-label="Open Volley AI Chatbot" title="Open Volley AI Chatbot" style=${{
                     width: '60px', height: '60px', borderRadius: '50%', backgroundColor: '#f0a500',
                     border: 'none', color: '#000', fontSize: '24px', cursor: 'pointer',
                     boxShadow: '0 4px 12px rgba(0,0,0,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center'
@@ -358,7 +358,7 @@ function Chatbot() {
                         display: 'flex', justifySelf: 'stretch', justifyContent: 'space-between', alignItems: 'center'
                     }}>
                         <span>Volley AI Expert</span>
-                        <button onClick=${() => setIsOpen(false)} style=${{
+                        <button onClick=${() => setIsOpen(false)} aria-label="Close Volley AI Chatbot" title="Close Volley AI Chatbot" style=${{
                             background: 'none', border: 'none', color: '#000', fontSize: '20px', cursor: 'pointer'
                         }}>×</button>
                     </div>
@@ -388,11 +388,12 @@ function Chatbot() {
                         <input value=${input} onInput=${(e) => setInput(e.target.value)}
                                 onKeyDown=${(e) => e.key === 'Enter' && handleSend()}
                                 placeholder="Ask about rules, tryouts, etc..."
+                                aria-label="Ask Volley AI a question"
                                 style=${{
                                     flex: 1, backgroundColor: '#12151c', border: '1px solid #2a2e38',
                                     color: '#fff', padding: '8px', borderRadius: '6px', fontSize: '13px'
                                 }} />
-                        <button onClick=${handleSend} style=${{
+                        <button onClick=${handleSend} aria-label="Send message to Volley AI" title="Send message" style=${{
                             backgroundColor: '#f0a500', border: 'none', padding: '8px 12px', borderRadius: '6px', cursor: 'pointer'
                         }}>Send</button>
                     </div>
