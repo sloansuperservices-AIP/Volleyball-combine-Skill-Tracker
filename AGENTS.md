@@ -25,8 +25,36 @@ Strategic goals and user feedback are analyzed in Google AI Studio, then transla
   - `1111`: Station 1 (Physical: Height, Reach, Vertical).
   - `2222`: Station 2 (Agility: Shuttle Run).
 - **Team Builder**: Drag-and-drop roster management with a 'Finalize' lock mechanism and 'Show All' pool visibility.
-- **Depth Chart**: Automated ranking of athletes by position category and performance score (Supports multi-position ranking).
+- **Depth Chart**: Automated ranking of athletes by position category and performance score (Supports primary position ranking with secondary badges).
 - **Exports**: Detailed CSV and Print (PDF) exports for registration lists and finalized teams, including all metrics and coaching notes.
+
+## Resolved End-User Tryout Page Review Notes
+1. **Walkups & Testing Flow**:
+   - Supported via self-service QR code / URL parameter (`?mode=walkup`) and "+ Add Walkup" modal on Check-In and All Reg views.
+   - Walkup athletes automatically receive a TO# (200+) and flow into Station 1 (Physical) and Station 2 (Agility).
+2. **Stations Configuration**:
+   - **Station 1**: Physical metrics (Height, Reach, Vertical).
+   - **Station 2**: Agility timing (Shuttle Run).
+   - **Station 3 (Drills)**: Drill scoring integrated into Check-in search and Athlete Modal (No standalone station needed).
+   - **Station 4 (Serve)**: Removed from active stations.
+3. **Depth Chart Sorting & Visibility**:
+   - Ranks athletes per position category prioritizing Primary Position matches first (sorted by score descending), followed by Secondary/Alt Position matches (sorted by score descending).
+   - Displays clear secondary position badges (`Alt: S`, `Pri: OH`) on player rows.
+4. **Team Builder Enhancements**:
+   - Depth Chart grouping and Score sorting available in the Team Builder pool.
+   - "Show All" toggle enables viewing all athletes or only unassigned athletes.
+   - Icon indicators: `⚠️` for team restrictions ("Won't Accept") and `📝` for coaching/call notes.
+   - "Finalize Roster" lock button (`🔒`) locks completed team rosters.
+5. **Athlete Profile Notes & Call Log**:
+   - Dedicated multiline "Tryout Notes & Call Log" text area in `AthleteModal`.
+6. **Individual Offer Process**:
+   - `TeamOfferModal` and `EmailModal` enable sending and resending individual roster offer letters (prefilled with specific team assignment, e.g. "14 Black").
+   - Resend capability for replacement players when an offer is declined.
+   - Profile locking (`teamLocked: true`) automatically applied upon offer acceptance.
+7. **Check-In Information Editing**:
+   - Instant "Edit Profile 📋" modal access on Check-In search results, Staff Hub, and All Reg table row clicks.
+8. **PDF & Excel (CSV) Exports**:
+   - Full CSV export and print-to-PDF supported across All Reg, Depth Chart, Results, Team Builder, and All Teams views.
 
 ## Maintenance Instructions
 - **Updating Rules/News**: Run `python3 agent/news_expert.py` to refresh `volley_kb.json`.
