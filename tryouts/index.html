@@ -1630,7 +1630,14 @@ function HeadCoach({athletes,setAthletes,onLogout}){
         else g.unsorted.push(a);
       });
     });
-    Object.keys(g).forEach(k => g[k].sort((a, b) => scores.get(b.id) - scores.get(a.id)));
+    Object.keys(g).forEach(k => {
+      g[k].sort((a, b) => {
+        const aPri = (a.posCategory === k || classifyPos(a.primaryPos) === k) ? 1 : 0;
+        const bPri = (b.posCategory === k || classifyPos(b.primaryPos) === k) ? 1 : 0;
+        if (aPri !== bPri) return bPri - aPri;
+        return (scores.get(b.id) || 0) - (scores.get(a.id) || 0);
+      });
+    });
     return g;
   }, [athletes, age]);
 
@@ -2362,22 +2369,34 @@ function TeamOfferModal({teamKey,athletes,onClose,onSendOffer}){
   const [age,lvl]=teamKey.split('-');
   return html`
     <div class="modal-overlay" onClick=${onClose}>
-      <div class="modal-box" style=${{width:500}} onClick=${e=>e.stopPropagation()}>
+      <div class="modal-box" style=${{width:540}} onClick=${e=>e.stopPropagation()}>
         <div style=${{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:16}}>
-          <h3 style=${{margin:0}}>${age} ${lvl} — Send Offers</h3>
+          <div>
+            <h3 style=${{margin:0,fontSize:18,color:'#f0a500'}}>${age} ${lvl} — Roster Offers</h3>
+            <p style=${{margin:'2px 0 0',fontSize:12,color:'#78909c'}}>Manage individual roster offer letters and status</p>
+          </div>
           <button onClick=${onClose} style=${{background:'none',border:'none',color:'#666',fontSize:24,cursor:'pointer'}}>×</button>
         </div>
         <div style=${{maxHeight:400,overflowY:'auto',marginBottom:16}}>
           ${roster.map(a=>html`
             <div key=${a.id} style=${{display:'flex',alignItems:'center',gap:10,padding:'10px 0',borderBottom:'1px solid #2a2e38'}}>
               <div style=${{flex:1}}>
-                <div style=${{fontWeight:700}}>${a.first} ${a.last}</div>
-                <div style=${{fontSize:11,color:'#78909c'}}>${posAbbr(a.primaryPos)} · ${a.status}</div>
+                <div style=${{fontWeight:700,display:'flex',alignItems:'center',gap:6}}>
+                  ${a.first} ${a.last}
+                  ${a.teamLocked&&html`<span style=${{fontSize:11}}>🔒</span>`}
+                </div>
+                <div style=${{fontSize:11,color:'#78909c',marginTop:2}}>#${a.to} · ${posAbbr(a.primaryPos)} · Status: <span style=${{color:a.status==='accepted'?'#66bb6a':a.status==='declined'?'#ef5350':'#ffa726',fontWeight:700}}>${a.status}</span></div>
               </div>
-              ${['accepted','declined','offered'].includes(a.status)
-                ? html`<${Badge} c=${a.status==='accepted'?'#66bb6a':a.status==='declined'?'#ef5350':'#42a5f5'} sm>${a.status}<//>`
-                : html`<${Btn} sm onClick=${()=>onSendOffer(a)} color="#f0a500">Send Offer<//>`}
+              <div style=${{display:'flex',gap:6,alignItems:'center'}}>
+                <${SBadge} status=${a.status}/>
+                ${a.status==='accepted'
+                  ? html`<span style=${{fontSize:11,color:'#66bb6a',fontWeight:700}}>Locked ✓</span>`
+                  : html`<${Btn} sm onClick=${()=>onSendOffer(a)} color=${a.status==='offered'?'#2a2e38':'#f0a500'} outline=${a.status==='offered'}>
+                      ${a.status==='offered'?'Resend Offer':'Send Offer'}
+                    <//>`}
+              </div>
             </div>`)}
+          ${roster.length===0&&html`<div style=${{padding:20,textAlign:'center',color:'#78909c'}}>No athletes assigned to ${age} ${lvl}</div>`}
         </div>
         <${Btn} onClick=${onClose} style=${{width:'100%'}} color="#2a2e38">Done<//>
       </div>
