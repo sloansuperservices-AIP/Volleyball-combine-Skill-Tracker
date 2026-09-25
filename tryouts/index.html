@@ -1379,6 +1379,7 @@ function HeadCoach({athletes,setAthletes,onLogout}){
   const [teamOfferKey,setTeamOfferKey]=useState(null);
   const [confirmCheckInAth,setConfirmCheckInAth]=useState(null);
   const [widePool,setWidePool]=useState(false);
+  const [depthMode,setDepthMode]=useState('multi');
 
   // ── ADMIN & CONFIG STATE ──────────────────────────────────────
   const [emailConfig, setEmailConfig] = useState(() => {
@@ -1625,14 +1626,20 @@ function HeadCoach({athletes,setAthletes,onLogout}){
 
     const g = { setter: [], middle: [], outside: [], defense: [], unsorted: [] };
     pool.forEach(a => {
-      (a.posCategories || [a.posCategory || 'unsorted']).forEach(cat => {
+      const cats = depthMode === 'primary' ? [a.posCategory || 'unsorted'] : (a.posCategories || [a.posCategory || 'unsorted']);
+      cats.forEach(cat => {
         if (g[cat]) g[cat].push(a);
         else g.unsorted.push(a);
       });
     });
-    Object.keys(g).forEach(k => g[k].sort((a, b) => scores.get(b.id) - scores.get(a.id)));
+    Object.keys(g).forEach(k => g[k].sort((a, b) => {
+      const aPri = (a.posCategory || classifyPos(a.primaryPos)) === k ? 1 : 0;
+      const bPri = (b.posCategory || classifyPos(b.primaryPos)) === k ? 1 : 0;
+      if (aPri !== bPri) return bPri - aPri;
+      return scores.get(b.id) - scores.get(a.id);
+    }));
     return g;
-  }, [athletes, age]);
+  }, [athletes, age, depthMode]);
 
   // ── RESULTS ──
   const [resSort, setResSort] = useState('score');
@@ -1780,7 +1787,14 @@ function HeadCoach({athletes,setAthletes,onLogout}){
 
         ${view==='depth'&&html`
           <div>
-            <h2 style=${{fontSize:17,fontWeight:700,margin:'0 0 14px'}}>${age}'s Depth Chart <span style=${{fontSize:12,color:'#78909c',fontWeight:400}}>primary ranking · secondary visible</span></h2>
+            <div style=${{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:14,flexWrap:'wrap',gap:10}}>
+              <h2 style=${{fontSize:17,fontWeight:700,margin:0}}>${age}'s Depth Chart <span style=${{fontSize:12,color:'#78909c',fontWeight:400}}>primary ranking · secondary visible</span></h2>
+              <div style=${{display:'flex',alignItems:'center',gap:6,background:'#12151c',padding:'3px 8px',borderRadius:6,border:'1px solid #2a2e38'}}>
+                <span style=${{fontSize:11,color:'#78909c',fontWeight:700}}>Mode:</span>
+                <button class=${'btn btn-sm ' + (depthMode==='multi'?'':'btn-outline')} onClick=${()=>setDepthMode('multi')} style=${{fontSize:10,padding:'2px 8px',background:depthMode==='multi'?'#f0a500':'transparent',color:depthMode==='multi'?'#000':'#78909c',border:'none'}}>Multi-Position</button>
+                <button class=${'btn btn-sm ' + (depthMode==='primary'?'':'btn-outline')} onClick=${()=>setDepthMode('primary')} style=${{fontSize:10,padding:'2px 8px',background:depthMode==='primary'?'#f0a500':'transparent',color:depthMode==='primary'?'#000':'#78909c',border:'none'}}>Primary Pos Only</button>
+              </div>
+            </div>
             <div style=${{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(240px,1fr))',gap:14}}>
               ${[...POS_CATS,{key:'unsorted',label:'Unsorted'}].map(cat=>{
                 const list=depthPool[cat.key]||[];
@@ -1793,16 +1807,16 @@ function HeadCoach({athletes,setAthletes,onLogout}){
 
                     <div style=${{padding:8,overflowY:'auto',maxHeight:420}}>
                       ${list.map((a,i)=>{
-                        const isPri = classifyPos(a.primaryPos) === cat.key;
+                        const isPri = (a.posCategory || classifyPos(a.primaryPos)) === cat.key;
                         const otherPos = isPri ? a.altPos : a.primaryPos;
                         const label = isPri ? 'Alt' : 'Pri';
                         return html`
-                        <div key=${a.id} onClick=${()=>setSelAth(a)} style=${{display:'flex',alignItems:'center',gap:6,padding:'6px 8px',background:'#1a1d24',borderRadius:6,marginBottom:4,cursor:'pointer'}}>
+                        <div key=${a.id} onClick=${()=>setSelAth(a)} style=${{display:'flex',alignItems:'center',gap:6,padding:'6px 8px',background:'#1a1d24',borderRadius:6,marginBottom:4,cursor:'pointer',borderLeft:isPri?'3px solid #f0a500':'3px solid #78909c'}}>
                           <span style=${{fontSize:11,color:'#546e7a',minWidth:16,textAlign:'right'}}>${i+1}</span>
                           <span style=${{fontFamily:'monospace',fontSize:10,color:'#4fc3f7',minWidth:24}}>#${a.to}</span>
                           <span style=${{flex:1,fontSize:12,fontWeight:600}}>${a.first} ${a.last}</span>
                           ${otherPos && otherPos !== 'N/A' && otherPos !== 'none' && html`
-                            <span style=${{fontSize:10,color:'#4fc3f7',background:'rgba(79,195,247,0.1)',padding:'1px 4px',borderRadius:4,marginRight:4,border:'1px solid rgba(79,195,247,0.2)'}}>${label}: ${posAbbr(otherPos)}</span>
+                            <span style=${{fontSize:10,color:isPri?'#4fc3f7':'#ffa726',background:isPri?'rgba(79,195,247,0.1)':'rgba(255,167,38,0.1)',padding:'1px 4px',borderRadius:4,marginRight:4,border:isPri?'1px solid rgba(79,195,247,0.2)':'1px solid rgba(255,167,38,0.2)'}}>${label}: ${posAbbr(otherPos)}</span>
                           `}
                           ${totalScore(a.metrics, a.drillScore)&&html`<${Badge} c=${scoreColor(totalScore(a.metrics, a.drillScore))} sm>${totalScore(a.metrics, a.drillScore)}<//>`}
                           ${a.wontAccept&&html`<span title=${'WON\'T ACCEPT: ' + a.wontAccept} aria-label=${'Restriction: ' + a.wontAccept}>⚠️</span>`}
@@ -2374,9 +2388,12 @@ function TeamOfferModal({teamKey,athletes,onClose,onSendOffer}){
                 <div style=${{fontWeight:700}}>${a.first} ${a.last}</div>
                 <div style=${{fontSize:11,color:'#78909c'}}>${posAbbr(a.primaryPos)} · ${a.status}</div>
               </div>
-              ${['accepted','declined','offered'].includes(a.status)
-                ? html`<${Badge} c=${a.status==='accepted'?'#66bb6a':a.status==='declined'?'#ef5350':'#42a5f5'} sm>${a.status}<//>`
-                : html`<${Btn} sm onClick=${()=>onSendOffer(a)} color="#f0a500">Send Offer<//>`}
+              ${a.status==='accepted'
+                ? html`<${Badge} c="#66bb6a" sm>accepted 🔒<//>`
+                : html`<div style=${{display:'flex',gap:6,alignItems:'center'}}>
+                    <${SBadge} status=${a.status}/>
+                    <${Btn} sm onClick=${()=>onSendOffer(a)} color="#f0a500">${['offered','declined'].includes(a.status)?'Resend Offer':'Send Offer'}<//>
+                  </div>`}
             </div>`)}
         </div>
         <${Btn} onClick=${onClose} style=${{width:'100%'}} color="#2a2e38">Done<//>
