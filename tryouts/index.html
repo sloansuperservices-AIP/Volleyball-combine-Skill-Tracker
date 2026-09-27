@@ -1356,13 +1356,13 @@ function PCard({athlete,onClick,compact,showScore,teamKey}){
     <div class=${'player-card'+(athlete.status==='declined'?' declined':'')+(locked?' locked':'')}
       draggable=${!locked} onDragStart=${e=>!locked&&e.dataTransfer.setData('text/plain',athlete.id)}
       onClick=${()=>onClick?.(athlete)}>
-      ${locked&&html`<span title="Locked" style=${{fontSize:10,fontWeight:800,color:'#f0a500'}}>🔒</span>`}
+      ${locked&&html`<span title="Locked" aria-label="Locked" style=${{fontSize:10,fontWeight:800,color:'#f0a500'}}>🔒</span>`}
       <span style=${{fontFamily:'monospace',fontSize:10,color:'#4fc3f7',minWidth:22}}>#${athlete.to}</span>
       <span style=${{fontWeight:600,fontSize:compact?12:13,flex:1,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>${athlete.first} ${athlete.last}</span>
       <${Badge} c="#78909c" sm>${posAbbr(athlete.primaryPos)}<//>
       ${athlete.altPos&&athlete.altPos!==athlete.primaryPos&&html`<${Badge} c="#3a3f47" sm>${posAbbr(athlete.altPos)}<//>`}
-      ${athlete.wontAccept&&html`<span title=${'WON\'T ACCEPT / RESTRICTION: '+athlete.wontAccept} style=${{fontSize:16,cursor:'help',filter:'drop-shadow(0 0 2px #ffa726)'}}>⚠️</span>`}
-      ${athlete.notes&&html`<span title=${'TRYOUT NOTES: '+athlete.notes} style=${{fontSize:16,cursor:'help',filter:'drop-shadow(0 0 2px #4fc3f7)'}}>📝</span>`}
+      ${athlete.wontAccept&&html`<span title=${'WON\'T ACCEPT / RESTRICTION: '+athlete.wontAccept} aria-label=${'Restriction: '+athlete.wontAccept} style=${{fontSize:16,cursor:'help',filter:'drop-shadow(0 0 2px #ffa726)'}}>⚠️</span>`}
+      ${athlete.notes&&html`<span title=${'TRYOUT NOTES: '+athlete.notes} aria-label=${'Notes: '+athlete.notes} style=${{fontSize:16,cursor:'help',filter:'drop-shadow(0 0 2px #4fc3f7)'}}>📝</span>`}
       ${showScore&&sc&&html`<${Badge} c=${scoreColor(sc)} sm>${sc}<//>`}
       <${SBadge} status=${athlete.status}/>
     </div>`;
@@ -1379,6 +1379,7 @@ function HeadCoach({athletes,setAthletes,onLogout}){
   const [teamOfferKey,setTeamOfferKey]=useState(null);
   const [confirmCheckInAth,setConfirmCheckInAth]=useState(null);
   const [widePool,setWidePool]=useState(false);
+  const [depthMode,setDepthMode]=useState('primary'); // 'primary' vs 'multi'
 
   // ── ADMIN & CONFIG STATE ──────────────────────────────────────
   const [emailConfig, setEmailConfig] = useState(() => {
@@ -1625,14 +1626,17 @@ function HeadCoach({athletes,setAthletes,onLogout}){
 
     const g = { setter: [], middle: [], outside: [], defense: [], unsorted: [] };
     pool.forEach(a => {
-      (a.posCategories || [a.posCategory || 'unsorted']).forEach(cat => {
+      const cats = depthMode === 'multi'
+        ? (a.posCategories || [a.posCategory || 'unsorted'])
+        : [a.posCategory || 'unsorted'];
+      cats.forEach(cat => {
         if (g[cat]) g[cat].push(a);
         else g.unsorted.push(a);
       });
     });
     Object.keys(g).forEach(k => g[k].sort((a, b) => scores.get(b.id) - scores.get(a.id)));
     return g;
-  }, [athletes, age]);
+  }, [athletes, age, depthMode]);
 
   // ── RESULTS ──
   const [resSort, setResSort] = useState('score');
@@ -1780,7 +1784,21 @@ function HeadCoach({athletes,setAthletes,onLogout}){
 
         ${view==='depth'&&html`
           <div>
-            <h2 style=${{fontSize:17,fontWeight:700,margin:'0 0 14px'}}>${age}'s Depth Chart <span style=${{fontSize:12,color:'#78909c',fontWeight:400}}>primary ranking · secondary visible</span></h2>
+            <div style=${{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:14,flexWrap:'wrap',gap:10}}>
+              <h2 style=${{fontSize:17,fontWeight:700,margin:0}}>${age}'s Depth Chart <span style=${{fontSize:12,color:'#78909c',fontWeight:400}}>primary ranking · secondary visible</span></h2>
+              <div style=${{display:'flex',gap:6,background:'#12151c',padding:3,borderRadius:6,border:'1px solid #2a2e38'}}>
+                <button class=${'btn btn-sm '+(depthMode==='primary'?'btn-primary':'btn-outline')}
+                  onClick=${()=>setDepthMode('primary')}
+                  style=${{fontSize:11,padding:'3px 10px',background:depthMode==='primary'?'#f0a500':'transparent',color:depthMode==='primary'?'#000':'#78909c',border:'none',cursor:'pointer',borderRadius:4,fontWeight:700}}>
+                  Primary Pos Only
+                </button>
+                <button class=${'btn btn-sm '+(depthMode==='multi'?'btn-primary':'btn-outline')}
+                  onClick=${()=>setDepthMode('multi')}
+                  style=${{fontSize:11,padding:'3px 10px',background:depthMode==='multi'?'#f0a500':'transparent',color:depthMode==='multi'?'#000':'#78909c',border:'none',cursor:'pointer',borderRadius:4,fontWeight:700}}>
+                  Multi-Position
+                </button>
+              </div>
+            </div>
             <div style=${{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(240px,1fr))',gap:14}}>
               ${[...POS_CATS,{key:'unsorted',label:'Unsorted'}].map(cat=>{
                 const list=depthPool[cat.key]||[];
@@ -2364,7 +2382,7 @@ function TeamOfferModal({teamKey,athletes,onClose,onSendOffer}){
     <div class="modal-overlay" onClick=${onClose}>
       <div class="modal-box" style=${{width:500}} onClick=${e=>e.stopPropagation()}>
         <div style=${{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:16}}>
-          <h3 style=${{margin:0}}>${age} ${lvl} — Send Offers</h3>
+          <h3 style=${{margin:0}}>${age} ${lvl} — Manage Team Offers</h3>
           <button onClick=${onClose} style=${{background:'none',border:'none',color:'#666',fontSize:24,cursor:'pointer'}}>×</button>
         </div>
         <div style=${{maxHeight:400,overflowY:'auto',marginBottom:16}}>
@@ -2374,9 +2392,14 @@ function TeamOfferModal({teamKey,athletes,onClose,onSendOffer}){
                 <div style=${{fontWeight:700}}>${a.first} ${a.last}</div>
                 <div style=${{fontSize:11,color:'#78909c'}}>${posAbbr(a.primaryPos)} · ${a.status}</div>
               </div>
-              ${['accepted','declined','offered'].includes(a.status)
-                ? html`<${Badge} c=${a.status==='accepted'?'#66bb6a':a.status==='declined'?'#ef5350':'#42a5f5'} sm>${a.status}<//>`
-                : html`<${Btn} sm onClick=${()=>onSendOffer(a)} color="#f0a500">Send Offer<//>`}
+              <div style=${{display:'flex',alignItems:'center',gap:6}}>
+                <${Badge} c=${a.status==='accepted'?'#66bb6a':a.status==='declined'?'#ef5350':'#42a5f5'} sm>${a.status}<//>
+                ${a.status === 'accepted' ? null : html`
+                  <${Btn} sm onClick=${()=>onSendOffer(a)} color=${a.status==='declined'?'#ef5350':'#f0a500'} style=${{fontSize:11,padding:'3px 8px'}}>
+                    ${a.status === 'pending' || a.status === 'arrived' ? 'Send Offer' : 'Resend Offer'}
+                  <//>
+                `}
+              </div>
             </div>`)}
         </div>
         <${Btn} onClick=${onClose} style=${{width:'100%'}} color="#2a2e38">Done<//>
