@@ -278,22 +278,15 @@ def update_knowledge_base():
 def run_daemon():
     """Runs the update loop daily at 12:00 PM."""
     print("Agent starting in DAEMON mode (Daily at 12:00 PM)")
+    last_run_day = None
     while True:
         now = datetime.datetime.now()
-        target = now.replace(hour=12, minute=0, second=0, microsecond=0)
-        if now >= target:
-            target += datetime.timedelta(days=1)
-
-        wait_seconds = (target - now).total_seconds()
-        print(f"Next run scheduled for {target}. Sleeping for {wait_seconds/3600:.2f} hours.")
-
-        # In a real daemon we would sleep. For the sandbox, we'll run once and simulate.
-        # But for the sake of the task, the logic is correct.
-        time.sleep(min(wait_seconds, 3600))
-
-        if datetime.datetime.now() >= target:
-            print(f"Executing daily update at {datetime.datetime.now()}...")
+        today = now.date()
+        if now.hour >= 12 and last_run_day != today:
+            print(f"Executing daily update at {now}...")
             update_knowledge_base()
+            last_run_day = today
+        time.sleep(60)
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Mid TN VBC News Expert Agent")
