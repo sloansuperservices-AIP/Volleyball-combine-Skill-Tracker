@@ -1630,7 +1630,12 @@ function HeadCoach({athletes,setAthletes,onLogout}){
         else g.unsorted.push(a);
       });
     });
-    Object.keys(g).forEach(k => g[k].sort((a, b) => scores.get(b.id) - scores.get(a.id)));
+    Object.keys(g).forEach(k => g[k].sort((a, b) => {
+      const aIsPri = classifyPos(a.primaryPos) === k ? 1 : 0;
+      const bIsPri = classifyPos(b.primaryPos) === k ? 1 : 0;
+      if (aIsPri !== bIsPri) return bIsPri - aIsPri; // Primary matches come first
+      return scores.get(b.id) - scores.get(a.id);   // Then sort descending by score
+    }));
     return g;
   }, [athletes, age]);
 
