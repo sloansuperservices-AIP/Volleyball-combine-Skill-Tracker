@@ -1,0 +1,4 @@
+*.log
+/verification/
+/test-results/
+.last-run.json
