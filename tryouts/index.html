@@ -1133,7 +1133,7 @@ function AthleteModal({athlete,onClose,onChange,onHide,onUnhide,onEmail}){
               ${athlete.wontAccept&&html`<span title=${athlete.wontAccept}>⚠️</span>`}
             </div>
           </div>
-          <button onClick=${onClose} style=${{background:'none',border:'none',color:'#666',fontSize:24,cursor:'pointer'}}>×</button>
+          <button onClick=${onClose} aria-label="Close modal" title="Close" style=${{background:'none',border:'none',color:'#666',fontSize:24,cursor:'pointer'}}>×</button>
         </div>
         <div style=${{display:'grid',gridTemplateColumns:'1fr 1fr',gap:'12px 20px',marginBottom:16}}>
           ${F('First Name','first')}${F('Last Name','last')}
@@ -1292,7 +1292,7 @@ function EmailModal({athlete,team,onClose,onSend,initialType='offer'}){
       <div class="modal-box" style=${{width:560}} onClick=${e=>e.stopPropagation()}>
         <div style=${{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:12}}>
           <h3 style=${{margin:0,fontSize:16}}>Compose Email — ${athlete.first} ${athlete.last}</h3>
-          <button onClick=${onClose} style=${{background:'none',border:'none',color:'#666',fontSize:24,cursor:'pointer'}}>×</button>
+          <button onClick=${onClose} aria-label="Close modal" title="Close" style=${{background:'none',border:'none',color:'#666',fontSize:24,cursor:'pointer'}}>×</button>
         </div>
         
         <div style=${{display:'grid',gridTemplateColumns:'1fr 1fr',gap:12,marginBottom:12}}>
@@ -2365,7 +2365,7 @@ function TeamOfferModal({teamKey,athletes,onClose,onSendOffer}){
       <div class="modal-box" style=${{width:500}} onClick=${e=>e.stopPropagation()}>
         <div style=${{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:16}}>
           <h3 style=${{margin:0}}>${age} ${lvl} — Send Offers</h3>
-          <button onClick=${onClose} style=${{background:'none',border:'none',color:'#666',fontSize:24,cursor:'pointer'}}>×</button>
+          <button onClick=${onClose} aria-label="Close modal" title="Close" style=${{background:'none',border:'none',color:'#666',fontSize:24,cursor:'pointer'}}>×</button>
         </div>
         <div style=${{maxHeight:400,overflowY:'auto',marginBottom:16}}>
           ${roster.map(a=>html`
