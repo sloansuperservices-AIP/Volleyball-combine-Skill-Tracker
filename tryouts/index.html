@@ -1630,7 +1630,14 @@ function HeadCoach({athletes,setAthletes,onLogout}){
         else g.unsorted.push(a);
       });
     });
-    Object.keys(g).forEach(k => g[k].sort((a, b) => scores.get(b.id) - scores.get(a.id)));
+    Object.keys(g).forEach(k => {
+      g[k].sort((a, b) => {
+        const isPriA = classifyPos(a.primaryPos) === k;
+        const isPriB = classifyPos(b.primaryPos) === k;
+        if (isPriA !== isPriB) return isPriA ? -1 : 1;
+        return scores.get(b.id) - scores.get(a.id);
+      });
+    });
     return g;
   }, [athletes, age]);
 
@@ -2374,9 +2381,10 @@ function TeamOfferModal({teamKey,athletes,onClose,onSendOffer}){
                 <div style=${{fontWeight:700}}>${a.first} ${a.last}</div>
                 <div style=${{fontSize:11,color:'#78909c'}}>${posAbbr(a.primaryPos)} · ${a.status}</div>
               </div>
-              ${['accepted','declined','offered'].includes(a.status)
-                ? html`<${Badge} c=${a.status==='accepted'?'#66bb6a':a.status==='declined'?'#ef5350':'#42a5f5'} sm>${a.status}<//>`
-                : html`<${Btn} sm onClick=${()=>onSendOffer(a)} color="#f0a500">Send Offer<//>`}
+              <div style=${{display:'flex',alignItems:'center',gap:6}}>
+                <${Badge} c=${a.status==='accepted'?'#66bb6a':a.status==='declined'?'#ef5350':a.status==='offered'?'#42a5f5':'#78909c'} sm>${a.status}<//>
+                ${a.status!=='accepted'&&html`<${Btn} sm onClick=${()=>onSendOffer(a)} color="#f0a500">${['offered','declined'].includes(a.status)?'Resend Offer':'Send Offer'}<//>`}
+              </div>
             </div>`)}
         </div>
         <${Btn} onClick=${onClose} style=${{width:'100%'}} color="#2a2e38">Done<//>
